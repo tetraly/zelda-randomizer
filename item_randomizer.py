@@ -19,7 +19,6 @@ class ItemAndLocationManager(object):
   def __init__(self) -> None:
     self.item_locations = {} # type: Dict[int, List[int]]
     self.item_num_list = [] # type: List[int]
-    
     self.per_level_item_lists = {} # Dict int -> list[item]
 
   def AddLocationAndItem(self, level_num: int, room_num: int, item_num) -> None:
@@ -38,16 +37,16 @@ class ItemAndLocationManager(object):
   
   def ShuffleItemsWithinLevels(self) -> None:
     for level_num in range(1, NUM_LEVELS + 1):
-     random.shuffle(self.item_locations[level_num])
-
-  def CreatePerLevelItemLists(self) -> None:
-    for level_num in range(1, NUM_LEVELS + 1):
       self.per_level_item_lists[level_num].extend(ITEMS_TO_SHUFFLE_ONLY_WITHIN_LEVELS)
       for unused_location in self.item_locations[level_num]:
         self.per_level_item_lists[level_num].append(self.item_num_list.pop())
-  
-  def GetAllLocationAndItemData(self) -> List[Tuple[int, int, int]]:
+      random.shuffle(self.item_locations[level_num])
+
+  def GetAllLocationAndItemData(self) -> Iterable[Tuple[int, int, int]]:
     for level_num in range(1, NUM_LEVELS + 1):
+       yield (level_num,
+              self.item_locations[level_num].pop(), # room_num 
+              self.per_level_item_lists[level_num].pop()) # item_num
       
 
 
