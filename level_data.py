@@ -2,7 +2,11 @@ from typing import List
 from rom import Rom
 from room_lib import LevelRoom
 
-class ZeldaRom(object):
+from typing import NewType
+
+RoomNum = NewType('RoomNum', int)
+
+class LevelDataTable(object):
 
   NES_FILE_OFFSET = 0x10
   LEVEL_1_TO_6_DATA_START_ADDRESS = 0x18700
@@ -20,7 +24,7 @@ class ZeldaRom(object):
     self.level_1_to_6_level_rooms = [] # type: List[LevelRoom]
     self.level_7_to_9_level_rooms = [] # type: List[LevelRoom]
 
-  def ReadLevelData(self):
+  def ReadLevelDataFromRom(self):
     for room_num in range(0, self.NUM_ROOMS_IN_TABLE):
       level_1_to_6_raw_data = [] # type: List[int]
       level_7_to_9_raw_data = [] # type: List[int]
@@ -33,7 +37,7 @@ class ZeldaRom(object):
       self.level_1_to_6_level_rooms.append(LevelRoom(level_1_to_6_raw_data))
       self.level_7_to_9_level_rooms.append(LevelRoom(level_7_to_9_raw_data))
 
-  def WriteLevelData(self):
+  def WriteLevelDataToRom(self):
     for room_num in range(0, self.NUM_ROOMS_IN_TABLE):
       for table_num in range(0, self.NUM_TABLES):
         self.rom.WriteBytes(
@@ -43,7 +47,7 @@ class ZeldaRom(object):
             self.LEVEL_7_TO_9_DATA_START_ADDRESS + table_num * self.LEVEL_TABLE_SIZE + room_num,
             self.level_7_to_9_level_rooms[room_num].GetRawData(table_num))
 
-  def GetRoom(self, room_num: int, level_num: int) -> LevelRoom:
+  def GetLevelRoom(self, room_num: int, level_num: int) -> LevelRoom:
     assert(room_num >= 0x00 and room_num <= 0x7F)
     assert(level_num >= 1 and level_num <= 9)
     if level_num in [7, 8, 9]:
