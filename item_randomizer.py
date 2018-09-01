@@ -21,12 +21,12 @@ class ItemRandomizer(object):
       print("Reading data for level %d " % level_num)
       for stairway_room_num in self.level_table.GetLevelStairwayRoomNumberList(level_num):
         stairway_room = self.level_table.GetLevelRoom(level_num, stairway_room_num)
+        stairway_room.SetStaircaseRoom(True)
         # Item room case
-        if stairway_room.GetLeftExit() == stairway_room.GetRightExit():
+        if stairway_room.IsItemRoom():
           self.item_shuffler.AddLocationAndItem(level_num, stairway_room_num,
                                                 stairway_room.GetItemNumber())
-        # Transport staircase case
-        else:
+        else:  # Transport staircase case
           left_exit = stairway_room.GetLeftExit()
           right_exit = stairway_room.GetRightExit()
           self.level_table.GetLevelRoom(level_num, left_exit).SetStairwayPassageRoom(right_exit)
