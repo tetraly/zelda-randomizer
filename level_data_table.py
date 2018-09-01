@@ -1,6 +1,6 @@
 from typing import List
 from rom import Rom
-from room_lib import LevelRoom
+from level_room import LevelRoom
 from zelda_constants import RoomNum, LevelNum
 
 
