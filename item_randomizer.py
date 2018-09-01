@@ -19,7 +19,7 @@ class ItemRandomizer(object):
     for level_num in range(1, self.NUM_LEVELS + 1):
       print("Reading data for level %d " % level_num)
       for stairway_room_num in self.level_table.GetLevelStairwayRoomNumberList(level_num):
-        stairway_room = self.level_table.GetLevelRoom(stairway_room_num, level_num)
+        stairway_room = self.level_table.GetLevelRoom(level_num, stairway_room_num)
         # Item room case
         if stairway_room.GetLeftExit() == stairway_room.GetRightExit():
           self.item_shuffler.AddLocationAndItem(
@@ -28,8 +28,8 @@ class ItemRandomizer(object):
         else:
           left_exit = stairway_room.GetLeftExit()
           right_exit = stairway_room.GetRightExit()
-          self.level_table.GetLevelRoom(left_exit, level_num).SetStairwayPassageRoom(right_exit)
-          self.level_table.GetLevelRoom(right_exit, level_num).SetStairwayPassageRoom(left_exit)
+          self.level_table.GetLevelRoom(level_num, left_exit).SetStairwayPassageRoom(right_exit)
+          self.level_table.GetLevelRoom(level_num, right_exit).SetStairwayPassageRoom(left_exit)
       print("  Found start room %x" % self.level_table.GetLevelStartRoomNumber(level_num))
       self._ReadItemsAndLocationsRecursively(
           self.level_table.GetLevelStartRoomNumber(level_num), level_num)
@@ -37,7 +37,7 @@ class ItemRandomizer(object):
   def _ReadItemsAndLocationsRecursively(self, room_num: RoomNum, level_num: LevelNum) -> None:
     if room_num >= self.NUM_ROOMS_PER_MAP:
       return  # No escaping back into the overworld! :)
-    room = self.level_table.GetLevelRoom(room_num, level_num)
+    room = self.level_table.GetLevelRoom(level_num, room_num)
     if room.WasAlreadyVisited():
       return
     room.MarkAsVisited()
@@ -52,8 +52,8 @@ class ItemRandomizer(object):
     if room.HasStairwayPassageRoom():
       self._ReadItemsAndLocationsRecursively(room.GetStairwayPassageRoom(), level_num)
 
-  def Shuffle(self):
-    self.item_shuffler.Shuffle()
+  def ShuffleItems(self):
+    self.item_shuffler.ShuffleItems()
 
   def WriteItemsAndLocationsToTable(self) -> None:
     for (level_num, room_num, item_num) in self.item_shuffler.GetAllLocationAndItemData():
@@ -77,9 +77,10 @@ def main(input_filename: str) -> None:
     seed += 1
     level_table.ReadLevelDataFromRom()
     item_randomizer.ReadItemsAndLocationsFromTable()
-    item_randomizer.Shuffle()
+    item_randomizer.ShuffleItems()
     item_randomizer.WriteItemsAndLocationsToTable()
     seed_passes_logic_checks = logic_checker.DoesSeedPassAllLogicChecks()
+  level_table.WriteLevelDataToRom()
 
 
 # TODO: Add actual logic checks here

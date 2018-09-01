@@ -23,7 +23,7 @@ class LevelRoom(object):
     self.already_visited = False
     # TODO: This is a hack for a sentinal value.  Make this nicer.
     self.stairway_passage_room = RoomNum(-1) # type: RoomNum
-    self.stairway_item = -1 # type: ItemNum
+    self.stairway_item = ItemNum(-1) # type: ItemNum
 
   def CanMove(self, direction: int) -> bool:
     return self.wall_type[direction] != 1  # sold wall
