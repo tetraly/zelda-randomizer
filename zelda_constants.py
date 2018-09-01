@@ -1,10 +1,14 @@
+from typing import NewType
 
+RoomNum = NewType('RoomNum', int)
+LevelNum = int
+ItemNum = NewType('ItemNum', int)
 
 class Direction(object):
-  NORTH = -0x10
-  SOUTH = 0x10
-  WEST = -0x1
-  EAST = 0x1
+  NORTH = RoomNum(-0x10)
+  SOUTH = RoomNum(0x10)
+  WEST = RoomNum(-0x1)
+  EAST = RoomNum(0x1)
 
 DOOR_TYPES = {
     0: "Door",

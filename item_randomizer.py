@@ -1,90 +1,94 @@
 import random
 import sys
 from typing import List
-from zelda_rom import ZeldaRom
+from level_data import LevelDataTable
 from rom import Rom
+from zelda_constants import Direction, RoomNum, LevelNum, ItemNum
+#import zelda_constants
+from item_shuffler import ItemShuffler
 
-from zelda_constants import Direction
-
-
-
+# LevelNum = int
 
 class ItemRandomizer(object):
-  NUM_LEVELS = 9
-  NUM_ROOMS_PER_MAP = 0x80
+  NUM_LEVELS = LevelNum(9)
+  NUM_ROOMS_PER_MAP = RoomNum(0x80)
+  NO_ITEM_NUMBER = ItemNum(0x03)
 
-  def __init__(self, rom: ZeldaRom) -> None:
-    self.rom = rom
-    self.level_location_lists = [None] # type: List[List[int]]
-    for level_num in range(1, self.NUM_LEVELS + 1):
-      self.level_location_lists.append([])
-    self.item_list = [] # type: List[int]
+  def __init__(self, level_table: LevelDataTable, item_shuffler: ItemShuffler) -> None:
+    self.level_table = level_table
+    self.item_shuffler = item_shuffler
 
-  def ReadItemsAndLocations(self) -> None:
+  def ReadItemsAndLocationsFromTable(self) -> None:
     for level_num in range(1, self.NUM_LEVELS + 1):
       print("Reading data for level %d " % level_num)
-      for stairway_room_num in self.rom.GetLevelStairwayRoomNumberList(level_num):
-        stairway_room = self.rom.GetRoom(stairway_room_num, level_num)
+      for stairway_room_num in self.level_table.GetLevelStairwayRoomNumberList(level_num):
+        stairway_room = self.level_table.GetLevelRoom(stairway_room_num, level_num)
         # Item room case
         if stairway_room.GetLeftExit() == stairway_room.GetRightExit():
-          self.location_list.append((level_num, stairway_room_num))
-          self.item_list.append(stairway_room.GetItemNumber())
+          self.item_shuffler.AddLocationAndItem(
+              level_num, stairway_room_num, stairway_room.GetItemNumber())
         # Transport staircase case
         else:
           left_exit = stairway_room.GetLeftExit()
           right_exit = stairway_room.GetRightExit()
-          self.rom.GetRoom(left_exit, level_num).SetStairwayPassageRoom(right_exit, 0)
-          self.rom.GetRoom(right_exit, level_num).SetStairwayPassageRoom(left_exit, 0)
-      print("  Found start room %x" % self.rom.GetLevelStartRoomNumber(level_num))
+          self.level_table.GetLevelRoom(left_exit, level_num).SetStairwayPassageRoom(right_exit)
+          self.level_table.GetLevelRoom(right_exit, level_num).SetStairwayPassageRoom(left_exit)
+      print("  Found start room %x" % self.level_table.GetLevelStartRoomNumber(level_num))
       self._ReadItemsAndLocationsRecursively(
-          self.rom.GetLevelStartRoomNumber(level_num), level_num)
-    assert len(self.location_list) == len(self.item_list)
+          self.level_table.GetLevelStartRoomNumber(level_num), level_num)
 
-  def _ReadItemsAndLocationsRecursively(self, room_num: int, level_num: int) -> None:
+  def _ReadItemsAndLocationsRecursively(self, room_num: RoomNum, level_num: LevelNum) -> None:
     if room_num >= self.NUM_ROOMS_PER_MAP:
       return  # No escaping back into the overworld! :)
-    room = self.rom.GetRoom(room_num, level_num)
+    room = self.level_table.GetLevelRoom(room_num, level_num)
     if room.WasAlreadyVisited():
       return
     room.MarkAsVisited()
 
     item_num = room.GetItemNumber()
     if item_num != self.NO_ITEM_NUMBER:
-      self.location_list.append((level_num, room_num))
-      self.item_list.append(item_num)
+      self.item_shuffler.AddLocationAndItem(level_num, room_num, item_num)
 
     for direction in (Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH):
       if room.CanMove(direction):
-        self._ReadItemsAndLocationsRecursively(
-            room_num + direction, level_num)
+        self._ReadItemsAndLocationsRecursively(RoomNum(room_num + direction), level_num)
     if room.HasStairwayPassageRoom():
       self._ReadItemsAndLocationsRecursively(room.GetStairwayPassageRoom(), level_num)
 
-  def ShuffleItems(self):
-    print("Lists:")
-    print(len(self.location_list))
-    print(len(self.item_list))
-    assert len(self.location_list) == len(self.item_list)
+  def Shuffle(self):
+    self.item_shuffler.Shuffle()
 
-    for (level_num, room_num), item_num in zip(self.location_list, self.item_list):
-      print("Level %d, room %x, item #%x" % (level_num, room_num, item_num))
-    random.seed(12345)
-    random.shuffle(self.item_list)
-    print("hello")
-    for (level_num, room_num), item_num in zip(self.location_list, self.item_list):
-      print("Level %d, room %x, item #%x" % (level_num, room_num, item_num))
-      self.rom.GetRoom(room_num, level_num).SetItemNumber(item_num)
-
+  def WriteItemsAndLocationsToTable(self) -> None:
+    for (level_num, room_num, item_num) in self.item_shuffler.GetAllLocationAndItemData():
+      self.level_table.GetLevelRoom(level_num, room_num).SetItemNumber(item_num)
 
 def main(input_filename: str) -> None:
-  base_rom = Rom(input_filename, add_nes_header_offset=True)
-  base_rom.OpenFile(write_mode=True)
-  rom = ZeldaRom(base_rom)
-  rom.ReadLevelData()
+  # Set up schtuffs
+  seed = 12345 # TODO: Take this in a command-line flag
+  rom = Rom(input_filename, add_nes_header_offset=True)
+  rom.OpenFile(write_mode=True)
+  level_table = LevelDataTable(rom)
+  level_table.ReadLevelDataFromRom()
+  shuffler = ItemShuffler()
+  logic_checker = LogicChecker()
+  item_randomizer = ItemRandomizer(level_table, shuffler)
 
-  item_randomizer = ItemRandomizer(rom)
-  item_randomizer.ReadItemsAndLocations()
-  item_randomizer.ShuffleItems()
+  # Loop-a-dee-doo until our Check() returns True
+  seed_passes_logic_checks = False
+  while not seed_passes_logic_checks:
+    random.seed(seed)
+    seed += 1
+    level_table.ReadLevelDataFromRom()
+    item_randomizer.ReadItemsAndLocationsFromTable()
+    item_randomizer.Shuffle()
+    item_randomizer.WriteItemsAndLocationsToTable()
+    seed_passes_logic_checks = logic_checker.DoesSeedPassAllLogicChecks()
+
+
+# TODO: Add actual logic checks here
+class LogicChecker(object):
+  def DoesSeedPassAllLogicChecks(self):
+    return True
 
 
 
