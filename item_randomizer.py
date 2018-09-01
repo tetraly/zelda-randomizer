@@ -6,6 +6,7 @@ from rom import Rom
 from zelda_constants import Direction, RoomNum, LevelNum, ItemNum
 from item_shuffler import ItemShuffler
 
+
 class ItemRandomizer(object):
   NUM_LEVELS = LevelNum(9)
   NUM_ROOMS_PER_MAP = RoomNum(0x80)
@@ -22,8 +23,8 @@ class ItemRandomizer(object):
         stairway_room = self.level_table.GetLevelRoom(level_num, stairway_room_num)
         # Item room case
         if stairway_room.GetLeftExit() == stairway_room.GetRightExit():
-          self.item_shuffler.AddLocationAndItem(
-              level_num, stairway_room_num, stairway_room.GetItemNumber())
+          self.item_shuffler.AddLocationAndItem(level_num, stairway_room_num,
+                                                stairway_room.GetItemNumber())
         # Transport staircase case
         else:
           left_exit = stairway_room.GetLeftExit()
@@ -59,9 +60,10 @@ class ItemRandomizer(object):
     for (level_num, room_num, item_num) in self.item_shuffler.GetAllLocationAndItemData():
       self.level_table.GetLevelRoom(level_num, room_num).SetItemNumber(item_num)
 
+
 def main(input_filename: str) -> None:
   # Set up schtuffs
-  seed = 12345 # TODO: Take this in a command-line flag
+  seed = 12345  # TODO: Take this in a command-line flag
   rom = Rom(input_filename, add_nes_header_offset=True)
   rom.OpenFile(write_mode=True)
   level_table = LevelDataTable(rom)
@@ -87,7 +89,6 @@ def main(input_filename: str) -> None:
 class LogicChecker(object):
   def DoesSeedPassAllLogicChecks(self):
     return True
-
 
 
 if __name__ == "__main__":

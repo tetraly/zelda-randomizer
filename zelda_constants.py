@@ -4,11 +4,13 @@ ItemNum = NewType('ItemNum', int)
 LevelNum = int
 RoomNum = NewType('RoomNum', int)
 
+
 class Direction(object):
   NORTH = RoomNum(-0x10)
   SOUTH = RoomNum(0x10)
   WEST = RoomNum(-0x1)
   EAST = RoomNum(0x1)
+
 
 DOOR_TYPES = {
     0: "Door",
@@ -33,7 +35,7 @@ WALL_TYPE_CHAR = {
 }
 
 CAVE_BLOCK_TYPE = {
-    0x00: "", # No cave
+    0x00: "",  # No cave
     0x01: "OpenCave",
     0x02: "OpenPush",
     0x03: "Candle",
@@ -100,7 +102,7 @@ ENEMY_NAME = {
     0x35: "RupeeB",
     0x36: "Hungry",
     0x37: "Zelda",
-    0x38: "DigDog", # The one in vanilla 7
+    0x38: "DigDog",  # The one in vanilla 7
     0x39: "DigDog",
     0x3A: "R Lanm",
     0x3B: "B Lamn",
@@ -151,7 +153,8 @@ MIX_ENEMY_NAME = {
     0x39: "BblWallM",
     0x3A: "R+B Dknt",
     0x3B: "R+B Wizz",
-    0x3C: "LLBblWiz"}
+    0x3C: "LLBblWiz"
+}
 
 GOHMA_ENEMY_TYPES = [0x33, 0x34]
 DIGDOGGER_ENEMY_TYPES = [0x38, 0x39]
@@ -166,31 +169,31 @@ ROOM_TYPES = {
     0x05: "GleeokRm",
     0x06: "?????6",
     0x07: "?????7",
-    0x08: "Rev C", #stairway
+    0x08: "Rev C",  #stairway
     0x09: "?????9",
-    0x0A: "2blk", #stairway
+    0x0A: "2blk",  #stairway
     0x0B: "?????B",
     0x0C: "Squiggly",
     0x0D: "lotsblks",
     0x0E: "|| Chute",
-    0x0F: "== Chute", # Block
+    0x0F: "== Chute",  # Block
     0x11: "DiagRoom",
     0x12: "T Room",  # Ladder
-    0x13: "E River", # Ladder
+    0x13: "E River",  # Ladder
     0x14: "rvrmoat",
     0x15: "[--]",
-    0x16: "Chevy", # Ladder
+    0x16: "Chevy",  # Ladder
     0x17: "NSU",
-    0x18: "TopRivr", # Ladder
-    0x19: "= River", # Ladder
-    0x1A: "Diamond", # Stairway
-    0x1B: "Rstairs", # Stairway
-    0x1C: "Spiral", # Stairway
+    0x18: "TopRivr",  # Ladder
+    0x19: "= River",  # Ladder
+    0x1A: "Diamond",  # Stairway
+    0x1B: "Rstairs",  # Stairway
+    0x1C: "Spiral",  # Stairway
     0x1D: "2 6blk",
     0x1E: "6blk",
     0x1F: "5 rects",
     0x21: "Entrance",
-    0x22: "1 block", #stairway
+    0x22: "1 block",  #stairway
     0x23: "2 shoot",
     0x24: "4 shoot",
     0x25: "Empty",
@@ -211,7 +214,7 @@ ITEMS = {
     0x0B: "Any Key",
     0x0C: "Raft",
     0x0D: "Ladder",
-    0x0E: "Tforce", # Big L9 triforce, not small tringle
+    0x0E: "Tforce",  # Big L9 triforce, not small tringle
     0x0F: "5Rupee",
     0x10: "Wand",
     0x11: "Book",
@@ -228,8 +231,9 @@ ITEMS = {
     0x1E: "M Bmng",
 }
 
-SPECIAL_ITEMS = [0x02, 0x05, 0x07, 0x09, 0x0A, 0x0B, 0x0C,
-                 0x0D, 0x10, 0x11, 0x13, 0x14, 0x1D, 0x1E]
+SPECIAL_ITEMS = [
+    0x02, 0x05, 0x07, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x10, 0x11, 0x13, 0x14, 0x1D, 0x1E
+]
 TRINGLE = 0x1B
 RECORDER = 0x05
 BOW = 0x0A

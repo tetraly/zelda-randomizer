@@ -2,8 +2,10 @@ from typing import IO, List
 import random
 import shutil
 
+
 class Rom(object):
   """A class representing a video game ROM file stored in a binary file."""
+
   def __init__(self, rom_filename: str, src: str = None,
                add_nes_header_offset: bool = False) -> None:
     self.rom_filename = rom_filename
@@ -17,8 +19,7 @@ class Rom(object):
   # Opens a ROM file for reading
   def OpenFile(self, write_mode: bool = False):
     self.write_mode = write_mode
-    print("Opening %s %s ...\n\n" % (
-        self.rom_filename, "for writing" if write_mode else ""))
+    print("Opening %s %s ...\n\n" % (self.rom_filename, "for writing" if write_mode else ""))
     self.rom_file = open(self.rom_filename, "r+b" if write_mode else "rb")
 
   def ShuffleRanges(self, start_locations: List[int], num_bytes: int) -> None:
