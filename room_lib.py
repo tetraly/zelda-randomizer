@@ -21,9 +21,9 @@ class LevelRoom(object):
 
     # Non-ROM values
     self.already_visited = False
-    self.stairway_passage_room = None # type: RoomNum
-    self.stairway_passage_num = None # type: RoomNum
-    self.stairway_item = None # type: ItemNum
+    # TODO: This is a hack for a sentinal value.  Make this nicer.
+    self.stairway_passage_room = RoomNum(-1) # type: RoomNum
+    self.stairway_item = -1 # type: ItemNum
 
   def CanMove(self, direction: int) -> bool:
     return self.wall_type[direction] != 1  # sold wall
