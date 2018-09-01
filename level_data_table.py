@@ -39,13 +39,30 @@ class LevelDataTable(object):
 
   def WriteLevelDataToRom(self):
     for room_num in range(0, self.NUM_ROOMS_IN_TABLE):
+      level_1_6_room_data = self.level_1_to_6_level_rooms[room_num].GetRomData()
+      level_7_9_room_data = self.level_7_to_9_level_rooms[room_num].GetRomData()
+      assert len(level_1_6_room_data) == 6
+      assert len(level_7_9_room_data) == 6
+
+      for table_num in range(0, self.NUM_TABLES):
+        self.rom.WriteByte(
+            address=self.LEVEL_1_TO_6_DATA_START_ADDRESS + table_num * self.LEVEL_TABLE_SIZE +
+            room_num,
+            data=level_1_6_room_data[table_num])
+        self.rom.WriteByte(
+            address=self.LEVEL_7_TO_9_DATA_START_ADDRESS + table_num * self.LEVEL_TABLE_SIZE +
+            room_num,
+            data=level_7_9_room_data[table_num])
+
+  def CommentedOutWriteLevelDataToRom(self):
+    for room_num in range(0, self.NUM_ROOMS_IN_TABLE):
       for table_num in range(0, self.NUM_TABLES):
         self.rom.WriteBytes(
             self.LEVEL_1_TO_6_DATA_START_ADDRESS + table_num * self.LEVEL_TABLE_SIZE + room_num,
-            self.level_1_to_6_level_rooms[room_num].GetRawData(table_num))
+            self.level_1_to_6_level_rooms[room_num].GetRomData())
         self.rom.WriteBytes(
             self.LEVEL_7_TO_9_DATA_START_ADDRESS + table_num * self.LEVEL_TABLE_SIZE + room_num,
-            self.level_7_to_9_level_rooms[room_num].GetRawData(table_num))
+            self.level_7_to_9_level_rooms[room_num].GetRomData())
 
   def GetLevelRoom(self, level_num: LevelNum, room_num: RoomNum) -> LevelRoom:
     print("GetLevelRoom called for level %d room_num %d" % (level_num, room_num))

@@ -26,11 +26,13 @@ class ItemRandomizer(object):
         if stairway_room.IsItemRoom():
           self.item_shuffler.AddLocationAndItem(level_num, stairway_room_num,
                                                 stairway_room.GetItemNumber())
-        else:  # Transport staircase case
+        else:  # Transport staircase case.  Mark the connecting rooms
           left_exit = stairway_room.GetLeftExit()
           right_exit = stairway_room.GetRightExit()
-          self.level_table.GetLevelRoom(level_num, left_exit).SetStairwayPassageRoom(right_exit)
-          self.level_table.GetLevelRoom(level_num, right_exit).SetStairwayPassageRoom(left_exit)
+          self.level_table.GetLevelRoom(level_num,
+                                        left_exit).SetTransportStaircaseDestination(right_exit)
+          self.level_table.GetLevelRoom(level_num,
+                                        right_exit).SetTransportStaircaseDestination(left_exit)
       print("  Found start room %x" % self.level_table.GetLevelStartRoomNumber(level_num))
       self._ReadItemsAndLocationsRecursively(
           self.level_table.GetLevelStartRoomNumber(level_num), level_num)
@@ -50,8 +52,8 @@ class ItemRandomizer(object):
     for direction in (Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH):
       if room.CanMove(direction):
         self._ReadItemsAndLocationsRecursively(RoomNum(room_num + direction), level_num)
-    if room.HasStairwayPassageRoom():
-      self._ReadItemsAndLocationsRecursively(room.GetStairwayPassageRoom(), level_num)
+    if room.HasTransportStaircaseDestination():
+      self._ReadItemsAndLocationsRecursively(room.GetTransportStaircaseDestination(), level_num)
 
   def ShuffleItems(self):
     self.item_shuffler.ShuffleItems()

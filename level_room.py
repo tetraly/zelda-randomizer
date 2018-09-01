@@ -36,10 +36,14 @@ class LevelRoom(object):
   def __init__(self, rom_data: List[int]) -> None:
     self.rom_data = rom_data
     self.already_visited = False
+    self.is_staircase_room = False
 
     # TODO: This is a hack for a sentinal value.  Make this nicer.
-    self.stairway_passage_room = RoomNum(-1)  # type: RoomNum
+    self.transport_staircase_desintation = None  # type: RoomNum
     self.stairway_item = ItemNum(-1)  # type: ItemNum
+
+  def GetRomData(self) -> List[int]:
+    return self.rom_data
 
   def SetStaircaseRoom(self, is_staircase_room: bool) -> None:
     self.is_staircase_room = is_staircase_room
@@ -49,7 +53,7 @@ class LevelRoom(object):
     return self.is_staircase_room and (self.rom_data[0] & 0x7F == self.rom_data[1] & 0x7F)
 
   def IsTransportStaircase(self) -> bool:
-    return self.is_staircase_room and (self.rom_data[0] & 0x7F != self.rom_data[1] & 0x7F)
+    return self.is_staircase_room and not self.IsItemRoom()
 
   # TODO: Need to figure out how define Direction as a type such that it's allowed to
   # combine a direction and room to become a different room.  Maybe make direction a
@@ -66,14 +70,15 @@ class LevelRoom(object):
   def SetStairwayItemNumber(self, item_type: ItemNum) -> None:
     self.stairway_item = item_type
 
-  def HasStairwayPassageRoom(self) -> bool:
-    return self.stairway_passage_room >= 0x00
+  def HasTransportStaircaseDestination(self) -> bool:
+    return self.transport_staircase_desintation is not None
 
-  def GetStairwayPassageRoom(self) -> RoomNum:
-    return self.stairway_passage_room
+  def GetTransportStaircaseDestination(self) -> RoomNum:
+    assert self.HasTransportStaircaseDestination()
+    return self.transport_staircase_desintation
 
-  def SetStairwayPassageRoom(self, other_room: RoomNum) -> None:
-    self.stairway_passage_room = other_room
+  def SetTransportStaircaseDestination(self, transport_staircase_desintation: RoomNum) -> None:
+    self.transport_staircase_desintation = transport_staircase_desintation
 
   def GetLeftExit(self) -> RoomNum:
     assert (self.IsTransportStaircase())
@@ -96,8 +101,12 @@ class LevelRoom(object):
     return ItemNum(self.rom_data[4] & 0x1F)
 
   def SetItemNumber(self, item_num: ItemNum) -> None:
+    old_item_num = self.rom_data[4] & 0x1F
+    assert (old_item_num >= 0 and old_item_num <= 0x1F)
     assert (item_num >= 0 and item_num <= 0x1F)
+
     part_that_shouldnt_be_modified = self.rom_data[4] & 0xE0
+
     new_value = part_that_shouldnt_be_modified + int(item_num)
     assert (new_value & 0xE0 == part_that_shouldnt_be_modified)
     assert (new_value & 0x1F == item_num)

@@ -50,8 +50,6 @@ class Rom(object):
     assert self.write_mode, "Needs to be in write mode!"
     assert data is not None, "Need at least one byte to write."
 
-    print("Writing")
-
     offset = 0
     for byte in data:
       self.rom_file.seek((address + 0x10 if self.add_nes_header_offset else address) + offset)
