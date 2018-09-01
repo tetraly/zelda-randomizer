@@ -17,7 +17,7 @@ class ItemShuffler(object):
     self.per_level_item_lists = {} # type: Dict[LevelNum, List[ItemNum]]
     self.seed = None # type: int
 
-  def PrintLengths(self):
+  def PrintLengths(self):  # For debugging
     print("item_num_list length: %d" % len(self.item_num_list))
     print (self.item_locations.keys())
     for level in range(1, self.NUM_LEVELS + 1):
@@ -60,7 +60,6 @@ class ItemShuffler(object):
     
   def GetAllLocationAndItemData(self) -> Iterable[Tuple[LevelNum, RoomNum, ItemNum]]:
     for level_num in range(1, self.NUM_LEVELS + 1):
-      print ()
       yield (level_num,
              self.item_locations[level_num].pop(),
              self.per_level_item_lists[level_num].pop())

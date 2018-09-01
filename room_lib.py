@@ -1,6 +1,10 @@
 from typing import Dict, List
 from zelda_constants import Direction, RoomNum, ItemNum
 
+
+# TODO:  This needs work.  I'm planning to re-implement this class such that the only state
+# is the 6 bytes of data per room from the original rom.  Then make the methods "smart" and
+# have them do the bit-wise operations to decode and re-encode the raw data.
 class LevelRoom(object):
   def __init__(self, rom_data: List[int]) -> None:
     self.wall_type = {} # type: Dict[int, int]
