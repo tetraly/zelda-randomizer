@@ -1,8 +1,8 @@
 from typing import NewType
 
-RoomNum = NewType('RoomNum', int)
-LevelNum = int
 ItemNum = NewType('ItemNum', int)
+LevelNum = int
+RoomNum = NewType('RoomNum', int)
 
 class Direction(object):
   NORTH = RoomNum(-0x10)

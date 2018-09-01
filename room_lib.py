@@ -55,7 +55,6 @@ class LevelRoom(object):
 
   def GetItemNumber(self) -> ItemNum:
     return self.item_num
-
   def SetItemNumber(self, item_num: ItemNum) -> None:
     assert(item_num >= 0 and item_num <= 0x1F)
     self.item_num = item_num

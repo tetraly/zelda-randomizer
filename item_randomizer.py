@@ -4,10 +4,7 @@ from typing import List
 from level_data import LevelDataTable
 from rom import Rom
 from zelda_constants import Direction, RoomNum, LevelNum, ItemNum
-#import zelda_constants
 from item_shuffler import ItemShuffler
-
-# LevelNum = int
 
 class ItemRandomizer(object):
   NUM_LEVELS = LevelNum(9)

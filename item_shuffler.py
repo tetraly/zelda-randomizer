@@ -40,5 +40,5 @@ class ItemShuffler(object):
   def GetAllLocationAndItemData(self) -> Iterable[Tuple[LevelNum, RoomNum, ItemNum]]:
     for level_num in range(1, self.NUM_LEVELS + 1):
       yield (level_num,
-             self.item_locations[level_num].pop(), # room_num
-             self.per_level_item_lists[level_num].pop()) # item_num
+             self.item_locations[level_num].pop(),
+             self.per_level_item_lists[level_num].pop())
