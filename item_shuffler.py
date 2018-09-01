@@ -24,6 +24,8 @@ class ItemShuffler(object):
     if item_num in self.ITEMS_TO_SHUFFLE_ONLY_WITHIN_LEVELS:
       return
 
+    if level_num not in self.item_locations:
+      self.item_locations[level_num] = []
     self.item_locations[level_num].append(room_num)
     self.item_num_list.append(item_num)
 
