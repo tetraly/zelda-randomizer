@@ -1,4 +1,4 @@
-from typing import Dict, List, NewType, Tuple, Iterable
+from typing import Dict, List, Tuple, Iterable
 import random
 from zelda_constants import LevelNum, RoomNum, ItemNum
 

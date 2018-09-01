@@ -1,8 +1,4 @@
-import random
-import sys
-from typing import List
 from level_data_table import LevelDataTable
-from rom import Rom
 from zelda_constants import Direction, RoomNum, LevelNum, ItemNum
 from item_shuffler import ItemShuffler
 

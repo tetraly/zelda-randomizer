@@ -1,6 +1,6 @@
+from enum import Enum
 from typing import Dict, List
 from zelda_constants import Direction, RoomNum, ItemNum
-from enum import Enum
 
 
 class WallType(Enum):
@@ -81,11 +81,11 @@ class LevelRoom(object):
     self.transport_staircase_desintation = transport_staircase_desintation
 
   def GetLeftExit(self) -> RoomNum:
-    assert (self.IsTransportStaircase())
+    assert self.IsTransportStaircase()
     return RoomNum(self.rom_data[0] & 0x7F)
 
   def GetRightExit(self) -> RoomNum:
-    assert (self.IsTransportStaircase())
+    assert self.IsTransportStaircase()
     return RoomNum(self.rom_data[1] & 0x7F)
 
   def MarkAsVisited(self) -> None:
@@ -108,6 +108,6 @@ class LevelRoom(object):
     part_that_shouldnt_be_modified = self.rom_data[4] & 0xE0
 
     new_value = part_that_shouldnt_be_modified + int(item_num)
-    assert (new_value & 0xE0 == part_that_shouldnt_be_modified)
-    assert (new_value & 0x1F == item_num)
+    assert new_value & 0xE0 == part_that_shouldnt_be_modified
+    assert new_value & 0x1F == item_num
     self.rom_data[4] = new_value
