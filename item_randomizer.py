@@ -61,37 +61,3 @@ class ItemRandomizer(object):
   def WriteItemsAndLocationsToTable(self) -> None:
     for (level_num, room_num, item_num) in self.item_shuffler.GetAllLocationAndItemData():
       self.level_table.GetLevelRoom(level_num, room_num).SetItemNumber(item_num)
-
-
-def main(input_filename: str) -> None:
-  # Set up schtuffs
-  seed = 12345  # TODO: Take this in a command-line flag
-  rom = Rom(input_filename, add_nes_header_offset=True)
-  rom.OpenFile(write_mode=True)
-  level_table = LevelDataTable(rom)
-  level_table.ReadLevelDataFromRom()
-  shuffler = ItemShuffler()
-  logic_checker = LogicChecker()
-  item_randomizer = ItemRandomizer(level_table, shuffler)
-
-  # Loop-a-dee-doo until our Check() returns True
-  seed_passes_logic_checks = False
-  while not seed_passes_logic_checks:
-    random.seed(seed)
-    seed += 1
-    level_table.ReadLevelDataFromRom()
-    item_randomizer.ReadItemsAndLocationsFromTable()
-    item_randomizer.ShuffleItems()
-    item_randomizer.WriteItemsAndLocationsToTable()
-    seed_passes_logic_checks = logic_checker.DoesSeedPassAllLogicChecks()
-  level_table.WriteLevelDataToRom()
-
-
-# TODO: Add actual logic checks here
-class LogicChecker(object):
-  def DoesSeedPassAllLogicChecks(self):
-    return True
-
-
-if __name__ == "__main__":
-  main(sys.argv[1])
