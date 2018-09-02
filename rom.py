@@ -57,7 +57,6 @@ class Rom(object):
       offset = offset + 1
 
   def WriteByte(self, address: int, data: int) -> None:
-    print("Writing %x to %x" % (data, address))
     return self.WriteBytes(address, [data])
 
   # Helper methods for reading from a particular area of the ROM

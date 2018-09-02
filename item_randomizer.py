@@ -29,7 +29,6 @@ class ItemRandomizer(object):
                                         left_exit).SetTransportStaircaseDestination(right_exit)
           self.level_table.GetLevelRoom(level_num,
                                         right_exit).SetTransportStaircaseDestination(left_exit)
-      print("  Found start room %x" % self.level_table.GetLevelStartRoomNumber(level_num))
       self._ReadItemsAndLocationsRecursively(
           self.level_table.GetLevelStartRoomNumber(level_num), level_num)
 
