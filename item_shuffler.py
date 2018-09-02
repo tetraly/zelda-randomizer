@@ -13,10 +13,10 @@ class ItemShuffler(object):
   NUM_ROOMS_PER_TABLE = RoomNum(0x80)
 
   def __init__(self) -> None:
-    self.per_level_item_location_lists = {}  # type: Dict[LevelNum, List[RoomNum]]
-    self.item_num_list = []  # type: List[ItemNum]
-    self.per_level_item_lists = {}  # type: Dict[LevelNum, List[ItemNum]]
-    self.seed = None  # type: int
+    self.per_level_item_location_lists: Dict[LevelNum, List[RoomNum]] = {}
+    self.item_num_list: List[ItemNum] = []
+    self.per_level_item_lists: Dict[LevelNum, List[ItemNum]] = {}
+    self.seed: int = None
 
   def AddLocationAndItem(self, level_num: LevelNum, room_num: RoomNum, item_num: ItemNum) -> None:
     assert level_num in range(1, self.NUM_LEVELS + 1)

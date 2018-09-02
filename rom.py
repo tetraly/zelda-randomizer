@@ -9,7 +9,7 @@ class Rom(object):
   def __init__(self, rom_filename: str, src: str = None,
                add_nes_header_offset: bool = False) -> None:
     self.rom_filename = rom_filename
-    self.rom_file = None  # type: IO[bytes]
+    self.rom_file: IO[bytes] = None
     self.write_mode = False
     self.add_nes_header_offset = add_nes_header_offset
     if src:
@@ -36,7 +36,7 @@ class Rom(object):
     assert self.rom_file, "Need to run OpenFile() first."
     assert num_bytes > 0, "Can't read zero or a negative number of bytes."
     self.rom_file.seek(address + 0x10 if self.add_nes_header_offset else address)
-    int_data = []  # type: List[int]
+    int_data: List[int] = []
     for read_byte in self.rom_file.read(num_bytes):
       int_data.append(read_byte)
     return int_data

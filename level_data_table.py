@@ -19,13 +19,13 @@ class LevelDataTable(object):
 
   def __init__(self, rom: Rom) -> None:
     self.rom = rom
-    self.level_1_to_6_level_rooms = []  # type: List[LevelRoom]
-    self.level_7_to_9_level_rooms = []  # type: List[LevelRoom]
+    self.level_1_to_6_level_rooms: List[LevelRoom] = []
+    self.level_7_to_9_level_rooms: List[LevelRoom] = []
 
   def ReadLevelDataFromRom(self):
     for room_num in range(0, self.NUM_ROOMS_IN_TABLE):
-      level_1_to_6_raw_data = []  # type: List[RoomNum]
-      level_7_to_9_raw_data = []  # type: List[RoomNum]
+      level_1_to_6_raw_data: List[RoomNum] = []
+      level_7_to_9_raw_data: List[RoomNum] = []
 
       for table_num in range(0, self.NUM_TABLES):
         level_1_to_6_raw_data.append(
@@ -98,7 +98,7 @@ class LevelDataTable(object):
     stairway_list_location = (self.LEVEL_1_STAIRWAY_DATA_ADDRESS +
                               self.STAIRWAY_START_ROOM_LEVEL_OFFSET * (level_num - 1))
     raw_bytes = self.rom.ReadBytes(stairway_list_location, 10)
-    stairway_list = []  # type: List[RoomNum]
+    stairway_list: List[RoomNum] = []
     for byte in raw_bytes:
       if not byte == 0xFF:
         stairway_list.append(RoomNum(byte))

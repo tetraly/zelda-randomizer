@@ -39,8 +39,8 @@ class LevelRoom(object):
     self.is_staircase_room = False
 
     # TODO: This is a hack for a sentinal value.  Make this nicer.
-    self.transport_staircase_desintation = None  # type: RoomNum
-    self.stairway_item = ItemNum(-1)  # type: ItemNum
+    self.transport_staircase_desintation: RoomNum = None
+    self.stairway_item: ItemNum = ItemNum(-1)
 
   def GetRomData(self) -> List[int]:
     return self.rom_data
