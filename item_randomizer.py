@@ -1,6 +1,6 @@
+from item_shuffler import ItemShuffler
 from level_data_table import LevelDataTable
 from zelda_constants import Direction, RoomNum, LevelNum, ItemNum
-from item_shuffler import ItemShuffler
 
 
 class ItemRandomizer(object):

@@ -65,7 +65,7 @@ class LevelDataTable(object):
             self.level_7_to_9_level_rooms[room_num].GetRomData())
 
   def GetLevelRoom(self, level_num: LevelNum, room_num: RoomNum) -> LevelRoom:
-    print("GetLevelRoom called for level %d room_num %d" % (level_num, room_num))
+    #    print("GetLevelRoom called for level %d room_num %d" % (level_num, room_num))
     assert (room_num >= 0x00 and room_num <= 0x7F)
     assert (level_num >= 1 and level_num <= 9)
     if level_num in [7, 8, 9]:

@@ -1,5 +1,5 @@
-from typing import Dict, List, Tuple, Iterable
 import random
+from typing import Dict, List, Tuple, Iterable
 from zelda_constants import LevelNum, RoomNum, ItemNum
 
 
@@ -13,16 +13,17 @@ class ItemShuffler(object):
   NUM_ROOMS_PER_TABLE = RoomNum(0x80)
 
   def __init__(self) -> None:
-    self.item_locations = {}  # type: Dict[LevelNum, List[RoomNum]]
+    self.per_level_item_location_lists = {}  # type: Dict[LevelNum, List[RoomNum]]
     self.item_num_list = []  # type: List[ItemNum]
     self.per_level_item_lists = {}  # type: Dict[LevelNum, List[ItemNum]]
     self.seed = None  # type: int
 
   def PrintLengths(self) -> None:  # For debugging
     print("item_num_list length: %d" % len(self.item_num_list))
-    print(self.item_locations.keys())
+    print(self.per_level_item_location_lists.keys())
     for level in range(1, self.NUM_LEVELS + 1):
-      print("level %d item_location list length: %d" % (level, len(self.item_locations[level])))
+      print("level %d item_location list length: %d" %
+            (level, len(self.per_level_item_location_lists[level])))
 
     print(self.per_level_item_lists.keys())
     for level in range(1, self.NUM_LEVELS + 1):
@@ -36,28 +37,35 @@ class ItemShuffler(object):
     assert room_num in range(0, self.NUM_ROOMS_PER_TABLE)
     if item_num == self.NO_ITEM_NUMBER:
       return
-    if item_num in self.ITEMS_TO_SHUFFLE_ONLY_WITHIN_LEVELS:
-      return
 
-    if level_num not in self.item_locations:
-      self.item_locations[level_num] = []
-    self.item_locations[level_num].append(room_num)
+    print("Adding level %d, room %x, item %x" % (level_num, room_num, item_num))
+    if level_num not in self.per_level_item_location_lists:
+      self.per_level_item_location_lists[level_num] = []
+    self.per_level_item_location_lists[level_num].append(room_num)
+    if item_num in self.ITEMS_TO_SHUFFLE_ONLY_WITHIN_LEVELS:
+      print("But not adding item %x to the item_num_list " % item_num)
+      return
     self.item_num_list.append(item_num)
 
   def ShuffleItems(self) -> None:
     self.PrintLengths()
+    print(self.item_num_list)
     random.shuffle(self.item_num_list)
+    print(self.item_num_list)
     for level_num in range(1, self.NUM_LEVELS + 1):
-      if not level_num in self.per_level_item_lists:
-        self.per_level_item_lists[level_num] = []
+      self.per_level_item_lists[level_num] = []
       self.per_level_item_lists[level_num].extend(self.ITEMS_TO_SHUFFLE_ONLY_WITHIN_LEVELS)
-      for unused_location in self.item_locations[level_num]:
-        self.per_level_item_lists[level_num].append(self.item_num_list.pop())
-      random.shuffle(self.item_locations[level_num])
-
-    self.PrintLengths()
+      while (len(self.per_level_item_location_lists[level_num]) > len(
+          self.per_level_item_lists[level_num])):
+        print("%d locations, %d items (per level)" % (len(
+            self.per_level_item_location_lists[level_num]), len(self.per_level_item_lists)))
+        tmp = self.item_num_list.pop()
+        self.per_level_item_lists[level_num].append(tmp)
+      random.shuffle(self.per_level_item_lists[level_num])
 
   def GetAllLocationAndItemData(self) -> Iterable[Tuple[LevelNum, RoomNum, ItemNum]]:
+    self.PrintLengths()
     for level_num in range(1, self.NUM_LEVELS + 1):
-      yield (level_num, self.item_locations[level_num].pop(),
-             self.per_level_item_lists[level_num].pop())
+      for room_num, item_num in zip(self.per_level_item_location_lists[level_num],
+                                    self.per_level_item_lists[level_num]):
+        yield (level_num, room_num, item_num)

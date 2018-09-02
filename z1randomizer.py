@@ -1,14 +1,10 @@
 import random
 from absl import app
 from absl import flags
-#import sys
-#from typing import List
-from level_data_table import LevelDataTable
-from rom import Rom
-#from zelda_constants import Direction, RoomNum, LevelNum, ItemNum
 from item_shuffler import ItemShuffler
 from item_randomizer import ItemRandomizer
-
+from level_data_table import LevelDataTable
+from rom import Rom
 
 
 # TODO: Add actual logic checks here
@@ -17,23 +13,18 @@ class LogicChecker(object):
     return True
 
 
+flags.DEFINE_integer(name='seed', default=0, help='The seed number to initialize RNG with.')
 flags.DEFINE_string(
     name='input_filename', default='', help='The filename of the vanilla ROM to randomize.')
-flags.DEFINE_integer(name='seed_number', default=0, help='The seed number to initialize RNG with.')
-flags.DEFINE_boolean(
-    name='ticky', default=False, help='Don\' set ticky to True!  You have been warned!')
-
 flags.register_validator(
     'input_filename', lambda value: value != '', message='Input filename must be specified.')
 
 FLAGS = flags.FLAGS
 
-
 def main(unused_argv) -> None:
-  assert not FLAGS.ticky
   rom = Rom(FLAGS.input_filename, add_nes_header_offset=True)
   rom.OpenFile(write_mode=True)
-  seed = FLAGS.seed_number - 1
+  seed = FLAGS.seed - 1
   level_table = LevelDataTable(rom)
   level_table.ReadLevelDataFromRom()
   shuffler = ItemShuffler()

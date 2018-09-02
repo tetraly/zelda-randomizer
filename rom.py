@@ -1,6 +1,6 @@
-from typing import IO, List
 import random
-import shutil
+from typing import IO, List
+from shutil import copyfile
 
 
 class Rom(object):
@@ -13,7 +13,7 @@ class Rom(object):
     self.write_mode = False
     self.add_nes_header_offset = add_nes_header_offset
     if src:
-      shutil.copyfile(src, rom_filename)
+      copyfile(src, rom_filename)
     self.address = -1
 
   # Opens a ROM file for reading
