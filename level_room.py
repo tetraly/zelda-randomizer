@@ -41,7 +41,7 @@ class LevelRoom(object):
 
     self.transport_staircase_desintation: RoomNum = None
     # TODO: This is a hack for a sentinel value.  Make this nicer.
-    self.stairway_item: Item = Item(-1)
+    self.stairway_item: Item = Item.NO_ITEM
 
   def GetRomData(self) -> List[int]:
     return self.rom_data
@@ -95,7 +95,7 @@ class LevelRoom(object):
       return False
     return True
 
-  def CanGetItem(self, entry_direction: Direction, missing_item: Item):
+  def CanGetItem(self, entry_direction: Direction, missing_item: Item) -> bool:
     # Can't pick up a room in any rooms with water/moats without a ladder.
     # TODO: Make a better determination here based on the drop location and the entry direction.
     if missing_item == Item.LADDER and self.GetRoomType() in self.POTENTIAL_LADDER_BLOCK_ROOMS:
@@ -126,7 +126,7 @@ class LevelRoom(object):
     (table_num, offset) = self.WALL_TYPE_TABLE_NUMBERS_AND_OFFSETS[direction]
     return WallType(self.rom_data[table_num] >> offset & 0x07)
 
-  def GetStairwayItember(self) -> Item:
+  def GetStairwayItem(self) -> Item:
     return self.stairway_item
 
   def SetStairwayItember(self, item_type: Item) -> None:
