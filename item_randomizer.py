@@ -1,19 +1,15 @@
 from item_shuffler import ItemShuffler
 from level_data_table import LevelDataTable
-from zelda_constants import Direction, Item, LevelNum, RoomNum, WallType
+from constants import Direction, Item, LevelNum, Range, RoomNum, WallType
 
 
 class ItemRandomizer(object):
-  NUM_LEVELS = LevelNum(9)
-  NUM_ROOMS_PER_MAP = RoomNum(0x80)
-  NO_ITEM_NUMBER = Item(0x03)
-
   def __init__(self, level_table: LevelDataTable, item_shuffler: ItemShuffler) -> None:
     self.level_table = level_table
     self.item_shuffler = item_shuffler
 
   def ReadItemsAndLocationsFromTable(self) -> None:
-    for level_num in range(1, self.NUM_LEVELS + 1):
+    for level_num in Range.VALID_LEVEL_NUMBERS:
       print("Reading data for level %d " % level_num)
       for stairway_room_num in self.level_table.GetLevelStairwayRoomNumberList(level_num):
         stairway_room = self.level_table.GetLevelRoom(level_num, stairway_room_num)
@@ -33,7 +29,7 @@ class ItemRandomizer(object):
           self.level_table.GetLevelStartRoomNumber(level_num), level_num)
 
   def _ReadItemsAndLocationsRecursively(self, room_num: RoomNum, level_num: LevelNum) -> None:
-    if room_num >= self.NUM_ROOMS_PER_MAP:
+    if room_num not in Range.VALID_ROOM_NUMBERS:
       return  # No escaping back into the overworld! :)
     room = self.level_table.GetLevelRoom(level_num, room_num)
     if room.WasAlreadyVisited():
@@ -41,7 +37,7 @@ class ItemRandomizer(object):
     room.MarkAsVisited()
 
     item_num = room.GetItem()
-    if item_num != self.NO_ITEM_NUMBER:
+    if item_num != Item.NO_ITEM:
       self.item_shuffler.AddLocationAndItem(level_num, room_num, item_num)
 
     for direction in (Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH):

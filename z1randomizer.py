@@ -1,11 +1,11 @@
 import random
 from absl import app
 from absl import flags
-from item_shuffler import ItemShuffler
 from item_randomizer import ItemRandomizer
+from item_shuffler import ItemShuffler
 from level_data_table import LevelDataTable
-from rom import Rom
 from logic_validator import LogicValidator
+from rom import Rom
 
 flags.DEFINE_integer(name='seed', default=0, help='The seed number to initialize RNG with.')
 flags.DEFINE_string(

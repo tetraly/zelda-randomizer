@@ -1,5 +1,5 @@
 from typing import Dict, List
-from zelda_constants import Direction, Enemy, Item, RoomNum, RoomType, WallType
+from constants import Direction, Enemy, Item, RoomNum, RoomType, WallType
 
 
 class LevelRoom(object):

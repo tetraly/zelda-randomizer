@@ -1,16 +1,13 @@
 from typing import List
-from rom import Rom
+from constants import Range, LevelNum, RoomNum
 from level_room import LevelRoom
-from zelda_constants import LevelNum, RoomNum
+from rom import Rom
 
 
 class LevelDataTable(object):
   LEVEL_1_TO_6_DATA_START_ADDRESS = 0x18700
   LEVEL_7_TO_9_DATA_START_ADDRESS = 0x18A00
   LEVEL_TABLE_SIZE = 0x80
-  VALID_ROOM_NUMBERS = range(0, 0x80)
-  VALID_TABLE_NUMBERS = range(0, 6)
-  VALID_LEVEL_NUMBERS = range(1, 10)  # Use 1-indexed level numbers.  Valid values are 1-9
   LEVEL_ONE_START_ROOM_ADDRESS = 0x1942B
   LEVEL_1_STAIRWAY_DATA_ADDRESS = 0x19430
   LEVEL_3_RAFT_ROOM_NUMBER = RoomNum(0x0F)
@@ -24,11 +21,11 @@ class LevelDataTable(object):
 
   def ReadLevelDataFromRom(self):
     # TODO: Refactor this to avoid duplicating code for the L1-6 and L7-9 tables.
-    for room_num in self.VALID_ROOM_NUMBERS:
+    for room_num in Range.VALID_ROOM_NUMBERS:
       level_1_to_6_raw_data: List[RoomNum] = []
       level_7_to_9_raw_data: List[RoomNum] = []
 
-      for table_num in self.VALID_TABLE_NUMBERS:
+      for table_num in Range.VALID_TABLE_NUMBERS:
         level_1_to_6_raw_data.append(
             self.rom.ReadByte(self.LEVEL_1_TO_6_DATA_START_ADDRESS +
                               table_num * self.LEVEL_TABLE_SIZE + room_num))
@@ -39,13 +36,13 @@ class LevelDataTable(object):
       self.level_7_to_9_level_rooms.append(LevelRoom(level_7_to_9_raw_data))
 
   def WriteLevelDataToRom(self):
-    for room_num in self.VALID_ROOM_NUMBERS:
+    for room_num in Range.VALID_ROOM_NUMBERS:
       level_1_6_room_data = self.level_1_to_6_level_rooms[room_num].GetRomData()
       level_7_9_room_data = self.level_7_to_9_level_rooms[room_num].GetRomData()
       assert len(level_1_6_room_data) == 6
       assert len(level_7_9_room_data) == 6
 
-      for table_num in self.VALID_TABLE_NUMBERS:
+      for table_num in Range.VALID_TABLE_NUMBERS:
         self.rom.WriteByte(
             address=self.LEVEL_1_TO_6_DATA_START_ADDRESS + table_num * self.LEVEL_TABLE_SIZE +
             room_num,
@@ -56,8 +53,8 @@ class LevelDataTable(object):
             data=level_7_9_room_data[table_num])
 
   def GetLevelRoom(self, level_num: LevelNum, room_num: RoomNum) -> LevelRoom:
-    assert room_num in self.VALID_ROOM_NUMBERS
-    assert level_num in self.VALID_LEVEL_NUMBERS
+    assert room_num in Range.VALID_ROOM_NUMBERS
+    assert level_num in Range.VALID_LEVEL_NUMBERS
     if level_num in [7, 8, 9]:
       return self.level_7_to_9_level_rooms[room_num]
     return self.level_1_to_6_level_rooms[room_num]
@@ -75,7 +72,7 @@ class LevelDataTable(object):
   # Returns:
   #   The number of the start room, e.g. 0x73 for level 1
   def GetLevelStartRoomNumber(self, level_num: LevelNum) -> RoomNum:
-    assert level_num in self.VALID_LEVEL_NUMBERS
+    assert level_num in Range.VALID_LEVEL_NUMBERS
     address = (
         self.LEVEL_ONE_START_ROOM_ADDRESS + self.STAIRWAY_START_ROOM_LEVEL_OFFSET * (level_num - 1))
     return RoomNum(self.rom.ReadByte(address))
@@ -91,7 +88,7 @@ class LevelDataTable(object):
   # Returns:
   #  Zero or more bytes containing the stairway room numbers
   def GetLevelStairwayRoomNumberList(self, level_num: LevelNum) -> List[RoomNum]:
-    assert level_num in self.VALID_LEVEL_NUMBERS
+    assert level_num in Range.VALID_LEVEL_NUMBERS
     stairway_list_location = (self.LEVEL_1_STAIRWAY_DATA_ADDRESS +
                               self.STAIRWAY_START_ROOM_LEVEL_OFFSET * (level_num - 1))
     raw_bytes = self.rom.ReadBytes(stairway_list_location, 10)

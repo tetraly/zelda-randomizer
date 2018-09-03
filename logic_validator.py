@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from level_data_table import LevelDataTable
-from zelda_constants import Direction, Item, LevelNum, RoomNum
+from constants import Direction, Item, LevelNum, Range, RoomNum
 
 
 class LogicValidator(object):
@@ -24,7 +24,7 @@ class LogicValidator(object):
   def _GetProgressionItemsInLevelRecursively(self, level_num: LevelNum, room_num: RoomNum,
                                              entry_direction: Direction, missing_item: Item,
                                              items_obtained: List[Item]) -> None:
-    if room_num > 0x7F:
+    if not room_num in Range.VALID_ROOM_NUMBERS:
       return  # No escaping back into the overworld! :)
     room = self.level_data_table.GetLevelRoom(level_num, room_num)
     if room.WasAlreadyVisited():
@@ -53,7 +53,7 @@ class LogicValidator(object):
                                                   items_obtained)
 
   def _FindItemDependencies(self) -> None:
-    for level_num in range(1, 10):
+    for level_num in Range.VALID_LEVEL_NUMBERS:
       print(level_num)
 
       # Get a list of items in the level that may be needed for progression elsewhere.
