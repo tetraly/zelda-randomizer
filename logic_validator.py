@@ -21,6 +21,32 @@ class LogicValidator(object):
     self._FindItemDependencies()
     return not self.circular_dependencies
 
+  def _FindItemDependencies(self) -> None:
+    for level_num in Range.VALID_LEVEL_NUMBERS:
+
+      # Get a list of items in the level that may be needed for progression elsewhere.
+      self.level_data_table.ClearAllVisitMarkers()
+      all_progression_items: List[Item] = []
+      self._GetProgressionItemsInLevelRecursively(
+          level_num, self.level_data_table.GetLevelStartRoomNumber(level_num), Direction.NORTH,
+          None, all_progression_items)
+      self.level_data_table.ClearAllVisitMarkers()
+
+      # For dungeons where entry is gated on an item (e.g. raft for level 4)
+      if self.required_item_for_entry[level_num] is not None:
+        for item in all_progression_items:
+          self._AddItemDependency(self.required_item_for_entry[level_num], item)
+
+      # Now, to find dependencies!
+      for missing_item in [Item.BOW, Item.RECORDER, Item.LADDER]:
+        items_obtained: List[Item] = []
+        self._GetProgressionItemsInLevelRecursively(
+            level_num, self.level_data_table.GetLevelStartRoomNumber(level_num), Direction.NORTH,
+            missing_item, items_obtained)
+        for item in all_progression_items:
+          if not item in items_obtained:
+            self._AddItemDependency(missing_item, item)
+
   def _GetProgressionItemsInLevelRecursively(self, level_num: LevelNum, room_num: RoomNum,
                                              entry_direction: Direction, missing_item: Item,
                                              items_obtained: List[Item]) -> None:
@@ -51,33 +77,6 @@ class LogicValidator(object):
                       Direction.DOWN):
       self._GetProgressionItemsInLevelRecursively(level_num, room_num, direction, missing_item,
                                                   items_obtained)
-
-  def _FindItemDependencies(self) -> None:
-    for level_num in Range.VALID_LEVEL_NUMBERS:
-      print(level_num)
-
-      # Get a list of items in the level that may be needed for progression elsewhere.
-      self.level_data_table.ClearAllVisitMarkers()
-      all_progression_items: List[Item] = []
-      self._GetProgressionItemsInLevelRecursively(
-          level_num, self.level_data_table.GetLevelStartRoomNumber(level_num), Direction.NORTH,
-          None, all_progression_items)
-      self.level_data_table.ClearAllVisitMarkers()
-
-      # For dungeons where entry is gated on an item (e.g. raft for level 4)
-      if self.required_item_for_entry[level_num] is not None:
-        for item in all_progression_items:
-          self._AddItemDependency(self.required_item_for_entry[level_num], item)
-
-      # Now, to find dependencies!
-      for missing_item in [Item.BOW, Item.RECORDER, Item.LADDER]:
-        items_obtained: List[Item] = []
-        self._GetProgressionItemsInLevelRecursively(
-            level_num, self.level_data_table.GetLevelStartRoomNumber(level_num), Direction.NORTH,
-            missing_item, items_obtained)
-        for item in all_progression_items:
-          if not item in items_obtained:
-            self._AddItemDependency(missing_item, item)
 
   def _AddItemDependency(self, required_item: Item, blocked_item: Item) -> None:
     self.item_depenedencies.append((required_item, blocked_item))

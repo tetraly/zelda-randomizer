@@ -49,12 +49,20 @@ class LevelRoom(object):
   def GetEnemy(self) -> Enemy:
     return Enemy(self.rom_data[2] & 0x3F)
 
+  def GetRoomType(self) -> RoomType:
+    return RoomType(self.rom_data[3] & 0x3F)
+
+  def GetWallType(self, direction: Direction) -> WallType:
+    assert not self.is_staircase_room
+    (table_num, offset) = self.WALL_TYPE_TABLE_NUMBERS_AND_OFFSETS[direction]
+    return WallType(self.rom_data[table_num] >> offset & 0x07)
+
+  def GetItem(self) -> Item:
+    return Item(self.rom_data[4] & 0x1F)
+
   def HasDropBitSet(self) -> bool:
     assert self.rom_data[5] & 0x04 == 0 or self.rom_data[5] & 0x04 == 4
     return self.rom_data[5] & 0x04 > 0
-
-  def GetRoomType(self) -> RoomType:
-    return RoomType(self.rom_data[3] & 0x3F)
 
   def SetStaircaseRoom(self, is_staircase_room: bool) -> None:
     self.is_staircase_room = is_staircase_room
@@ -65,6 +73,24 @@ class LevelRoom(object):
 
   def IsTransportStaircase(self) -> bool:
     return self.is_staircase_room and not self.IsItemRoom()
+
+  def GetLeftExit(self) -> RoomNum:
+    assert self.IsTransportStaircase()
+    return RoomNum(self.rom_data[0] & 0x7F)
+
+  def GetRightExit(self) -> RoomNum:
+    assert self.IsTransportStaircase()
+    return RoomNum(self.rom_data[1] & 0x7F)
+
+  def HasTransportStaircase(self) -> bool:
+    return self.transport_staircase_desintation is not None
+
+  def GetTransportStaircaseDestination(self) -> RoomNum:
+    assert self.HasTransportStaircase()
+    return self.transport_staircase_desintation
+
+  def SetTransportStaircaseDestination(self, transport_staircase_desintation: RoomNum) -> None:
+    self.transport_staircase_desintation = transport_staircase_desintation
 
   def CanMove(self, from_direction: Direction, to_direction: Direction, missing_item: Item) -> bool:
     if (self.GetRoomType() in self.MOVEMENT_CONSTRAINED_ROOMS and
@@ -112,56 +138,6 @@ class LevelRoom(object):
       return False
     return True
 
-  # TODO: Need to figure out how define Direction as a type such that it's allowed to
-  # combine a direction and room to become a different room.  Maybe make direction a
-  # subclass of roomnum somehow?
-  def CommentedOutDeleteMeMaybeCanMove(self, direction: Direction) -> bool:
-    assert not self.is_staircase_room
-    (table_num, offset) = self.WALL_TYPE_TABLE_NUMBERS_AND_OFFSETS[direction]
-    wall_type = self.rom_data[table_num] >> offset & 0x07
-    return wall_type != 1  # 1 is the type code for a sold wall
-
-  def GetWallType(self, direction: Direction) -> WallType:
-    assert not self.is_staircase_room
-    (table_num, offset) = self.WALL_TYPE_TABLE_NUMBERS_AND_OFFSETS[direction]
-    return WallType(self.rom_data[table_num] >> offset & 0x07)
-
-  def GetStairwayItem(self) -> Item:
-    return self.stairway_item
-
-  def SetStairwayItember(self, item_type: Item) -> None:
-    self.stairway_item = item_type
-
-  def HasTransportStaircase(self) -> bool:
-    return self.transport_staircase_desintation is not None
-
-  def GetTransportStaircaseDestination(self) -> RoomNum:
-    assert self.HasTransportStaircase()
-    return self.transport_staircase_desintation
-
-  def SetTransportStaircaseDestination(self, transport_staircase_desintation: RoomNum) -> None:
-    self.transport_staircase_desintation = transport_staircase_desintation
-
-  def GetLeftExit(self) -> RoomNum:
-    assert self.IsTransportStaircase()
-    return RoomNum(self.rom_data[0] & 0x7F)
-
-  def GetRightExit(self) -> RoomNum:
-    assert self.IsTransportStaircase()
-    return RoomNum(self.rom_data[1] & 0x7F)
-
-  def MarkAsVisited(self) -> None:
-    self.already_visited = True
-
-  def WasAlreadyVisited(self) -> bool:
-    return self.already_visited
-
-  def ClearVisitMark(self) -> None:
-    self.already_visited = False
-
-  def GetItem(self) -> Item:
-    return Item(self.rom_data[4] & 0x1F)
-
   def SetItem(self, item_num_param: Item) -> None:
     item_num = int(item_num_param)
     old_item_num = self.rom_data[4] & 0x1F
@@ -175,3 +151,12 @@ class LevelRoom(object):
     assert new_value & 0x1F == item_num
     self.rom_data[4] = new_value
     print("Changed item %x to %x" % (old_item_num, item_num))
+
+  def WasAlreadyVisited(self) -> bool:
+    return self.already_visited
+
+  def MarkAsVisited(self) -> None:
+    self.already_visited = True
+
+  def ClearVisitMark(self) -> None:
+    self.already_visited = False
