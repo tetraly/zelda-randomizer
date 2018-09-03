@@ -1,0 +1,102 @@
+from typing import NewType
+from enum import IntEnum
+
+LevelNum = int
+RoomNum = NewType('RoomNum', int)
+
+
+class Range(object):
+  VALID_ROOM_NUMBERS = range(0, 0x80)
+  VALID_TABLE_NUMBERS = range(0, 6)
+  VALID_LEVEL_NUMBERS = range(1, 10)  # Use 1-indexed level numbers.  Valid values are 1-9
+  VALID_ITEMS = range(0, 0x20)
+
+
+class Direction(IntEnum):
+  NORTH = -0x10
+  SOUTH = 0x10
+  UP = 0x00
+  DOWN = 0x00
+  WEST = -0x1
+  EAST = 0x1
+
+
+class Enemy(IntEnum):
+  GOHMA_BLUE = 0x33
+  GOHMA_RED = 0x34
+  DIGDOGGER_TRIPLE = 0x38
+  DIGDOGGER_SINGLE = 0x39
+
+
+class Item(IntEnum):
+  BOMBS = 0x00
+  NO_ITEM = 0x03
+  RECORDER = 0x05
+  RED_CANDLE = 0x07
+  SILVER_ARROWS = 0x09
+  BOW = 0x0A
+  ANY_KEY = 0x0B
+  RAFT = 0x0C
+  LADDER = 0x0D
+  TRIFORCE_OF_POWER = 0x0E
+  FIVE_RUPEES = 0x0F
+  WAND = 0x10
+  BOOK = 0x11
+  RED_RING = 0x13
+  COMPASS = 0x16
+  MAP = 0x17
+  KEY = 0x19
+  HEART_CONTAINER = 0x1A
+  TRINGLE = 0x1B
+  LORD_BANANA = 0x1D
+  INFERIOR_MODEL = 0x1E
+
+
+class RoomType(IntEnum):
+  PLAIN_ROOM = 0x00
+  SPIKE_TRAP_ROOM = 0x01
+  FOUR_SHORT_ROOM = 0x02
+  FOUR_TALL_ROOM = 0x03
+  AQUAMENTUS_ROOM = 0x04
+  GLEEOK_ROOM = 0x05
+  REVERSE_C = 0x08  #Stairway
+  DOUBLE_BLOCK = 0x0A  # Stairway
+  MAZE_ROOM = 0x0C
+  GRID_ROOM = 0x0D
+  VERTICAL_CHUTE_ROOM = 0x0E
+  HORIZONTAL_CHUTE_ROOM = 0x0F
+  ZIGZAG_ROOM = 0x11
+  T_ROOM = 0x12
+  VERTICAL_MOAT_ROOM = 0x13
+  CIRCLE_MOAT_ROOM = 0x14
+  POINTLESS_MOAT_ROOM = 0x15
+  CHEVY_ROOM = 0x16
+  NSU = 0x17
+  HORIZONTAL_MOAT_ROOM = 0x18
+  DOUBLE_MOAT_ROOM = 0x19
+  DIAMOND_STAIR_ROOM = 0x1A
+  NARROW_STAIR_ROOM = 0x1B  #stair
+  SPIRAL_STAIR_ROOM = 0x1C  # stair
+  DOUBLE_SIX_BLOCK_ROOM = 0x1D
+  SINGLE_SIX_BLOCK_ROOM = 0x1E
+  FIVE_PAIR_ROOM = 0x1F
+  ENTRANCE_ROOM = 0x21  # stair
+  SINGLE_BLOCK_ROOM = 0x22
+  TWO_FIREBALL_ROOM = 0x23
+  FOUR_FIREBALL_ROOM = 0x24
+  BLANK_ROOM_5 = 0x25
+  OLD_MAN_ROOM = 0x26
+  ZELDA_ROOM = 0x27
+  GANNON_ROOM = 0x28
+  TRIFORCE_ROOM = 0x29
+
+
+class WallType(IntEnum):
+  OPEN_DOOR = 0
+  SOLID_WALL = 1
+  WALK_THROUGH_WALL_1 = 2
+  WALK_THROUGH_WALL_2 = 3
+  BOMB_HOLE = 4
+  LOCKED_DOOR_1 = 5
+  LOCKED_DOOR_2 = 6
+  SHUTTER_DOOR = 7
