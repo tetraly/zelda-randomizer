@@ -1,49 +1,86 @@
 from typing import NewType
+from enum import IntEnum
 
-ItemNum = NewType('ItemNum', int)
 LevelNum = int
 RoomNum = NewType('RoomNum', int)
 
 
-class Direction(object):
+class Direction(IntEnum):
   NORTH = RoomNum(-0x10)
   SOUTH = RoomNum(0x10)
+  UP = RoomNum(0x00)
+  DOWN = RoomNum(0x00)
   WEST = RoomNum(-0x1)
   EAST = RoomNum(0x1)
 
 
-DOOR_TYPES = {
-    0: "Door",
-    1: "Wall",
-    2: "Walk-Through Wall",
-    3: "Walk-Through Wall",
-    4: "Bomb Hole",
-    5: "Locked Door",
-    6: "Locked Door",
-    7: "Shutter Door",
-}
+class Enemy(IntEnum):
+  GOHMA_BLUE = 0x33
+  GOHMA_RED = 0x34
+  DIGDOGGER_TRIPLE = 0x38
+  DIGDOGGER_SINGLE = 0x39
 
-WALL_TYPE_CHAR = {
-    0: (" ", " "),
-    1: ("-", "|"),
-    2: ("=", "!"),
-    3: ("=", "!"),
-    4: ("B", "B"),
-    5: ("K", "K"),
-    6: ("K", "K"),
-    7: ("S", "S"),
-}
 
-CAVE_BLOCK_TYPE = {
-    0x00: "",  # No cave
-    0x01: "OpenCave",
-    0x02: "OpenPush",
-    0x03: "Candle",
-    0x04: "Bomb",
-    0x05: "PowerBr",
-    0x06: "Raft",
-    0x07: "Recorder",
-}
+class Item(IntEnum):
+  RECORDER = 0x05
+  BOW = 0x0A
+  RAFT = 0x0C
+  LADDER = 0x0D
+  COMPASS = 0x16
+  MAP = 0x17
+  HEART_CONTAINER = 0x1A
+  TRINGLE = 0x1B
+
+
+class RoomType(IntEnum):
+  PLAIN_ROOM = 0x00
+  SPIKE_TRAP_ROOM = 0x01
+  FOUR_SHORT_ROOM = 0x02
+  FOUR_TALL_ROOM = 0x03
+  AQUAMENTUS_ROOM = 0x04
+  GLEEOK_ROOM = 0x05
+  REVERSE_C = 0x08  #Stairway
+  DOUBLE_BLOCK = 0x0A  # Stairway
+  MAZE_ROOM = 0x0C
+  GRID_ROOM = 0x0D
+  VERTICAL_CHUTE_ROOM = 0x0E
+  HORIZONTAL_CHUTE_ROOM = 0x0F
+  ZIGZAG_ROOM = 0x11
+  T_ROOM = 0x12
+  VERTICAL_MOAT_ROOM = 0x13
+  CIRCLE_MOAT_ROOM = 0x14
+  POINTLESS_MOAT_ROOM = 0x15
+  CHEVY_ROOM = 0x16
+  NSU = 0x17
+  HORIZONTAL_MOAT_ROOM = 0x18
+  DOUBLE_MOAT_ROOM = 0x19
+  DIAMOND_STAIR_ROOM = 0x1A
+  NARROW_STAIR_ROOM = 0x1B  #stair
+  SPIRAL_STAIR_ROOM = 0x1C  # stair
+  DOUBLE_SIX_BLOCK_ROOM = 0x1D
+  SINGLE_SIX_BLOCK_ROOM = 0x1E
+  FIVE_PAIR_ROOM = 0x1F
+  ENTRANCE_ROOM = 0x21  # stair
+  SINGLE_BLOCK_ROOM = 0x22
+  TWO_FIREBALL_ROOM = 0x23
+  FOUR_FIREBALL_ROOM = 0x24
+  BLANK_ROOM_5 = 0x25
+  OLD_MAN_ROOM = 0x26
+  ZELDA_ROOM = 0x27
+  GANNON_ROOM = 0x28
+  TRIFORCE_ROOM = 0x29
+
+
+class WallType(IntEnum):
+  OPEN_DOOR = 0
+  SOLID_WALL = 1
+  WALK_THROUGH_WALL_1 = 2
+  WALK_THROUGH_WALL_1 = 3
+  BOMB_HOLE = 4
+  LOCKED_DOOR_1 = 5
+  LOCKED_DOOR_2 = 6
+  SHUTTER_DOOR = 7
+
 
 ENEMY_NAME = {
     0x00: "",
@@ -155,91 +192,3 @@ MIX_ENEMY_NAME = {
     0x3B: "R+B Wizz",
     0x3C: "LLBblWiz"
 }
-
-GOHMA_ENEMY_TYPES = [0x33, 0x34]
-DIGDOGGER_ENEMY_TYPES = [0x38, 0x39]
-HARD_COMBAT_ENEMY_TYPES = [0x0C, 0x23]
-
-ROOM_TYPES = {
-    0x00: "Empty",
-    0x01: "2 3blk",
-    0x02: "4 blk-",
-    0x03: "4 Blk+",
-    0x04: "AquaRoom",
-    0x05: "GleeokRm",
-    0x06: "?????6",
-    0x07: "?????7",
-    0x08: "Rev C",  #stairway
-    0x09: "?????9",
-    0x0A: "2blk",  #stairway
-    0x0B: "?????B",
-    0x0C: "Squiggly",
-    0x0D: "lotsblks",
-    0x0E: "|| Chute",
-    0x0F: "== Chute",  # Block
-    0x11: "DiagRoom",
-    0x12: "T Room",  # Ladder
-    0x13: "E River",  # Ladder
-    0x14: "rvrmoat",
-    0x15: "[--]",
-    0x16: "Chevy",  # Ladder
-    0x17: "NSU",
-    0x18: "TopRivr",  # Ladder
-    0x19: "= River",  # Ladder
-    0x1A: "Diamond",  # Stairway
-    0x1B: "Rstairs",  # Stairway
-    0x1C: "Spiral",  # Stairway
-    0x1D: "2 6blk",
-    0x1E: "6blk",
-    0x1F: "5 rects",
-    0x21: "Entrance",
-    0x22: "1 block",  #stairway
-    0x23: "2 shoot",
-    0x24: "4 shoot",
-    0x25: "Empty",
-    0x26: "BlackRm",
-    0x27: "ZeldaRm",
-    0x28: "GannonRm",
-    0x29: "TriRoom",
-}
-
-ITEMS = {
-    0x00: "Bombs",
-    0x02: "White S",
-    0x03: "NoItem",
-    0x05: "Recrdr",
-    0x07: "RCndle",
-    0x09: "SArrow",
-    0x0A: "Bow",
-    0x0B: "Any Key",
-    0x0C: "Raft",
-    0x0D: "Ladder",
-    0x0E: "Tforce",  # Big L9 triforce, not small tringle
-    0x0F: "5Rupee",
-    0x10: "Wand",
-    0x11: "Book",
-    0x12: "B Ring",
-    0x13: "R Ring",
-    0x14: "PowerB",
-    0x16: "Cmpass",
-    0x17: "Map",
-    0x19: "Key",
-    0x1A: "HeartC",
-    0x1B: "Tringl",
-    0x1C: "Shield",
-    0x1D: "Banana",
-    0x1E: "M Bmng",
-}
-
-SPECIAL_ITEMS = [
-    0x02, 0x05, 0x07, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x10, 0x11, 0x13, 0x14, 0x1D, 0x1E
-]
-TRINGLE = 0x1B
-RECORDER = 0x05
-BOW = 0x0A
-BLUE_RING = 0x12
-RED_RING = 0x13
-LADDER = 0x0D
-
-DIAMOND_ROOM_TYPE = 0x1A
-RIGHT_STAIRS_ROOM_TYPE = 0x1B

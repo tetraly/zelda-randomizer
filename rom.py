@@ -6,6 +6,8 @@ from shutil import copyfile
 class Rom(object):
   """A class representing a video game ROM file stored in a binary file."""
 
+  NES_HEADER_OFFSET = 0x10
+
   def __init__(self, rom_filename: str, src: str = None,
                add_nes_header_offset: bool = False) -> None:
     self.rom_filename = rom_filename
@@ -35,7 +37,7 @@ class Rom(object):
     """Reads one or more bytes (represented as Python ints) from the ROM file."""
     assert self.rom_file, "Need to run OpenFile() first."
     assert num_bytes > 0, "Can't read zero or a negative number of bytes."
-    self.rom_file.seek(address + 0x10 if self.add_nes_header_offset else address)
+    self.rom_file.seek(address + self.NES_HEADER_OFFSET if self.add_nes_header_offset else address)
     int_data: List[int] = []
     for read_byte in self.rom_file.read(num_bytes):
       int_data.append(read_byte)
@@ -52,7 +54,8 @@ class Rom(object):
 
     offset = 0
     for byte in data:
-      self.rom_file.seek((address + 0x10 if self.add_nes_header_offset else address) + offset)
+      self.rom_file.seek((address + self.NES_HEADER_OFFSET
+                          if self.add_nes_header_offset else address) + offset)
       self.rom_file.write(bytes([byte]))
       offset = offset + 1
 

@@ -1,12 +1,12 @@
 from item_shuffler import ItemShuffler
 from level_data_table import LevelDataTable
-from zelda_constants import Direction, RoomNum, LevelNum, ItemNum
+from zelda_constants import Direction, Item, LevelNum, RoomNum, WallType
 
 
 class ItemRandomizer(object):
   NUM_LEVELS = LevelNum(9)
   NUM_ROOMS_PER_MAP = RoomNum(0x80)
-  NO_ITEM_NUMBER = ItemNum(0x03)
+  NO_ITEM_NUMBER = Item(0x03)
 
   def __init__(self, level_table: LevelDataTable, item_shuffler: ItemShuffler) -> None:
     self.level_table = level_table
@@ -21,7 +21,7 @@ class ItemRandomizer(object):
         # Item room case
         if stairway_room.IsItemRoom():
           self.item_shuffler.AddLocationAndItem(level_num, stairway_room_num,
-                                                stairway_room.GetItemNumber())
+                                                stairway_room.GetItem())
         else:  # Transport staircase case.  Mark the connecting rooms
           left_exit = stairway_room.GetLeftExit()
           right_exit = stairway_room.GetRightExit()
@@ -40,14 +40,14 @@ class ItemRandomizer(object):
       return
     room.MarkAsVisited()
 
-    item_num = room.GetItemNumber()
+    item_num = room.GetItem()
     if item_num != self.NO_ITEM_NUMBER:
       self.item_shuffler.AddLocationAndItem(level_num, room_num, item_num)
 
     for direction in (Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH):
-      if room.CanMove(direction):
+      if room.GetWallType(direction) != WallType.SOLID_WALL:
         self._ReadItemsAndLocationsRecursively(RoomNum(room_num + direction), level_num)
-    if room.HasTransportStaircaseDestination():
+    if room.HasTransportStaircase():
       self._ReadItemsAndLocationsRecursively(room.GetTransportStaircaseDestination(), level_num)
 
   def ShuffleItems(self):
@@ -55,4 +55,4 @@ class ItemRandomizer(object):
 
   def WriteItemsAndLocationsToTable(self) -> None:
     for (level_num, room_num, item_num) in self.item_shuffler.GetAllLocationAndItemData():
-      self.level_table.GetLevelRoom(level_num, room_num).SetItemNumber(item_num)
+      self.level_table.GetLevelRoom(level_num, room_num).SetItem(item_num)
