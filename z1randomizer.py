@@ -27,7 +27,7 @@ class Z1Randomizer(object):
     output_filename = os.path.join(
         self.output_location or input_path,
         "%s-randomized-%d-%s" % (input_filename, self.seed, input_extension or ".nes"))
-    output_rom = Rom(output_filename, src=self.input_filename)
+    output_rom = Rom(output_filename, src=self.input_filename, add_nes_header_offset=True)
     output_rom.OpenFile(write_mode=True)
 
     seed = self.seed - 1
@@ -43,6 +43,7 @@ class Z1Randomizer(object):
       seed += 1
       random.seed(seed)
       level_data_table.ReadLevelDataFromRom()
+      item_randomizer.ReadItemsAndLocationsFromTable()
       item_randomizer.ShuffleItems()
       item_randomizer.WriteItemsAndLocationsToTable()
       is_valid_seed = logic_validator.Validate()
