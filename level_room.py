@@ -37,11 +37,12 @@ class LevelRoom(object):
   def __init__(self, rom_data: List[int]) -> None:
     self.rom_data = rom_data
     self.already_visited = False
-    self.is_staircase_room = False
 
-    self.transport_staircase_desintation: RoomNum = None
+    #   self.is_staircase_room = False
+
+    self.staircase_room_num: RoomNum = None
     # TODO: This is a hack for a sentinel value.  Make this nicer.
-    self.stairway_item: Item = Item.NO_ITEM
+#    self.stairway_item: Item = Item.NO_ITEM
 
   def GetRomData(self) -> List[int]:
     return self.rom_data
@@ -53,7 +54,7 @@ class LevelRoom(object):
     return RoomType(self.rom_data[3] & 0x3F)
 
   def GetWallType(self, direction: Direction) -> WallType:
-    assert not self.is_staircase_room
+    assert self.GetRoomType() not in [RoomType.ITEM_STAIRCASE, RoomType.TRANSPORT_STAIRCASE]
     (table_num, offset) = self.WALL_TYPE_TABLE_NUMBERS_AND_OFFSETS[direction]
     return WallType(self.rom_data[table_num] >> offset & 0x07)
 
@@ -64,33 +65,30 @@ class LevelRoom(object):
     assert self.rom_data[5] & 0x04 == 0 or self.rom_data[5] & 0x04 == 4
     return self.rom_data[5] & 0x04 > 0
 
-  def SetStaircaseRoom(self, is_staircase_room: bool) -> None:
-    self.is_staircase_room = is_staircase_room
 
-  def IsItemRoom(self) -> bool:
-    # The left and right exit are the same only for an item room, not a transport staircase
-    return self.is_staircase_room and (self.rom_data[0] & 0x7F == self.rom_data[1] & 0x7F)
+#  def SetStaircaseRoom(self, is_staircase_room: bool) -> None:
+#    self.is_staircase_room = is_staircase_room
+
+  def IsItemStaircase(self) -> bool:
+    return self.GetRoomType() == RoomType.ITEM_STAIRCASE
 
   def IsTransportStaircase(self) -> bool:
-    return self.is_staircase_room and not self.IsItemRoom()
+    return self.GetRoomType() == RoomType.TRANSPORT_STAIRCASE
 
   def GetLeftExit(self) -> RoomNum:
-    assert self.IsTransportStaircase()
     return RoomNum(self.rom_data[0] & 0x7F)
 
   def GetRightExit(self) -> RoomNum:
-    assert self.IsTransportStaircase()
     return RoomNum(self.rom_data[1] & 0x7F)
 
-  def HasTransportStaircase(self) -> bool:
-    return self.transport_staircase_desintation is not None
+  def HasStaircaseRoom(self) -> bool:
+    return self.staircase_room_num is not None
 
-  def GetTransportStaircaseDestination(self) -> RoomNum:
-    assert self.HasTransportStaircase()
-    return self.transport_staircase_desintation
+  def GetStaircaseRoomNumber(self) -> RoomNum:
+    return self.staircase_room_num
 
-  def SetTransportStaircaseDestination(self, transport_staircase_desintation: RoomNum) -> None:
-    self.transport_staircase_desintation = transport_staircase_desintation
+  def SetStaircaseRoomNumber(self, staircase_room_num: RoomNum) -> None:
+    self.staircase_room_num = staircase_room_num
 
   def CanMove(self, from_direction: Direction, to_direction: Direction, missing_item: Item) -> bool:
     if (self.GetRoomType() in self.MOVEMENT_CONSTRAINED_ROOMS and
@@ -152,7 +150,7 @@ class LevelRoom(object):
     self.rom_data[4] = new_value
     print("Changed item %x to %x" % (old_item_num, item_num))
 
-  def WasAlreadyVisited(self) -> bool:
+  def IsMarkedAsVisited(self) -> bool:
     return self.already_visited
 
   def MarkAsVisited(self) -> None:

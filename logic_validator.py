@@ -53,7 +53,7 @@ class LogicValidator(object):
     if not room_num in Range.VALID_ROOM_NUMBERS:
       return  # No escaping back into the overworld! :)
     room = self.level_data_table.GetLevelRoom(level_num, room_num)
-    if room.WasAlreadyVisited():
+    if room.IsMarkedAsVisited():
       return
     room.MarkAsVisited()
 
@@ -61,7 +61,7 @@ class LogicValidator(object):
       items_obtained.append(room.GetItem())
 
     # An item staircase room is a dead-end, so no need to recurse more.
-    if room.IsItemRoom():
+    if room.IsItemStaircase():
       return
 
     # For a transport staircase, we don't know whether we came in through the left or right.

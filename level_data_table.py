@@ -1,4 +1,5 @@
 from typing import List
+from absl import logging
 from constants import Range, LevelNum, RoomNum
 from level_room import LevelRoom
 from rom import Rom
@@ -9,10 +10,10 @@ class LevelDataTable(object):
   LEVEL_7_TO_9_DATA_START_ADDRESS = 0x18A00
   LEVEL_TABLE_SIZE = 0x80
   LEVEL_ONE_START_ROOM_ADDRESS = 0x1942B
-  LEVEL_1_STAIRWAY_DATA_ADDRESS = 0x19430
+  LEVEL_1_STAIRCASE_DATA_ADDRESS = 0x19430
   LEVEL_3_RAFT_ROOM_NUMBER = RoomNum(0x0F)
-  STAIRWAY_START_ROOM_LEVEL_OFFSET = 0xFC
-  STAIRWAY_ROOM_NUMBER_SENTINEL_VALUE = 0xFF
+  STAIRCASE_START_ROOM_LEVEL_OFFSET = 0xFC
+  STAIRCASE_ROOM_NUMBER_SENTINEL_VALUE = 0xFF
 
   def __init__(self, rom: Rom) -> None:
     self.rom = rom
@@ -36,6 +37,7 @@ class LevelDataTable(object):
       self.level_7_to_9_level_rooms.append(LevelRoom(level_7_to_9_raw_data))
 
   def WriteLevelDataToRom(self):
+    logging.debug("Beginning to write level data to disk.")
     for room_num in Range.VALID_ROOM_NUMBERS:
       level_1_6_room_data = self.level_1_to_6_level_rooms[room_num].GetRomData()
       level_7_9_room_data = self.level_7_to_9_level_rooms[room_num].GetRomData()
@@ -60,6 +62,7 @@ class LevelDataTable(object):
     return self.level_1_to_6_level_rooms[room_num]
 
   def ClearAllVisitMarkers(self):
+    logging.debug("Clearing Visit markers")
     for level_room in self.level_1_to_6_level_rooms:
       level_room.ClearVisitMark()
     for level_room in self.level_7_to_9_level_rooms:
@@ -73,37 +76,37 @@ class LevelDataTable(object):
   #   The number of the start room, e.g. 0x73 for level 1
   def GetLevelStartRoomNumber(self, level_num: LevelNum) -> RoomNum:
     assert level_num in Range.VALID_LEVEL_NUMBERS
-    address = (
-        self.LEVEL_ONE_START_ROOM_ADDRESS + self.STAIRWAY_START_ROOM_LEVEL_OFFSET * (level_num - 1))
+    address = (self.LEVEL_ONE_START_ROOM_ADDRESS +
+               self.STAIRCASE_START_ROOM_LEVEL_OFFSET * (level_num - 1))
     return RoomNum(self.rom.ReadByte(address))
 
-  # Gets a list of stairway rooms for a level.
+  # Gets a list of staircase rooms for a level.
   #
-  # Note that this will include not just passage stairways between two
+  # Note that this will include not just passage staircases between two
   # dungeon rooms but also item rooms with only one passage two and
   # from a dungeon room.
   #
   # Args:
   #  level_num: The 1-indexed level to get information for (int)
   # Returns:
-  #  Zero or more bytes containing the stairway room numbers
-  def GetLevelStairwayRoomNumberList(self, level_num: LevelNum) -> List[RoomNum]:
+  #  Zero or more bytes containing the staircase room numbers
+  def GetLevelStaircaseRoomNumberList(self, level_num: LevelNum) -> List[RoomNum]:
     assert level_num in Range.VALID_LEVEL_NUMBERS
-    stairway_list_location = (self.LEVEL_1_STAIRWAY_DATA_ADDRESS +
-                              self.STAIRWAY_START_ROOM_LEVEL_OFFSET * (level_num - 1))
-    raw_bytes = self.rom.ReadBytes(stairway_list_location, 10)
-    stairway_list: List[RoomNum] = []
+    staircase_list_location = (self.LEVEL_1_STAIRCASE_DATA_ADDRESS +
+                               self.STAIRCASE_START_ROOM_LEVEL_OFFSET * (level_num - 1))
+    raw_bytes = self.rom.ReadBytes(staircase_list_location, 10)
+    staircase_list: List[RoomNum] = []
     for byte in raw_bytes:
-      if byte != self.STAIRWAY_ROOM_NUMBER_SENTINEL_VALUE:
-        stairway_list.append(RoomNum(byte))
+      if byte != self.STAIRCASE_ROOM_NUMBER_SENTINEL_VALUE:
+        staircase_list.append(RoomNum(byte))
 
     # This is a hack needed in order to make vanilla L3 work.  For some reason,
-    # the vanilla ROM's data for level 3 doesn't include a stairway room even
+    # the vanilla ROM's data for level 3 doesn't include a stairCASE room even
     # though there obviously is one in vanilla level 3.
     #
     # See http://www.romhacking.net/forum/index.php?topic=18750.msg271821#msg271821
     # for more information about why this is the case and this hack is necessary.
-    if level_num == 3 and not stairway_list:
-      stairway_list.append(self.LEVEL_3_RAFT_ROOM_NUMBER)
+    if level_num == 3 and not staircase_list:
+      staircase_list.append(self.LEVEL_3_RAFT_ROOM_NUMBER)
 
-    return stairway_list
+    return staircase_list
