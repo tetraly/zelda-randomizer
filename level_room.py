@@ -136,7 +136,7 @@ class LevelRoom(object):
     assert new_value & 0xE0 == part_that_shouldnt_be_modified
     assert new_value & 0x1F == item_num
     self.rom_data[4] = new_value
-    print("Changed item %x to %x" % (old_item_num, item_num))
+    logging.debug("Changed item %x to %x" % (old_item_num, item_num))
 
   def IsMarkedAsVisited(self) -> bool:
     return self.marked_as_visited
