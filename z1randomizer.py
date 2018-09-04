@@ -33,8 +33,8 @@ class Z1Randomizer(object):
     seed = self.seed - 1
     level_data_table = LevelDataTable(output_rom)
     level_data_table.ReadLevelDataFromRom()
-    shuffler = ItemShuffler()
-    item_randomizer = ItemRandomizer(level_data_table, shuffler)
+    item_shuffler = ItemShuffler()
+    item_randomizer = ItemRandomizer(level_data_table, item_shuffler)
     logic_validator = LogicValidator(level_data_table)
 
     # Main loop: Try a seed, if it isn't valid, try another one until it is valid.
@@ -43,7 +43,6 @@ class Z1Randomizer(object):
       seed += 1
       random.seed(seed)
       level_data_table.ReadLevelDataFromRom()
-      item_shufflerizer.ReadItemsAndLocationsFromTable()
       item_randomizer.ShuffleItems()
       item_randomizer.WriteItemsAndLocationsToTable()
       is_valid_seed = logic_validator.Validate()
