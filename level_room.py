@@ -1,5 +1,5 @@
 from typing import Dict, List
-from constants import Direction, Enemy, Item, RoomNum, RoomType, WallType
+from constants import Direction, Enemy, Item, Range, RoomNum, RoomType, WallType
 
 
 class LevelRoom(object):
@@ -36,13 +36,8 @@ class LevelRoom(object):
 
   def __init__(self, rom_data: List[int]) -> None:
     self.rom_data = rom_data
-    self.already_visited = False
-
-    #   self.is_staircase_room = False
-
     self.staircase_room_num: RoomNum = None
-    # TODO: This is a hack for a sentinel value.  Make this nicer.
-#    self.stairway_item: Item = Item.NO_ITEM
+    self.marked_as_visited = False
 
   def GetRomData(self) -> List[int]:
     return self.rom_data
@@ -64,10 +59,6 @@ class LevelRoom(object):
   def HasDropBitSet(self) -> bool:
     assert self.rom_data[5] & 0x04 == 0 or self.rom_data[5] & 0x04 == 4
     return self.rom_data[5] & 0x04 > 0
-
-
-#  def SetStaircaseRoom(self, is_staircase_room: bool) -> None:
-#    self.is_staircase_room = is_staircase_room
 
   def IsItemStaircase(self) -> bool:
     return self.GetRoomType() == RoomType.ITEM_STAIRCASE
@@ -111,10 +102,9 @@ class LevelRoom(object):
     return True
 
   def CanDefeatEnemies(self, missing_item: Item) -> bool:
-    if missing_item == Item.RECORDER and self.GetEnemy() in [
-        Enemy.DIGDOGGER_SINGLE, Enemy.DIGDOGGER_TRIPLE
-    ]:
-      return False
+    if missing_item == Item.RECORDER:
+      if self.GetEnemy() in [Enemy.DIGDOGGER_SINGLE, Enemy.DIGDOGGER_TRIPLE]:
+        return False
     if missing_item == Item.BOW and self.GetEnemy() in [Enemy.GOHMA_RED, Enemy.GOHMA_BLUE]:
       return False
     return True
@@ -126,21 +116,19 @@ class LevelRoom(object):
       return False
     if self.HasDropBitSet() and not self.CanDefeatEnemies(missing_item):
       return False
-    if self.GetRoomType() == RoomType.HORIZONTAL_CHUTE_ROOM and entry_direction in [
-        Direction.NORTH, Direction.SOUTH
-    ]:
-      return False
-    if self.GetRoomType() == RoomType.VERTICAL_CHUTE_ROOM and entry_direction in [
-        Direction.EAST, Direction.WEST
-    ]:
-      return False
+    if self.GetRoomType() == RoomType.HORIZONTAL_CHUTE_ROOM:
+      if entry_direction in [Direction.NORTH, Direction.SOUTH]:
+        return False
+    if self.GetRoomType() == RoomType.VERTICAL_CHUTE_ROOM:
+      if entry_direction in [Direction.EAST, Direction.WEST]:
+        return False
     return True
 
   def SetItem(self, item_num_param: Item) -> None:
     item_num = int(item_num_param)
     old_item_num = self.rom_data[4] & 0x1F
-    assert (old_item_num >= 0 and old_item_num <= 0x1F)
-    assert (item_num >= 0 and item_num <= 0x1F)
+    assert old_item_num in Range.VALID_ITEM_NUMBERS
+    assert item_num in Range.VALID_ITEM_NUMBERS
 
     part_that_shouldnt_be_modified = self.rom_data[4] & 0xE0
 
@@ -151,10 +139,10 @@ class LevelRoom(object):
     print("Changed item %x to %x" % (old_item_num, item_num))
 
   def IsMarkedAsVisited(self) -> bool:
-    return self.already_visited
+    return self.marked_as_visited
 
   def MarkAsVisited(self) -> None:
-    self.already_visited = True
+    self.marked_as_visited = True
 
   def ClearVisitMark(self) -> None:
-    self.already_visited = False
+    self.marked_as_visited = False

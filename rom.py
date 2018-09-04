@@ -1,6 +1,7 @@
 import random
 from typing import IO, List
 from shutil import copyfile
+from absl import logging
 
 
 class Rom(object):
@@ -65,21 +66,15 @@ class Rom(object):
   # Helper methods for reading from a particular area of the ROM
   def Peek(self) -> int:
     return_value = self.ReadBytes(self.address, 1)[0]
-    # print("Peeking at addr 0x%x:  data is 0x%x" % (self.address, return_value))
     return return_value
 
   def ReadMultipleBytes(self, num_bytes: int) -> List[int]:
     return_value = self.ReadBytes(self.address, num_bytes)
-    # debug_string = ""
-    # for n in return_value:
-    #  debug_string += "0x%x " % n
-    # print("Reading at addr 0x%x:  data is %s" % (self.address, debug_string))
     self.address += num_bytes
     return return_value
 
   def Read(self) -> int:
     return_value = self.ReadMultipleBytes(1)[0]
-    #print("Reading at addr 0x%x:  data is 0x%x" % (self.address, return_value))
     return return_value
 
   def WriteMultipleBytes(self, bytes_to_write: List[int]) -> None:
@@ -90,7 +85,7 @@ class Rom(object):
     self.WriteMultipleBytes([byte_to_write])
 
   def SetAddress(self, address: int) -> None:
-    print("Setting address to 0x%x" % address)
+    logging.debug("Setting address to 0x%x" % address)
     self.address = address
 
   def GetAddress(self) -> int:

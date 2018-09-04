@@ -9,7 +9,7 @@ class Range(object):
   VALID_ROOM_NUMBERS = range(0, 0x80)
   VALID_TABLE_NUMBERS = range(0, 6)
   VALID_LEVEL_NUMBERS = range(1, 10)  # Use 1-indexed level numbers.  Valid values are 1-9
-  VALID_ITEMS = range(0, 0x20)
+  VALID_ITEM_NUMBERS = range(0, 0x20)
 
 
 class Direction(IntEnum):

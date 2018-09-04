@@ -4,11 +4,6 @@ from constants import Item, LevelNum, Range, RoomNum
 
 
 class ItemShuffler(object):
-
-  NUM_LEVELS = 9
-
-  # NUM_ITEM_TYPES = Item(0x20)
-
   def __init__(self) -> None:
     self.per_level_item_location_lists: Dict[LevelNum, List[RoomNum]] = {}
     self.item_num_list: List[Item] = []
@@ -17,14 +12,14 @@ class ItemShuffler(object):
 
   def AddLocationAndItem(self, level_num: LevelNum, room_num: RoomNum, item_num: Item) -> None:
     assert level_num in Range.VALID_LEVEL_NUMBERS
-    assert item_num in Range.VALID_ITEMS
+    assert item_num in Range.VALID_ITEM_NUMBERS
     assert room_num in Range.VALID_ROOM_NUMBERS
     if item_num == Item.NO_ITEM:
       return
     if item_num == Item.TRIFORCE_OF_POWER:
       return
 
-    # TODO: A default dict would probably make sense here
+    # TODO: A default dict might probably make sense here
     if level_num not in self.per_level_item_location_lists:
       self.per_level_item_location_lists[level_num] = []
     self.per_level_item_location_lists[level_num].append(room_num)

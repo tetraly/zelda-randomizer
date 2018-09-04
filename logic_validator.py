@@ -73,10 +73,12 @@ class LogicValidator(object):
                                                     missing_item, items_obtained)
 
     # Regular level room case.  Try all cardinal directions as well as taking a staircase (if any).
-    for direction in (Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH,
-                      Direction.DOWN):
+    for direction in (Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH):
       self._GetProgressionItemsInLevelRecursively(level_num, room_num, direction, missing_item,
                                                   items_obtained)
+    if room.HasStaircaseRoom():
+      self._GetProgressionItemsInLevelRecursively(level_num, room.GetStaircaseRoomNumber(),
+                                                  Direction.DOWN, missing_item, items_obtained)
 
   def _AddItemDependency(self, required_item: Item, blocked_item: Item) -> None:
     self.item_depenedencies.append((required_item, blocked_item))
