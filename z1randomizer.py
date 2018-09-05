@@ -1,7 +1,5 @@
 import os
 import random
-from absl import app
-from absl import flags
 from item_randomizer import ItemRandomizer
 from item_shuffler import ItemShuffler
 from level_data_table import LevelDataTable
@@ -11,7 +9,9 @@ from rom import Rom
 
 class Z1Randomizer(object):
   def __init__(self):
-    pass
+    self.input_filename: str = None
+    self.output_location: str = None
+    self.seed: int = 0
 
   def SetFlags(self, input_filename: str, output_location: str, seed: int) -> None:
     self.input_filename = input_filename
@@ -26,7 +26,7 @@ class Z1Randomizer(object):
 
     output_filename = os.path.join(
         self.output_location or input_path,
-        "%s-randomized-%d-%s" % (input_filename, self.seed, input_extension or ".nes"))
+        "%s-randomized-%d%s" % (input_filename, self.seed, input_extension or ".nes"))
     output_rom = Rom(output_filename, src=self.input_filename, add_nes_header_offset=True)
     output_rom.OpenFile(write_mode=True)
 
@@ -42,6 +42,7 @@ class Z1Randomizer(object):
     while not is_valid_seed:
       seed += 1
       random.seed(seed)
+      item_shuffler.ResetState()
       level_data_table.ReadLevelDataFromRom()
       item_randomizer.ReadItemsAndLocationsFromTable()
       item_randomizer.ShuffleItems()

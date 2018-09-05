@@ -2,7 +2,6 @@ from absl import app
 from absl import flags
 from z1randomizer import Z1Randomizer
 
-
 flags.DEFINE_integer(name='seed', default=0, help='The seed number to initialize RNG with.')
 flags.DEFINE_string(
     name='input_filename', default='', help='The filename of the vanilla ROM to randomize.')

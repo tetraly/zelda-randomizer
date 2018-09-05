@@ -8,7 +8,14 @@ class ItemShuffler(object):
     self.per_level_item_location_lists: Dict[LevelNum, List[RoomNum]] = {}
     self.item_num_list: List[Item] = []
     self.per_level_item_lists: Dict[LevelNum, List[Item]] = {}
-    self.seed: int = None
+
+  def ResetState(self):
+    self.per_level_item_location_lists: Dict[LevelNum, List[RoomNum]] = {}
+    self.item_num_list: List[Item] = []
+    self.per_level_item_lists: Dict[LevelNum, List[Item]] = {}
+    for level_num in Range.VALID_LEVEL_NUMBERS:
+      self.per_level_item_location_lists[level_num] = []
+      self.per_level_item_lists[level_num] = []
 
   def AddLocationAndItem(self, level_num: LevelNum, room_num: RoomNum, item_num: Item) -> None:
     assert level_num in Range.VALID_LEVEL_NUMBERS

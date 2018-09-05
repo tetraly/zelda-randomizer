@@ -1,4 +1,5 @@
 from typing import Dict, List
+from absl import logging
 from constants import Direction, Enemy, Item, Range, RoomNum, RoomType, WallType
 
 
@@ -42,8 +43,9 @@ class LevelRoom(object):
   def GetRomData(self) -> List[int]:
     return self.rom_data
 
-  def GetEnemy(self) -> Enemy:
-    return Enemy(self.rom_data[2] & 0x3F)
+  # TODO: Change this back to use an Enemy enum type.
+  def GetEnemy(self) -> int:
+    return self.rom_data[2] & 0x3F
 
   def GetRoomType(self) -> RoomType:
     return RoomType(self.rom_data[3] & 0x3F)
@@ -57,7 +59,7 @@ class LevelRoom(object):
     return Item(self.rom_data[4] & 0x1F)
 
   def HasDropBitSet(self) -> bool:
-    assert self.rom_data[5] & 0x04 == 0 or self.rom_data[5] & 0x04 == 4
+    assert self.rom_data[5] & 0x04 in [0, 4]
     return self.rom_data[5] & 0x04 > 0
 
   def IsItemStaircase(self) -> bool:
@@ -103,9 +105,11 @@ class LevelRoom(object):
 
   def CanDefeatEnemies(self, missing_item: Item) -> bool:
     if missing_item == Item.RECORDER:
-      if self.GetEnemy() in [Enemy.DIGDOGGER_SINGLE, Enemy.DIGDOGGER_TRIPLE]:
+      if self.GetEnemy() in [int(Enemy.DIGDOGGER_SINGLE), int(Enemy.DIGDOGGER_TRIPLE)]:
         return False
-    if missing_item == Item.BOW and self.GetEnemy() in [Enemy.GOHMA_RED, Enemy.GOHMA_BLUE]:
+    if missing_item == Item.BOW and self.GetEnemy() in [
+        int(Enemy.GOHMA_RED), int(Enemy.GOHMA_BLUE)
+    ]:
       return False
     return True
 

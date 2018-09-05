@@ -21,6 +21,8 @@ class LevelDataTable(object):
     self.level_7_to_9_level_rooms: List[LevelRoom] = []
 
   def ReadLevelDataFromRom(self):
+    self.level_1_to_6_level_rooms = []
+    self.level_7_to_9_level_rooms = []
     # TODO: Refactor this to avoid duplicating code for the L1-6 and L7-9 tables.
     for room_num in Range.VALID_ROOM_NUMBERS:
       level_1_to_6_raw_data: List[RoomNum] = []
