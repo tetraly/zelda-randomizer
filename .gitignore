@@ -111,3 +111,9 @@ venv.bak/
 
 # NES ROM files
 *.nes
+
+# Diff/merge files
+*_BACKUP_*
+*_BASE_*
+*_LOCAL_*
+*_REMOTE_*
