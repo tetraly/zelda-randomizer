@@ -109,7 +109,7 @@ class Ui_Dialog(object):
   def retranslateUi(self, Dialog):
     _translate = QtCore.QCoreApplication.translate
     Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-    self.title.setText(_translate("Dialog", "Open Source Zelda 1 Randomizer v0.01 alpha"))
+    self.title.setText(_translate("Dialog", "Open Source Zelda 1 Randomizer v0.03 alpha"))
     self.randomize_level_order.setText(_translate("Dialog", "Ticky"))
     self.warps_label.setText(_translate("Dialog", "Ignore this"))
     self.colors__label.setText(_translate("Dialog", "Ignore this"))
