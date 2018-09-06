@@ -20,7 +20,12 @@ class LevelRoom(object):
       Direction.EAST: (1, 2),  # Bits 2-5 of table 1
       Direction.SOUTH: (0, 2)  # Bits 2-5 of table 0
   }
+
+  # Rooms where mobility is restricted without a ladder.
+  # Note that while the player can exit and enter through any door in a CIRCLE_MOAT_ROOM, we keep
+  # it in this Dict since a room item may not be able to be picked up without the ladder.
   POTENTIAL_LADDER_BLOCK_ROOMS_VALID_TRAVEL_DIRECTIONS: Dict[RoomType, List[Direction]] = {
+      RoomType.CIRCLE_MOAT_ROOM: [Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST],
       RoomType.DOUBLE_MOAT_ROOM: [Direction.EAST, Direction.WEST],
       RoomType.HORIZONTAL_MOAT_ROOM: [Direction.EAST, Direction.SOUTH, Direction.WEST],
       RoomType.VERTICAL_MOAT_ROOM: [Direction.SOUTH, Direction.WEST, Direction.NORTH],
