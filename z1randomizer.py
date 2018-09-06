@@ -1,6 +1,6 @@
 import os
 import random
-from constants import TextSpeeds
+from constants import TextSpeed
 from item_randomizer import ItemRandomizer
 from item_shuffler import ItemShuffler
 from level_data_table import LevelDataTable
@@ -55,10 +55,10 @@ class Z1Randomizer(object):
       is_valid_seed = logic_validator.Validate()
     level_data_table.WriteLevelDataToRom()
 
-    converted_text_speed = TextSpeeds.NORMAL
+    converted_text_speed = TextSpeed.NORMAL
     if (self.text_speed == 'random'):
-      converted_text_speed = random.choice(list(TextSpeeds))
+      converted_text_speed = random.choice(list(TextSpeed))
     else:
-      converted_text_speed = TextSpeeds[self.text_speed.upper()]
+      converted_text_speed = TextSpeed[self.text_speed.upper()]
 
     text_data_table.WriteTextSpeedToRom(converted_text_speed)
