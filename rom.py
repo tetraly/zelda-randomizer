@@ -12,7 +12,7 @@ class Rom(object):
   def __init__(self, rom_filename: str, src: str = None,
                add_nes_header_offset: bool = False) -> None:
     self.rom_filename = rom_filename
-    self.rom_file: IO[bytes] = None
+    self.rom_file: IO[bytes]
     self.write_mode = False
     self.add_nes_header_offset = add_nes_header_offset
     if src:

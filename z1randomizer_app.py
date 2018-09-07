@@ -19,7 +19,7 @@ class Z1rApp(Z1rUI):
   # Override
   def _RunRandomizer(self) -> None:
     z1r = Z1Randomizer()
-    z1r.SetFlags(self.input_filename_flag, self.output_location_flag, self.seed_flag)
+    z1r.SetFlags(self.input_filename_flag, self.output_location_flag, self.seed_flag, "normal")
     z1r.Run()
 
 
