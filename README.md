@@ -1,20 +1,24 @@
-Open Source Zelda 1 Randomizer
+## Open Source Zelda 1 Randomizer
 
-This is an open-source item randomizer for Zelda 1 written by tetraly. If you're looking for the Zelda Randomizer written by fcoughlin, please see https://sites.google.com/site/zeldarandomizer/
+This is an open-source item randomizer for Zelda 1 written by tetraly with contributions from other members of the Zelda 1 Randomizer community.
 
-This code is was written and tested with Python 3.6.4. It probably will not be backwards compatible with Python 2.x. Currently, it requires the open-source Abseil library, as well as the PyQt5 for the GUI to run. Coming soon will be a self-contained .EXE file for Windows and .App file for MacOS. But if you're comfortable with command-line tools and want to try it out, clone this repository and run:
+- If you're looking to download a copy of the item randomizer to use, please download the latest released version at https://github.com/tetraly/zelda-randomizer/releases
+
+- If you're looking for the Zelda Randomizer written by fcoughlin, please see https://sites.google.com/site/zeldarandomizer/
+
+This code is was written and tested with Python 3.6.4 and is not guaranteed to be backwards compatible with Python 2.x. Currently, it requires the open-source Abseil library, as well as the PyQt5 for the GUI to build and run it directly from the source code.  If you're comfortable with command-line tools and want to try it out, clone this repository and run:
 
 ```
 pip install pipenv
 pipenv install
 pipenv shell
-python z1randomizer_cli.py --input_filename=/path/to/zelda/rom.nes --output_location=/path/to/put/randomized/rom/ --seed=12345
+python z1randomizer.py --input_filename=/path/to/zelda/rom.nes --output_location=/path/to/put/randomized/rom/ --seed=12345
 ```
 
-You can also run the GUI version:
+You can also run the GUI version, which will start automatically if you don't specify any command-line parameters:
 
 ```
-python z1randomizer_app.py
+python z1randomizer.py
 ```
 
 A design/class overview for programmers:
