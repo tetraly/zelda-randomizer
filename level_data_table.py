@@ -39,8 +39,10 @@ class LevelDataTable(object):
 
   def ReadLevelDataFromRom(self):
     self._ClearTables()
-    self.level_1_to_6_level_rooms = self._ReadLevelDataForLevelGrid(self.LEVEL_1_TO_6_DATA_START_ADDRESS)
-    self.level_7_to_9_level_rooms = self._ReadLevelDataForLevelGrid(self.LEVEL_7_TO_9_DATA_START_ADDRESS)
+    self.level_1_to_6_level_rooms = self._ReadLevelDataForLevelGrid(
+        self.LEVEL_1_TO_6_DATA_START_ADDRESS)
+    self.level_7_to_9_level_rooms = self._ReadLevelDataForLevelGrid(
+        self.LEVEL_7_TO_9_DATA_START_ADDRESS)
 
   def _WriteLevelDataForLevelGrid(self, table_start_address, level_rooms) -> None:
     for room_num in Range.VALID_ROOM_NUMBERS:
