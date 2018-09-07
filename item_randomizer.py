@@ -68,3 +68,5 @@ class ItemRandomizer(object):
   def WriteItemsAndLocationsToTable(self) -> None:
     for (level_num, room_num, item_num) in self.item_shuffler.GetAllLocationAndItemData():
       self.level_table.GetLevelRoom(level_num, room_num).SetItem(item_num)
+      if item_num == Item.TRINGLE:
+        self.level_table.UpdateTriforceLocation(level_num, room_num)

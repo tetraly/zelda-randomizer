@@ -54,13 +54,6 @@ class LevelDataTable(object):
             address=table_start_address + table_num * self.LEVEL_TABLE_SIZE + room_num,
             data=room_data[table_num])
 
-  def WriteLevelDataToRom(self):
-    logging.debug("Beginning to write level data to disk.")
-    self._WriteLevelDataForLevelGrid(self.LEVEL_1_TO_6_DATA_START_ADDRESS,
-                                     self.level_1_to_6_level_rooms)
-    self._WriteLevelDataForLevelGrid(self.LEVEL_7_TO_9_DATA_START_ADDRESS,
-                                     self.level_7_to_9_level_rooms)
-
     # Write Triforce room location to update where the compass displays it in levels 1-8.
     # The room the compass points to in level 9 doesn't change.
     for level_num in range(1, 9):
@@ -68,6 +61,13 @@ class LevelDataTable(object):
       triforce_room_address = (self.LEVEL_1_TRIFORCE_ROOM_ADDRESS +
                                self.STAIRCASE_START_ROOM_LEVEL_OFFSET * (level_num - 1))
       self.rom.WriteByte(triforce_room_address, self.triforce_locations[level_num])
+
+  def WriteLevelDataToRom(self):
+    logging.debug("Beginning to write level data to disk.")
+    self._WriteLevelDataForLevelGrid(self.LEVEL_1_TO_6_DATA_START_ADDRESS,
+                                     self.level_1_to_6_level_rooms)
+    self._WriteLevelDataForLevelGrid(self.LEVEL_7_TO_9_DATA_START_ADDRESS,
+                                     self.level_7_to_9_level_rooms)
 
   def UpdateTriforceLocation(self, level_num: LevelNum, room_num: RoomNum):
     self.triforce_locations[level_num] = room_num
