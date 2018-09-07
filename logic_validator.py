@@ -79,7 +79,9 @@ class LogicValidator(object):
 
     # Regular level room case.  Try all cardinal directions as well as taking a staircase (if any).
     for direction in (Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH):
-      if room.GetWallType(direction) != WallType.SOLID_WALL:
+      # TODO: Check for solid walls in CanMove() instead of here.
+      if room.GetWallType(direction) != WallType.SOLID_WALL and room.CanMove(
+          entry_direction, direction, missing_item):
         self._GetProgressionItemsInLevelRecursively(level_num, RoomNum(room_num + direction),
                                                     Direction(-1 * direction), missing_item,
                                                     items_obtained)
