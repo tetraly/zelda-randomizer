@@ -117,3 +117,6 @@ venv.bak/
 *_BASE_*
 *_LOCAL_*
 *_REMOTE_*
+
+# Visual Stude Code Settings
+.vscode/

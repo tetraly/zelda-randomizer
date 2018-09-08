@@ -1,6 +1,7 @@
 import random
 from typing import Dict, List, Tuple, Iterable
-from constants import Item, LevelNum, Range, RoomNum
+
+from .constants import Item, LevelNum, Range, RoomNum
 
 
 class ItemShuffler(object):

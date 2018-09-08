@@ -1,6 +1,7 @@
 from typing import List, Tuple
-from level_data_table import LevelDataTable
-from constants import Direction, Item, LevelNum, Range, RoomNum, WallType
+
+from .level_data_table import LevelDataTable
+from .constants import Direction, Item, LevelNum, Range, RoomNum, WallType
 
 
 class LogicValidator(object):
