@@ -9,12 +9,14 @@ class LevelDataTable(object):
   LEVEL_1_TO_6_DATA_START_ADDRESS = 0x18700
   LEVEL_7_TO_9_DATA_START_ADDRESS = 0x18A00
   LEVEL_TABLE_SIZE = 0x80
-  LEVEL_1_START_ROOM_ADDRESS = 0x1942B
-  LEVEL_1_TRIFORCE_ROOM_ADDRESS = 0x1942C
-  LEVEL_1_STAIRCASE_DATA_ADDRESS = 0x19430
   LEVEL_3_RAFT_ROOM_NUMBER = RoomNum(0x0F)
-  STAIRCASE_START_ROOM_LEVEL_OFFSET = 0xFC
+  SPECIAL_DATA_LEVEL_OFFSET = 0xFC
   STAIRCASE_ROOM_NUMBER_SENTINEL_VALUE = 0xFF
+  SPECIAL_DATA_ADDRESSES = {
+      "start_room": 0x1942B,
+      "triforce_room": 0x1942C,
+      "staircase_data": 0x19430
+  }
 
   def __init__(self, rom: Rom) -> None:
     self.rom = rom
@@ -26,6 +28,11 @@ class LevelDataTable(object):
     self.level_1_to_6_level_rooms = []
     self.level_7_to_9_level_rooms = []
     self.triforce_locations = {}
+
+  def _GetSpecialDataAddressForLevel(self, type: str, level: int) -> int:
+    assert type in SPECIAL_DATA_ADDRESSES.keys()
+    assert level in Range.VALID_LEVEL_NUMBERS
+    return SPECIAL_DATA_ADDRESSES[type] + (level - 1) * SPECIAL_DATA_LEVEL_OFFSET
 
   def _ReadLevelDataForLevelGrid(self, table_start_address: int) -> List[LevelRoom]:
     level_rooms: List[LevelRoom] = []
@@ -49,8 +56,6 @@ class LevelDataTable(object):
       room_data = level_rooms[room_num].GetRomData()
       assert len(room_data) == len(Range.VALID_TABLE_NUMBERS)
 
-      assert len(Range.VALID_TABLE_NUMBERS) == 6  # !!! Take out
-
       for table_num in Range.VALID_TABLE_NUMBERS:
         self.rom.WriteByte(
             address=table_start_address + table_num * self.LEVEL_TABLE_SIZE + room_num,
@@ -60,8 +65,7 @@ class LevelDataTable(object):
     # The room the compass points to in level 9 doesn't change.
     for level_num in range(1, 9):
       assert level_num in self.triforce_locations
-      triforce_room_address = (self.LEVEL_1_TRIFORCE_ROOM_ADDRESS +
-                               self.STAIRCASE_START_ROOM_LEVEL_OFFSET * (level_num - 1))
+      triforce_room_address = self._GetSpecialDataAddressForLevel("triforce_room", level_num)
       self.rom.WriteByte(triforce_room_address, self.triforce_locations[level_num])
 
   def WriteLevelDataToRom(self):
@@ -96,8 +100,7 @@ class LevelDataTable(object):
   #   The number of the start room, e.g. 0x73 for level 1
   def GetLevelStartRoomNumber(self, level_num: LevelNum) -> RoomNum:
     assert level_num in Range.VALID_LEVEL_NUMBERS
-    address = (
-        self.LEVEL_1_START_ROOM_ADDRESS + self.STAIRCASE_START_ROOM_LEVEL_OFFSET * (level_num - 1))
+    address = self._GetSpecialDataAddressForLevel("start_room", level_num)
     return RoomNum(self.rom.ReadByte(address))
 
   # Gets a list of staircase rooms for a level.
@@ -112,8 +115,7 @@ class LevelDataTable(object):
   #  Zero or more bytes containing the staircase room numbers
   def GetLevelStaircaseRoomNumberList(self, level_num: LevelNum) -> List[RoomNum]:
     assert level_num in Range.VALID_LEVEL_NUMBERS
-    staircase_list_location = (self.LEVEL_1_STAIRCASE_DATA_ADDRESS +
-                               self.STAIRCASE_START_ROOM_LEVEL_OFFSET * (level_num - 1))
+    staircase_list_location = self._GetSpecialDataAddressForLevel("staircase_data", level_num)
     raw_bytes = self.rom.ReadBytes(staircase_list_location, 10)
     staircase_list: List[RoomNum] = []
     for byte in raw_bytes:
