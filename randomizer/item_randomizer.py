@@ -1,11 +1,11 @@
 from absl import logging
 
-from .item_shuffler import ItemShuffler
-from .level_data_table import LevelDataTable
-from .constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
+from randomizer.item_shuffler import ItemShuffler
+from randomizer.level_data_table import LevelDataTable
+from randomizer.constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
 
 
-class ItemRandomizer(object):
+class ItemRandomizer():
   def __init__(self, level_table: LevelDataTable, item_shuffler: ItemShuffler) -> None:
     self.level_table = level_table
     self.item_shuffler = item_shuffler

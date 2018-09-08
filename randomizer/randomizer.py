@@ -1,13 +1,13 @@
 import os
 import random
 
-from .constants import TextSpeed
-from .item_randomizer import ItemRandomizer
-from .item_shuffler import ItemShuffler
-from .level_data_table import LevelDataTable
-from .logic_validator import LogicValidator
-from .rom import Rom
-from .text.text_data_table import TextDataTable
+from randomizer.constants import TextSpeed
+from randomizer.item_randomizer import ItemRandomizer
+from randomizer.item_shuffler import ItemShuffler
+from randomizer.level_data_table import LevelDataTable
+from randomizer.logic_validator import LogicValidator
+from randomizer.rom import Rom
+from randomizer.text.text_data_table import TextDataTable
 
 class Z1Randomizer():
   def __init__(self):

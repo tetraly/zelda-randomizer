@@ -1,10 +1,10 @@
 import random
 from typing import Dict, List, Tuple, Iterable
 
-from .constants import Item, LevelNum, Range, RoomNum
+from randomizer.constants import Item, LevelNum, Range, RoomNum
 
 
-class ItemShuffler(object):
+class ItemShuffler():
   def __init__(self) -> None:
     self.per_level_item_location_lists: Dict[LevelNum, List[RoomNum]] = {}
     self.item_num_list: List[Item] = []

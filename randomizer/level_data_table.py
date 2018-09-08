@@ -1,12 +1,12 @@
 from typing import Dict, List
 from absl import logging
 
-from .constants import Range, LevelNum, RoomNum
-from .level_room import LevelRoom
-from .rom import Rom
+from randomizer.constants import Range, LevelNum, RoomNum
+from randomizer.level_room import LevelRoom
+from randomizer.rom import Rom
 
 
-class LevelDataTable(object):
+class LevelDataTable():
   LEVEL_1_TO_6_DATA_START_ADDRESS = 0x18700
   LEVEL_7_TO_9_DATA_START_ADDRESS = 0x18A00
   LEVEL_TABLE_SIZE = 0x80
