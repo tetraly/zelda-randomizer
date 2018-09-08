@@ -1,8 +1,9 @@
 from typing import Dict, List
 from absl import logging
-from constants import Range, LevelNum, RoomNum
-from level_room import LevelRoom
-from rom import Rom
+
+from .constants import Range, LevelNum, RoomNum
+from .level_room import LevelRoom
+from .rom import Rom
 
 
 class LevelDataTable(object):
@@ -30,9 +31,9 @@ class LevelDataTable(object):
     self.triforce_locations = {}
 
   def _GetSpecialDataAddressForLevel(self, type: str, level: int) -> int:
-    assert type in SPECIAL_DATA_ADDRESSES.keys()
+    assert type in self.SPECIAL_DATA_ADDRESSES.keys()
     assert level in Range.VALID_LEVEL_NUMBERS
-    return SPECIAL_DATA_ADDRESSES[type] + (level - 1) * SPECIAL_DATA_LEVEL_OFFSET
+    return self.SPECIAL_DATA_ADDRESSES[type] + (level - 1) * self.SPECIAL_DATA_LEVEL_OFFSET
 
   def _ReadLevelDataForLevelGrid(self, table_start_address: int) -> List[LevelRoom]:
     level_rooms: List[LevelRoom] = []

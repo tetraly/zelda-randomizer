@@ -1,7 +1,8 @@
 from absl import logging
-from item_shuffler import ItemShuffler
-from level_data_table import LevelDataTable
-from constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
+
+from .item_shuffler import ItemShuffler
+from .level_data_table import LevelDataTable
+from .constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
 
 
 class ItemRandomizer(object):

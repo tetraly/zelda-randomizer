@@ -1,6 +1,7 @@
 from absl import logging
-from constants import TextSpeed
-from rom import Rom
+
+from .constants import TextSpeed
+from .rom import Rom
 
 
 class TextDataTable(object):
