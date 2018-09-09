@@ -22,6 +22,14 @@ flags.DEFINE_enum(
     'resetting door repair charges.',
 )
 
+# TODO: Turn this enum into a string with lambda validation.
+flags.DEFINE_enum(
+    'level_text',
+    'level-',
+    ['level-', 'house-', 'block-', 'random', 'cage_-', 'home_-', 'castle'],
+    'What are the dungeons called? This is strictly for fun.'
+)
+
 FLAGS = flags.FLAGS
 
 class Z1RandomizerApp(Z1rUI):
@@ -35,7 +43,7 @@ class Z1RandomizerApp(Z1rUI):
   # Override
   def _RunRandomizer(self) -> None:
     z1r = Z1Randomizer()
-    z1r.SetFlags(self.input_filename_flag, self.output_location_flag, self.seed_flag, "normal")
+    z1r.SetFlags(self.input_filename_flag, self.output_location_flag, self.seed_flag, "normal", "level-")
     z1r.Run()
 
 
@@ -49,7 +57,7 @@ def main(unused_argv) -> None:
     sys.exit(0)
 
   z1randomizer = Z1Randomizer()
-  z1randomizer.SetFlags(FLAGS.input_filename, FLAGS.output_location, FLAGS.seed, FLAGS.text_speed)
+  z1randomizer.SetFlags(FLAGS.input_filename, FLAGS.output_location, FLAGS.seed, FLAGS.text_speed, FLAGS.level_text)
   z1randomizer.Run()
 
 

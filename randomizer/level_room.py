@@ -1,10 +1,10 @@
 from typing import Dict, List
 from absl import logging
 
-from .constants import Direction, Enemy, Item, Range, RoomNum, RoomType, WallType
+from randomizer.constants import Direction, Enemy, Item, Range, RoomNum, RoomType, WallType
 
 
-class LevelRoom(object):
+class LevelRoom():
 
   # According to http://www.bwass.org/romhack/zelda1/zelda1bank6.txt:
   # Bytes in table 0 represent:

@@ -1,13 +1,13 @@
 import os
 import random
 
-from .constants import TextSpeed
-from .item_randomizer import ItemRandomizer
-from .item_shuffler import ItemShuffler
-from .level_data_table import LevelDataTable
-from .logic_validator import LogicValidator
-from .rom import Rom
-from .text_data_table import TextDataTable
+from randomizer.constants import TextSpeed
+from randomizer.item_randomizer import ItemRandomizer
+from randomizer.item_shuffler import ItemShuffler
+from randomizer.level_data_table import LevelDataTable
+from randomizer.logic_validator import LogicValidator
+from randomizer.rom import Rom
+from randomizer.text.text_data_table import TextDataTable
 
 class Z1Randomizer():
   def __init__(self):
@@ -15,12 +15,14 @@ class Z1Randomizer():
     self.output_location: str = None
     self.seed: int = 0
     self.text_speed: str = None
+    self.level_text: str = None
 
-  def SetFlags(self, input_filename: str, output_location: str, seed: int, text_speed: str) -> None:
+  def SetFlags(self, input_filename: str, output_location: str, seed: int, text_speed: str, level_text: str) -> None:
     self.input_filename = input_filename
     self.output_location = output_location
     self.seed = seed
     self.text_speed = text_speed
+    self.level_text = level_text
 
   def Run(self):
     input_rom = Rom(self.input_filename, add_nes_header_offset=True)
@@ -62,3 +64,4 @@ class Z1Randomizer():
       converted_text_speed = TextSpeed[self.text_speed.upper()]
 
     text_data_table.WriteTextSpeedToRom(converted_text_speed)
+    text_data_table.WriteLevelNameToRom(self.level_text)

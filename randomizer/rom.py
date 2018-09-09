@@ -4,7 +4,7 @@ from shutil import copyfile
 from absl import logging
 
 
-class Rom(object):
+class Rom():
   """A class representing a video game ROM file stored in a binary file."""
 
   NES_HEADER_OFFSET = 0x10

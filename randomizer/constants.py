@@ -5,7 +5,7 @@ LevelNum = int
 RoomNum = NewType('RoomNum', int)
 
 
-class Range(object):
+class Range():
   VALID_ROOM_NUMBERS = range(0, 0x80)
   VALID_TABLE_NUMBERS = range(0, 6)
   VALID_LEVEL_NUMBERS = range(1, 10)  # Use 1-indexed level numbers.  Valid values are 1-9

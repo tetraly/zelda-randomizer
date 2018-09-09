@@ -1,10 +1,10 @@
 from typing import List, Tuple
 
-from .level_data_table import LevelDataTable
-from .constants import Direction, Item, LevelNum, Range, RoomNum, WallType
+from randomizer.level_data_table import LevelDataTable
+from randomizer.constants import Direction, Item, LevelNum, Range, RoomNum, WallType
 
 
-class LogicValidator(object):
+class LogicValidator():
   # Note: The inclusion of a "Tringle" as a progression item is to ensure that no other progression
   # item can be in level 9 unless all eight of the tringles in levels 1-8 can be obtained without
   # that item.  This leaves the possibility of double-dips of level 9, particularly for the bow.
