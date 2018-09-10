@@ -9,6 +9,7 @@ from randomizer.logic_validator import LogicValidator
 from randomizer.rom import Rom
 from randomizer.text.text_data_table import TextDataTable
 
+
 class Z1Randomizer():
   def __init__(self):
     self.input_filename: str = None
@@ -17,7 +18,8 @@ class Z1Randomizer():
     self.text_speed: str = None
     self.level_text: str = None
 
-  def SetFlags(self, input_filename: str, output_location: str, seed: int, text_speed: str, level_text: str) -> None:
+  def SetFlags(self, input_filename: str, output_location: str, seed: int, text_speed: str,
+               level_text: str) -> None:
     self.input_filename = input_filename
     self.output_location = output_location
     self.seed = seed

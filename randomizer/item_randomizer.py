@@ -10,6 +10,23 @@ class ItemRandomizer():
     self.level_table = level_table
     self.item_shuffler = item_shuffler
 
+  OVERWORLD_ITEMS_TO_SHUFFLE = [
+      Item.POWER_BRACELET, Item.HEART_CONTAINER, Item.WHITE_SWORD, Item.LETTER, Item.WOOD_ARROWS,
+      Item.BLUE_RING, Item.BLUE_CANDLE
+  ]
+
+  OVERWORLD_CAVES_TO_SHUFFLE = [
+      2,  # White Sword Cave
+      # 3 # Magical Sword Cave
+      8,  # Letter Cave
+      13,  # Shield / Bombs / Wood Arrow shop
+      14,  # Shield / Key / Blue Candle shop
+      # 15, # Shield / Bait / Heart shop
+      16,  # Key / Blue Ring / Bait shop
+      20,  # Armos item "virtual cave"
+      21  # Coast item "virtual cave"
+  ]
+
   def ReadItemsAndLocationsFromTable(self) -> None:
     for level_num in Range.VALID_LEVEL_NUMBERS:
       logging.debug("Reading staircase room data for level %d " % level_num)
@@ -18,6 +35,12 @@ class ItemRandomizer():
       level_start_room_num = self.level_table.GetLevelStartRoomNumber(level_num)
       logging.debug("Traversing level %d.  Start room is %x. " % (level_num, level_start_room_num))
       self._ReadItemsAndLocationsRecursively(level_num, level_start_room_num)
+
+    for cave_num in self.OVERWORLD_CAVES_TO_SHUFFLE:
+      for position_num in [0, 1, 2]:
+        item_num = self.level_table.GetOverworldCave(cave_num).GetItemAtPosition(position_num)
+        if item_num in OVERWORLD_ITEMS_TO_SHUFFLE:
+          self.item_shuffler.AddOverworldLocationAndItem(cave_num, position_num, item_num)
 
   def _ParseStaircaseRoom(self, level_num: LevelNum, staircase_room_num: RoomNum) -> None:
     staircase_room = self.level_table.GetLevelRoom(level_num, staircase_room_num)
@@ -71,3 +94,6 @@ class ItemRandomizer():
       self.level_table.GetLevelRoom(level_num, room_num).SetItem(item_num)
       if item_num == Item.TRINGLE:
         self.level_table.UpdateTriforceLocation(level_num, room_num)
+    for (cave_num, position_num,
+         item_num) in self.item_shuffler.GetAllOverworldLocationAndItemData():
+      self.level_table.GetOverworldCave(cave_num).SetItemNumberAtPosition(item_num, position_num)

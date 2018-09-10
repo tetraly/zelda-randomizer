@@ -18,17 +18,79 @@ class LevelDataTable():
       "triforce_room": 0x1942C,
       "staircase_data": 0x19430
   }
+  ARMOS_ITEM_ADDRESS = 0x10CF5
+  COAST_ITEM_ADDRESS = 0x1788A
+  WOOD_SWORD_ITEM_ADDRESS = 0x18601
+  WHITE_SWORD_ITEM_ADDRESS = 0x18607
+  MAGICAL_SWORD_ITEM_ADDRESS = 0x1860A
+  LETTER_ITEM_ADDRESS = 0x18619
+  TAKE_ANY_HEART_ADDRESS = 0x18605
+  WOOD_ARROWS_ITEM_ADDRESS = 0x18629
+  BLUE_CANDLE_ITEM_ADDRESS = 0x1862C
+  BLUE_RING_ITEM_ADDRESS = 0x18631
 
   def __init__(self, rom: Rom) -> None:
     self.rom = rom
     self.level_1_to_6_level_rooms: List[LevelRoom] = []
     self.level_7_to_9_level_rooms: List[LevelRoom] = []
     self.triforce_locations: Dict[LevelNum, RoomNum] = {}
+    self.overworld_caves: List[OverworldCave] = []
 
   def _ClearTables(self) -> None:
     self.level_1_to_6_level_rooms = []
     self.level_7_to_9_level_rooms = []
     self.triforce_locations = {}
+    self.overworld_caves = []
+
+  def ReadOverworldCaveDataFromRom(self):
+    print("Checking overworld schtuffs")
+    assert self.rom.ReadByte(self.ARMOS_ITEM_ADDRESS) & 0x3F == 0x14
+    assert self.rom.ReadByte(self.COAST_ITEM_ADDRESS) & 0x3F == 0x1A
+    assert self.rom.ReadByte(self.WOOD_SWORD_ITEM_ADDRESS) & 0x3F == 0x01
+    assert self.rom.ReadByte(self.WHITE_SWORD_ITEM_ADDRESS) & 0x3F == 0x02
+    assert self.rom.ReadByte(self.MAGICAL_SWORD_ITEM_ADDRESS) & 0x3F == 0x03
+    assert self.rom.ReadByte(self.LETTER_ITEM_ADDRESS) & 0x3F == 0x15
+    assert self.rom.ReadByte(self.TAKE_ANY_HEART_ADDRESS) & 0x3F == 0x1A
+    assert self.rom.ReadByte(self.WOOD_ARROWS_ITEM_ADDRESS) & 0x3F == 0x08
+    assert self.rom.ReadByte(self.BLUE_CANDLE_ITEM_ADDRESS) & 0x3F == 0x06
+    assert self.rom.ReadByte(self.BLUE_RING_ITEM_ADDRESS) & 0x3F == 0x12
+
+    for cave_num in Range.VALID_CAVE_NUMBERS:
+      if cave_num == self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM:
+        armos_item = self.rom.ReadByte(self.ARMOS_ITEM_ADDRESS)
+        self.overworld_caves.append(OverworldCave([0x3F, armos_item, 0x7F, 0x00, 0x00, 0x00]))
+        continue
+      if cave_num == self.CAVE_NUMBER_REPRESENTING_COAST_ITEM:
+        coast_item = self.rom.ReadByte(self.COAST_ITEM_ADDRESS)
+        self.overworld_caves.append(OverworldCave([0x3F, coast_item, 0x7F, 0x00, 0x00, 0x00]))
+        continue
+
+      raw_data: List[int] = []
+      raw_data.extend(self.rom.ReadBytes(self.CAVE_ITEM_DATA_START_ADDRESS + 3 * (cave_num - 1), 3))
+      raw_data.extend(
+          self.rom.ReadBytes(self.CAVE_PRICE_DATA_START_ADDRESS + 3 * (cave_num - 1), 3))
+      self.overworld_caves.append(OverworldCave(raw_data))
+
+    assert len(self.overworld_caves) == 22
+
+  def WriteOverworldItemDataToRom(self) -> None:
+    for cave_num in Range.VALID_CAVE_NUMBERS:
+      if cave_num == self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM:
+        self.rom.WriteByte(self.ARMOS_ITEM_ADDRESS, self.overworld_caves[cave_num].getSingleItem())
+        continue
+      if cave_num == self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM:
+        self.rom.WriteByte(self.COAST_ITEM_ADDRESS, self.overworld_caves[cave_num].getSingleItem())
+        continue
+
+      # Note that the OverworldCave class is responsible for protecting bits 6 and 7 in its item data
+      self.rom.WriteBytes(self.CAVE_ITEM_DATA_START_ADDRESS + (3 * cave_num),
+                          self.overworld_caves[cave_num].getItemData())
+      self.rom.WriteBytes(self.CAVE_PRICE_DATA_START_ADDRESS + (3 * cave_num),
+                          self.overworld_caves[cave_num].getPriceData())
+
+  def GetOverworldCave(self, cave_num: CaveNum) -> OverworldCave:
+    assert cave_num in Range.VALID_CAVE_NUMBERS
+    return self.overworld_caves[cave_num]
 
   def _GetSpecialDataAddressForLevel(self, type: str, level: int) -> int:
     assert type in self.SPECIAL_DATA_ADDRESSES.keys()
