@@ -1,3 +1,4 @@
+import re
 import sys
 
 from absl import app
@@ -5,6 +6,7 @@ from absl import flags
 from PyQt5.QtWidgets import QApplication
 
 from randomizer.randomizer import Z1Randomizer
+from randomizer.settings.settings import Settings
 
 from z1r_ui import Z1rUI
 
@@ -22,30 +24,47 @@ flags.DEFINE_enum(
     'resetting door repair charges.',
 )
 
-# TODO: Turn this enum into a string with lambda validation.
-flags.DEFINE_enum(
+flags.DEFINE_string(
     'level_text',
     'level-',
-    ['level-', 'house-', 'block-', 'random', 'cage_-', 'home_-', 'castle'],
     'What are the dungeons called? This is strictly for fun.'
+)
+
+def is_level_text_valid(value: str) -> bool:
+  if len(value) > 6:
+    return False
+
+  if value == '*':
+    return True
+
+  pattern = re.compile("([\\w~,!'&\\.\\\"\\?-]){1,6}")
+  return pattern.match(value)
+
+flags.register_validator(
+    'level_text',
+    is_level_text_valid,
+    message='This text must fit a pattern no bigger than six characters.'
 )
 
 FLAGS = flags.FLAGS
 
+def generate_base_settings(input_filename: str, output_location: str, seed: int) -> Settings:
+  settings = Settings()
+  settings.input_filename = input_filename
+  settings.output_location = output_location
+  settings.seed = seed
+  return settings
+
 class Z1RandomizerApp(Z1rUI):
   def __init__(self, parent=None) -> None:
     super(Z1RandomizerApp, self).__init__(parent)
-
-    self.input_filename_flag = ""
-    self.output_location_flag = ""
-    self.seed_flag = 0
+    self.settings = Settings()
 
   # Override
   def _RunRandomizer(self) -> None:
     z1r = Z1Randomizer()
-    z1r.SetFlags(self.input_filename_flag, self.output_location_flag, self.seed_flag, "normal", "level-")
+    z1r.SetFlags(self.settings)
     z1r.Run()
-
 
 def main(unused_argv) -> None:
   if FLAGS.input_filename == '' and FLAGS.seed == 0:
@@ -57,7 +76,11 @@ def main(unused_argv) -> None:
     sys.exit(0)
 
   z1randomizer = Z1Randomizer()
-  z1randomizer.SetFlags(FLAGS.input_filename, FLAGS.output_location, FLAGS.seed, FLAGS.text_speed, FLAGS.level_text)
+  settings = generate_base_settings(FLAGS.input_filename, FLAGS.output_location, FLAGS.seed)
+  settings.flags.text_speed = FLAGS.text_speed
+  settings.flags.level_text = FLAGS.level_text
+
+  z1randomizer.SetFlags(settings)
   z1randomizer.Run()
 
 
