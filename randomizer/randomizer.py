@@ -53,6 +53,7 @@ class Z1Randomizer():
       random.seed(seed)
       item_shuffler.ResetState()
       level_data_table.ReadLevelDataFromRom()
+      level_data_table.ReadOverworldCaveDataFromRom()
       item_randomizer.ReadItemsAndLocationsFromTable()
       item_randomizer.ShuffleItems()
       item_randomizer.WriteItemsAndLocationsToTable()

@@ -2,7 +2,7 @@ from absl import logging
 
 from randomizer.item_shuffler import ItemShuffler
 from randomizer.level_data_table import LevelDataTable
-from randomizer.constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
+from randomizer.constants import CaveNum, Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
 
 
 class ItemRandomizer():
@@ -16,15 +16,15 @@ class ItemRandomizer():
   ]
 
   OVERWORLD_CAVES_TO_SHUFFLE = [
-      2,  # White Sword Cave
-      # 3 # Magical Sword Cave
-      8,  # Letter Cave
-      13,  # Shield / Bombs / Wood Arrow shop
-      14,  # Shield / Key / Blue Candle shop
-      # 15, # Shield / Bait / Heart shop
-      16,  # Key / Blue Ring / Bait shop
-      20,  # Armos item "virtual cave"
-      21  # Coast item "virtual cave"
+      CaveNum(2),  # White Sword Cave
+      # CaveNum(3) # Magical Sword Cave
+      CaveNum(8),  # Letter Cave
+      CaveNum(13),  # Shield / Bombs / Wood Arrow shop
+      CaveNum(14),  # Shield / Key / Blue Candle shop
+      # CaveNum(15), # Shield / Bait / Heart shop
+      CaveNum(16),  # Key / Blue Ring / Bait shop
+      CaveNum(20),  # Armos item "virtual cave"
+      CaveNum(21)  # Coast item "virtual cave"
   ]
 
   def ReadItemsAndLocationsFromTable(self) -> None:
@@ -39,22 +39,22 @@ class ItemRandomizer():
     for cave_num in self.OVERWORLD_CAVES_TO_SHUFFLE:
       for position_num in [0, 1, 2]:
         item_num = self.level_table.GetOverworldCave(cave_num).GetItemAtPosition(position_num)
-        if item_num in OVERWORLD_ITEMS_TO_SHUFFLE:
+        if item_num in self.OVERWORLD_ITEMS_TO_SHUFFLE:
           self.item_shuffler.AddOverworldLocationAndItem(cave_num, position_num, item_num)
 
   def _ParseStaircaseRoom(self, level_num: LevelNum, staircase_room_num: RoomNum) -> None:
-    staircase_room = self.level_table.GetLevelRoom(level_num, staircase_room_num)
+    staircase_room = self.level_table.GetRoom(level_num, staircase_room_num)
 
     if staircase_room.GetRoomType() == RoomType.ITEM_STAIRCASE:
       logging.debug("  Found item staircase %x in L%d " % (staircase_room_num, level_num))
       assert staircase_room.GetLeftExit() == staircase_room.GetRightExit()
-      self.level_table.GetLevelRoom(
+      self.level_table.GetRoom(
           level_num, staircase_room.GetLeftExit()).SetStaircaseRoomNumber(staircase_room_num)
     elif staircase_room.GetRoomType() == RoomType.TRANSPORT_STAIRCASE:
       logging.debug("  Found transport staircase %x in L%d " % (staircase_room_num, level_num))
       assert staircase_room.GetLeftExit() != staircase_room.GetRightExit()
       for associated_room_num in [staircase_room.GetLeftExit(), staircase_room.GetRightExit()]:
-        self.level_table.GetLevelRoom(
+        self.level_table.GetRoom(
             level_num, associated_room_num).SetStaircaseRoomNumber(staircase_room_num)
     else:
       logging.fatal("Room in staircase room number list (%x) didn't have staircase type (%x)." %
@@ -63,7 +63,7 @@ class ItemRandomizer():
   def _ReadItemsAndLocationsRecursively(self, level_num: LevelNum, room_num: RoomNum) -> None:
     if room_num not in Range.VALID_ROOM_NUMBERS:
       return  # No escaping back into the overworld! :)
-    room = self.level_table.GetLevelRoom(level_num, room_num)
+    room = self.level_table.GetRoom(level_num, room_num)
     if room.IsMarkedAsVisited():
       return
     room.MarkAsVisited()
@@ -91,7 +91,7 @@ class ItemRandomizer():
 
   def WriteItemsAndLocationsToTable(self) -> None:
     for (level_num, room_num, item_num) in self.item_shuffler.GetAllLocationAndItemData():
-      self.level_table.GetLevelRoom(level_num, room_num).SetItem(item_num)
+      self.level_table.GetRoom(level_num, room_num).SetItem(item_num)
       if item_num == Item.TRINGLE:
         self.level_table.UpdateTriforceLocation(level_num, room_num)
     for (cave_num, position_num,

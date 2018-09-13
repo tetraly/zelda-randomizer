@@ -1,22 +1,34 @@
 import random
 from typing import Dict, List, Tuple, Iterable
 
-from randomizer.constants import Item, LevelNum, Range, RoomNum
+from randomizer.constants import CaveNum, Item, LevelNum, Range, RoomNum
 
 
 class ItemShuffler():
   def __init__(self) -> None:
-    self.per_level_item_location_lists: Dict[LevelNum, List[RoomNum]] = {}
     self.item_num_list: List[Item] = []
+    self.per_level_item_location_lists: Dict[LevelNum, List[RoomNum]] = {}
     self.per_level_item_lists: Dict[LevelNum, List[Item]] = {}
+    self.overworld_cave_item_locations: List[(CaveNum, CavePosition)] = []
+    self.per_level_item_lists: Dict[LevelNum, Item] = {}
 
   def ResetState(self):
+    self.overworld_cave_item_locations = []
     self.per_level_item_location_lists: Dict[LevelNum, List[RoomNum]] = {}
     self.item_num_list: List[Item] = []
     self.per_level_item_lists: Dict[LevelNum, List[Item]] = {}
     for level_num in Range.VALID_LEVEL_NUMBERS:
       self.per_level_item_location_lists[level_num] = []
       self.per_level_item_lists[level_num] = []
+
+  def AddOverworldLocationAndItem(self, cave_num: CaveNum, position_num: CavePosition, item_num: Item) -> None:
+    assert cave_num in Range.VALID_CAVE_NUMBERS
+    assert item_num in Range.VALID_ITEM_NUMBERS
+    assert position_num in Range.VALID_CAVE_POSITION_NUMBERS
+
+    self.overworld_cave_item_locations.append((cave_num, position_num))
+    self.item_num_list.append(item_num)
+
 
   def AddLocationAndItem(self, level_num: LevelNum, room_num: RoomNum, item_num: Item) -> None:
     assert level_num in Range.VALID_LEVEL_NUMBERS
@@ -36,7 +48,7 @@ class ItemShuffler():
     self.item_num_list.append(item_num)
 
   def ShuffleItems(self) -> None:
-    random.shuffle(self.item_num_list)
+    random.shuffle(self.item_num_list)      
     for level_num in Range.VALID_LEVEL_NUMBERS:
       self.per_level_item_lists[level_num] = [Item.MAP, Item.COMPASS]
       if level_num != 9:

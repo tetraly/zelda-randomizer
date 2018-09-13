@@ -3,13 +3,15 @@ from enum import IntEnum
 
 LevelNum = int
 RoomNum = NewType('RoomNum', int)
+CaveNum = NewType('CaveNum', int)
 
 
 class Range():
   VALID_ROOM_NUMBERS = range(0, 0x80)
-  VALID_TABLE_NUMBERS = range(0, 6)
+  VALID_ROOM_TABLE_NUMBERS = range(0, 6)
   VALID_LEVEL_NUMBERS = range(1, 10)  # Use 1-indexed level numbers.  Valid values are 1-9
   VALID_ITEM_NUMBERS = range(0, 0x20)
+  VALID_CAVE_NUMBERS = range(0, 22) # Includes 20 actual caves, plus armos and coast virtual caves. 
 
 
 class Direction(IntEnum):
@@ -30,9 +32,15 @@ class Enemy(IntEnum):
 
 class Item(IntEnum):
   BOMBS = 0x00
+  WOOD_SWORD = 0x01
+  WHITE_SWORD = 0x02
+  MAGICAL_SWORD = 0x03
   NO_ITEM = 0x03
+  BAIT = 0x04
   RECORDER = 0x05
+  BLUE_CANDLE = 0x06
   RED_CANDLE = 0x07
+  WOOD_ARROWS = 0x08
   SILVER_ARROWS = 0x09
   BOW = 0x0A
   ANY_KEY = 0x0B
@@ -42,14 +50,19 @@ class Item(IntEnum):
   FIVE_RUPEES = 0x0F
   WAND = 0x10
   BOOK = 0x11
+  BLUE_RING = 0x12
   RED_RING = 0x13
+  POWER_BRACELET = 0x14
+  LETTER = 0x15
   COMPASS = 0x16
   MAP = 0x17
+  RUPEE = 0x18
   KEY = 0x19
   HEART_CONTAINER = 0x1A
   TRINGLE = 0x1B
   LORD_BANANA = 0x1D
   INFERIOR_MODEL = 0x1E
+  BLUE_POTION = 0x1F
 
 
 class RoomType(IntEnum):

@@ -57,7 +57,7 @@ class LogicValidator():
                                              items_obtained: List[Item]) -> None:
     if not room_num in Range.VALID_ROOM_NUMBERS:
       return  # No escaping back into the overworld! :)
-    room = self.level_data_table.GetLevelRoom(level_num, room_num)
+    room = self.level_data_table.GetRoom(level_num, room_num)
     if room.IsMarkedAsVisited():
       return
     room.MarkAsVisited()
