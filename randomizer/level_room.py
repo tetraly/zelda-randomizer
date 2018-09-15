@@ -43,7 +43,7 @@ class Room():
 
   def __init__(self, rom_data: List[int]) -> None:
     self.rom_data = rom_data
-    self.staircase_room_num: RoomNum
+    self.staircase_room_num: RoomNum = None
     self.marked_as_visited = False
 
   def GetRomData(self) -> List[int]:

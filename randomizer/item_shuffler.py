@@ -27,20 +27,28 @@ class ItemShuffler():
 
   def ShuffleItems(self) -> None:
     shuffle(self.item_num_list)
-    for level_num in Range.VALID_LEVEL_NUMBERS:
-      # Levels 1-8 get a map, compass, and tringle.  Level 9 just gets a map and compass
-      if level_num in range(1, 10):
+    print("-----")
+    for level_num in Range.VALID_LEVEL_AND_CAVE_NUMBERS:
+      print("Shuffling for Level %d" % level_num)
+
+      # Levels 1-8 get a tringle, map, and compass.  Level 9 only gets a map and compass.
+      if level_num in Range.VALID_LEVEL_NUMBERS:
         self.per_level_item_lists[level_num] = [Item.MAP, Item.COMPASS]
       if level_num in range(1, 9):
         self.per_level_item_lists[level_num].append(Item.TRINGLE)
 
-      num_locations_needing_an_item = len(self.per_level_item_location_lists[level_num])
+      num_locations_needing_an_item = len(self.per_level_item_location_lists[level_num]) - len(self.per_level_item_lists[level_num])
       while num_locations_needing_an_item > 0:
+        print("per_level_item_location_lists: %d,  per_level_item_lists: %d,  num_locations_needing_an_item: %d"
+          %(len(self.per_level_item_location_lists[level_num]), len(self.per_level_item_lists[level_num]), 
+           num_locations_needing_an_item )
+        )
         self.per_level_item_lists[level_num].append(self.item_num_list.pop())
         num_locations_needing_an_item = num_locations_needing_an_item - 1
 
       if level_num in range(1, 10):  # Technically this could be for OW and caves too
         shuffle(self.per_level_item_lists[level_num])
+    print( self.item_num_list)
     assert not self.item_num_list
 
   def GetAllLocationAndItemData(self) -> Iterable[Tuple[Location, Item]]:

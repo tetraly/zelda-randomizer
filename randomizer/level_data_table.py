@@ -101,6 +101,7 @@ class LevelDataTable():
 
   def GetCaveItem(self, location: Location) -> Item:
     assert location.IsCavePosition()
+    print ("Cave num is %x" % location.GetCaveNum())
     return self.overworld_caves[location.GetCaveNum()].GetItemAtPosition(location.GetPositionNum())
 
   def SetRoomItem(self, location: Location, item: Item) -> None:
@@ -138,7 +139,7 @@ class LevelDataTable():
 
     # Write Triforce room location to update where the compass displays it in levels 1-8.
     # The room the compass points to in level 9 doesn't change.
-    for level_num in Range.VALID_LEVEL_NUMBERS:
+    for level_num in range (1,9):
       assert level_num in self.triforce_locations
       triforce_room_address = self._GetSpecialDataAddressForLevel("triforce_room", level_num)
       self.rom.WriteByte(triforce_room_address, self.triforce_locations[level_num])
