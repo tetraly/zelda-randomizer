@@ -26,8 +26,6 @@ class ItemRandomizer():
     for level_num in Range.VALID_LEVEL_NUMBERS:
       self._ReadItemsAndLocationsForUndergroundLevel(level_num)
     for location in self.CAVE_ITEMS_TO_SHUFFLE:
-      print("fooblah")
-      print(location.GetCaveNum())
       item_num = self.level_table.GetCaveItem(location)
       self.item_shuffler.AddLocationAndItem(location, item_num)
 

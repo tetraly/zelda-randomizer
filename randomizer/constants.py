@@ -8,13 +8,13 @@ PositionNum = NewType("PositionNum", int)
 
 
 class Range():
-  VALID_ROOM_NUMBERS = range(0, 0x80) # 128 rooms (0-indexed)
-  VALID_ROOM_TABLE_NUMBERS = range(0, 6) # Six tables (0-indexed)
+  VALID_ROOM_NUMBERS = range(0, 0x80)  # 128 rooms (0-indexed)
+  VALID_ROOM_TABLE_NUMBERS = range(0, 6)  # Six tables (0-indexed)
   VALID_LEVEL_NUMBERS = range(1, 10)  # Levels 1-9 (1-indexed)
-  VALID_LEVEL_AND_CAVE_NUMBERS = range (1, 11) # L1-9 plus L10 repreenting OW caves (1-indexed)
+  VALID_LEVEL_AND_CAVE_NUMBERS = range(1, 11)  # L1-9 plus L10 repreenting OW caves (1-indexed)
   VALID_ITEM_NUMBERS = range(0, 0x20)
   VALID_CAVE_NUMBERS = range(0, 22)  # Includes 20 actual +2 virtual caves 0-19, 20-21.
-  VALID_CAVE_POSITION_NUM = range (1, 4)  # Three possible positions per cave (1-indexed)
+  VALID_CAVE_POSITION_NUM = range(1, 4)  # Three possible positions per cave (1-indexed)
 
 
 class Direction(IntEnum):

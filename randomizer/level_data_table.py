@@ -62,7 +62,6 @@ class LevelDataTable():
 
   def _ReadDataForOverworldCaves(self) -> None:
     for cave_num in Range.VALID_CAVE_NUMBERS:
-      print("Cave num %d" % cave_num)
       if cave_num >= self.NUM_OF_ACTUAL_CAVES:
         break
       data: List[int] = []
@@ -72,9 +71,7 @@ class LevelDataTable():
 
     assert len(self.overworld_caves) == 20
     armos_item = self.rom.ReadByte(self.ARMOS_ITEM_ADDRESS)
-    print("Armos item is 0x%x %d" % (armos_item, armos_item))
     self.overworld_caves.append(Cave([0x3F, armos_item, 0x7F, 0x00, 0x00, 0x00]))
-    print(self.overworld_caves[20])
     assert armos_item == self.overworld_caves[
         self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM].GetItemAtPosition(2)
 
@@ -101,7 +98,6 @@ class LevelDataTable():
 
   def GetCaveItem(self, location: Location) -> Item:
     assert location.IsCavePosition()
-    print ("Cave num is %x" % location.GetCaveNum())
     return self.overworld_caves[location.GetCaveNum()].GetItemAtPosition(location.GetPositionNum())
 
   def SetRoomItem(self, location: Location, item: Item) -> None:
@@ -139,7 +135,7 @@ class LevelDataTable():
 
     # Write Triforce room location to update where the compass displays it in levels 1-8.
     # The room the compass points to in level 9 doesn't change.
-    for level_num in range (1,9):
+    for level_num in range(1, 9):
       assert level_num in self.triforce_locations
       triforce_room_address = self._GetSpecialDataAddressForLevel("triforce_room", level_num)
       self.rom.WriteByte(triforce_room_address, self.triforce_locations[level_num])
@@ -162,7 +158,11 @@ class LevelDataTable():
                           self.overworld_caves[cave_num].GetPriceData())
 
   def UpdateTriforceLocation(self, location: Location) -> None:
-    self.triforce_locations[location.GetLevelNum()] = location.GetRoomNum()
+    room_num = location.GetRoomNum()
+    room = self.GetRoom(location.GetLevelNum(), room_num)
+    if room.IsItemStaircase():
+      room_num = room.GetLeftExit()
+    self.triforce_locations[location.GetLevelNum()] = room_num
 
   def _GetSpecialDataAddressForLevel(self, data_type: str, level: int) -> int:
     assert data_type in self.SPECIAL_DATA_ADDRESSES.keys()
