@@ -1,65 +1,56 @@
-import random
-from typing import Dict, List, Tuple, Iterable
-
-from randomizer.constants import CaveNum, Item, LevelNum, Range, RoomNum
+from collections import defaultdict
+from random import shuffle
+from typing import DefaultDict, List, Tuple, Iterable
+from randomizer.constants import Item, LevelOrCaveNum, LevelNum, RoomOrPositionNum, Range, RoomNum
 
 
 class ItemShuffler():
   def __init__(self) -> None:
     self.item_num_list: List[Item] = []
-    self.per_level_item_location_lists: Dict[LevelNum, List[RoomNum]] = {}
-    self.per_level_item_lists: Dict[LevelNum, List[Item]] = {}
-    self.overworld_cave_item_locations: List[(CaveNum, CavePosition)] = []
-    self.per_level_item_lists: Dict[LevelNum, Item] = {}
+    self.per_level_item_location_lists: DefaultDict[LevelNum, List[RoomNum]] = defaultdict(list)
+    self.per_level_item_lists: DefaultDict[LevelNum, List[Item]] = defaultdict(list)
 
   def ResetState(self):
-    self.overworld_cave_item_locations = []
-    self.per_level_item_location_lists: Dict[LevelNum, List[RoomNum]] = {}
-    self.item_num_list: List[Item] = []
-    self.per_level_item_lists: Dict[LevelNum, List[Item]] = {}
-    for level_num in Range.VALID_LEVEL_NUMBERS:
-      self.per_level_item_location_lists[level_num] = []
-      self.per_level_item_lists[level_num] = []
+    self.item_num_list.clear()
+    self.per_level_item_location_lists.clear()
+    self.per_level_item_lists.clear()
 
-  def AddOverworldLocationAndItem(self, cave_num: CaveNum, position_num: CavePosition, item_num: Item) -> None:
-    assert cave_num in Range.VALID_CAVE_NUMBERS
+  def AddLocationAndItem(self, level_or_cave_num: LevelOrCaveNum,
+                         room_or_position_num: RoomOrPositionNum, item_num: Item) -> None:
+    assert (level_or_cave_num in Range.VALID_LEVEL_NUMBERS
+            or level_or_cave_num in Range.VALID_CAVE_NUMBERS)
+    if level_or_cave_num in Range.VALID_CAVE_NUMBERS:
+      assert room_or_position_num in range(1, 4)
+    else:
+      assert room_or_position_num in Range.VALID_ROOM_NUMBERS
     assert item_num in Range.VALID_ITEM_NUMBERS
-    assert position_num in Range.VALID_CAVE_POSITION_NUMBERS
-
-    self.overworld_cave_item_locations.append((cave_num, position_num))
-    self.item_num_list.append(item_num)
-
-
-  def AddLocationAndItem(self, level_num: LevelNum, room_num: RoomNum, item_num: Item) -> None:
-    assert level_num in Range.VALID_LEVEL_NUMBERS
-    assert item_num in Range.VALID_ITEM_NUMBERS
-    assert room_num in Range.VALID_ROOM_NUMBERS
-    if item_num == Item.NO_ITEM:
-      return
     if item_num == Item.TRIFORCE_OF_POWER:
       return
 
-    # TODO: A default dict might probably make sense here
-    if level_num not in self.per_level_item_location_lists:
-      self.per_level_item_location_lists[level_num] = []
-    self.per_level_item_location_lists[level_num].append(room_num)
+    self.per_level_item_location_lists[level_or_cave_num].append(room_or_position_num)
     if item_num in [Item.MAP, Item.COMPASS, Item.TRINGLE]:
       return
     self.item_num_list.append(item_num)
 
   def ShuffleItems(self) -> None:
-    random.shuffle(self.item_num_list)      
+    shuffle(self.item_num_list)
     for level_num in Range.VALID_LEVEL_NUMBERS:
-      self.per_level_item_lists[level_num] = [Item.MAP, Item.COMPASS]
-      if level_num != 9:
+      # Levels 1-8 get a map, compass, and tringle.  Level 9 just gets a map and compass
+      if level_num in range(1, 10):
+        self.per_level_item_lists[level_num] = [Item.MAP, Item.COMPASS]
+      if level_num in range(1, 9):
         self.per_level_item_lists[level_num].append(Item.TRINGLE)
-      while (len(self.per_level_item_location_lists[level_num]) > len(
-          self.per_level_item_lists[level_num])):
-        tmp = self.item_num_list.pop()
-        self.per_level_item_lists[level_num].append(tmp)
-      random.shuffle(self.per_level_item_lists[level_num])
 
-  def GetAllLocationAndItemData(self) -> Iterable[Tuple[LevelNum, RoomNum, Item]]:
+      num_locations_needing_an_item = len(self.per_level_item_location_lists[level_num])
+      while num_locations_needing_an_item > 0:
+        self.per_level_item_lists[level_num].append(self.item_num_list.pop())
+        num_locations_needing_an_item = num_locations_needing_an_item - 1
+
+      if level_num in range(1, 10):  # Technically this could be for OW and caves too
+        shuffle(self.per_level_item_lists[level_num])
+    assert not self.item_num_list
+
+  def GetAllLocationAndItemData(self) -> Iterable[Tuple[LevelOrCaveNum, RoomOrPositionNum, Item]]:
     for level_num in Range.VALID_LEVEL_NUMBERS:
       for room_num, item_num in zip(self.per_level_item_location_lists[level_num],
                                     self.per_level_item_lists[level_num]):

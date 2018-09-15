@@ -82,7 +82,6 @@ class LevelDataTable():
     return rooms
 
   def _ReadDataForOverworldCaves(self):
-
     for cave_num in Range.VALID_CAVE_NUMBERS:
       if cave_num >= self.NUM_OF_ACTUAL_CAVES:
         break
