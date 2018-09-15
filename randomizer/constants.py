@@ -3,20 +3,19 @@ from enum import IntEnum
 
 LevelNum = int
 CaveNum = int
-LevelOrCaveNum = int
 
-RoomOrPositionNum = NewType('RoomOrPositionNum', int)
-RoomNum = RoomOrPositionNum
-PositionNum = RoomOrPositionNum
+RoomNum = NewType("RoomNum", int)
+PositionNum = NewType("PositionNum", int)
 
 
 class Range():
   VALID_ROOM_NUMBERS = range(0, 0x80)
   VALID_ROOM_TABLE_NUMBERS = range(0, 6)
-  VALID_UNDERGROUND_LEVEL_NUMBERS = range(1, 10)  # Use 1-indexed level numbers.  Valid values are 1-9
-  VALID_LEVEL_NUMBERS = range(0, 11) # Includes 0 for overworld screens and 10 for overworld caves.
+  VALID_UNDERGROUND_LEVEL_NUMBERS = range(1,
+                                          10)  # Use 1-indexed level numbers.  Valid values are 1-9
+  VALID_LEVEL_NUMBERS = range(0, 11)  # Includes 0 for overworld screens and 10 for overworld caves.
   VALID_ITEM_NUMBERS = range(0, 0x20)
-  VALID_CAVE_NUMBERS = range(0, 22) # Includes 20 actual caves, plus armos and coast virtual caves. 
+  VALID_CAVE_NUMBERS = range(0, 22)  # Includes 20 actual caves, plus armos and coast virtual caves.
 
 
 class Direction(IntEnum):

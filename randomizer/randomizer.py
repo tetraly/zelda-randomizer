@@ -40,7 +40,7 @@ class Z1Randomizer():
 
     seed = self.seed - 1
     level_data_table = LevelDataTable(output_rom)
-    level_data_table.ReadLevelDataFromRom()
+    level_data_table.ReadDataFromRom()
     item_shuffler = ItemShuffler()
     item_randomizer = ItemRandomizer(level_data_table, item_shuffler)
     logic_validator = LogicValidator(level_data_table)
@@ -52,16 +52,15 @@ class Z1Randomizer():
       seed += 1
       random.seed(seed)
       item_shuffler.ResetState()
-      level_data_table.ReadLevelDataFromRom()
-      level_data_table.ReadOverworldCaveDataFromRom()
+      level_data_table.ReadDataFromRom()
       item_randomizer.ReadItemsAndLocationsFromTable()
       item_randomizer.ShuffleItems()
       item_randomizer.WriteItemsAndLocationsToTable()
       is_valid_seed = logic_validator.Validate()
-    level_data_table.WriteLevelDataToRom()
+    level_data_table.WriteDataToRom()
 
     converted_text_speed = TextSpeed.NORMAL
-    if (self.text_speed == 'random'):
+    if self.text_speed == 'random':
       converted_text_speed = random.choice(list(TextSpeed))
     else:
       converted_text_speed = TextSpeed[self.text_speed.upper()]

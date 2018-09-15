@@ -1,13 +1,14 @@
 from collections import defaultdict
 from random import shuffle
 from typing import DefaultDict, List, Tuple, Iterable
-from randomizer.constants import Item, LevelOrCaveNum, LevelNum, RoomOrPositionNum, Range, RoomNum
+from randomizer.constants import Item, LevelNum, Range
+from randomizer.location import Location
 
 
 class ItemShuffler():
   def __init__(self) -> None:
     self.item_num_list: List[Item] = []
-    self.per_level_item_location_lists: DefaultDict[LevelNum, List[RoomNum]] = defaultdict(list)
+    self.per_level_item_location_lists: DefaultDict[LevelNum, List[Location]] = defaultdict(list)
     self.per_level_item_lists: DefaultDict[LevelNum, List[Item]] = defaultdict(list)
 
   def ResetState(self):
@@ -15,19 +16,11 @@ class ItemShuffler():
     self.per_level_item_location_lists.clear()
     self.per_level_item_lists.clear()
 
-  def AddLocationAndItem(self, level_or_cave_num: LevelOrCaveNum,
-                         room_or_position_num: RoomOrPositionNum, item_num: Item) -> None:
-    assert (level_or_cave_num in Range.VALID_LEVEL_NUMBERS
-            or level_or_cave_num in Range.VALID_CAVE_NUMBERS)
-    if level_or_cave_num in Range.VALID_CAVE_NUMBERS:
-      assert room_or_position_num in range(1, 4)
-    else:
-      assert room_or_position_num in Range.VALID_ROOM_NUMBERS
-    assert item_num in Range.VALID_ITEM_NUMBERS
+  def AddLocationAndItem(self, location: Location, item_num: Item) -> None:
     if item_num == Item.TRIFORCE_OF_POWER:
       return
-
-    self.per_level_item_location_lists[level_or_cave_num].append(room_or_position_num)
+    level_num = location.GetLevelNum() if location.IsLevelRoom() else 10
+    self.per_level_item_location_lists[level_num].append(location)
     if item_num in [Item.MAP, Item.COMPASS, Item.TRINGLE]:
       return
     self.item_num_list.append(item_num)
@@ -50,8 +43,8 @@ class ItemShuffler():
         shuffle(self.per_level_item_lists[level_num])
     assert not self.item_num_list
 
-  def GetAllLocationAndItemData(self) -> Iterable[Tuple[LevelOrCaveNum, RoomOrPositionNum, Item]]:
-    for level_num in Range.VALID_LEVEL_NUMBERS:
-      for room_num, item_num in zip(self.per_level_item_location_lists[level_num],
+  def GetAllLocationAndItemData(self) -> Iterable[Tuple[Location, Item]]:
+    for level_num in range(0, 11):
+      for location, item_num in zip(self.per_level_item_location_lists[level_num],
                                     self.per_level_item_lists[level_num]):
-        yield (level_num, room_num, item_num)
+        yield (location, item_num)
