@@ -31,34 +31,12 @@ class LevelDataTable():
   ARMOS_ITEM_ADDRESS = 0x10CF5
   COAST_ITEM_ADDRESS = 0x1788A
 
-  def _TestAssertions(self):
-    WOOD_SWORD_ITEM_ADDRESS = 0x18601
-    WHITE_SWORD_ITEM_ADDRESS = 0x18607
-    MAGICAL_SWORD_ITEM_ADDRESS = 0x1860A
-    LETTER_ITEM_ADDRESS = 0x18619
-    TAKE_ANY_HEART_ADDRESS = 0x18605
-    WOOD_ARROWS_ITEM_ADDRESS = 0x18629
-    BLUE_CANDLE_ITEM_ADDRESS = 0x1862C
-    BLUE_RING_ITEM_ADDRESS = 0x18631
-
-    assert self.rom.ReadByte(ARMOS_ITEM_ADDRESS) & 0x3F == 0x14
-    assert self.rom.ReadByte(COAST_ITEM_ADDRESS) & 0x3F == 0x1A
-    assert self.rom.ReadByte(WOOD_SWORD_ITEM_ADDRESS) & 0x3F == 0x01
-    assert self.rom.ReadByte(WHITE_SWORD_ITEM_ADDRESS) & 0x3F == 0x02
-    assert self.rom.ReadByte(MAGICAL_SWORD_ITEM_ADDRESS) & 0x3F == 0x03
-    assert self.rom.ReadByte(LETTER_ITEM_ADDRESS) & 0x3F == 0x15
-    assert self.rom.ReadByte(TAKE_ANY_HEART_ADDRESS) & 0x3F == 0x1A
-    assert self.rom.ReadByte(WOOD_ARROWS_ITEM_ADDRESS) & 0x3F == 0x08
-    assert self.rom.ReadByte(BLUE_CANDLE_ITEM_ADDRESS) & 0x3F == 0x06
-    assert self.rom.ReadByte(BLUE_RING_ITEM_ADDRESS) & 0x3F == 0x12
-
   def __init__(self, rom: Rom) -> None:
     self.rom = rom
     self.level_1_to_6_rooms: List[Room] = []
     self.level_7_to_9_rooms: List[Room] = []
     self.overworld_caves: List[Cave] = []
     self.triforce_locations: Dict[LevelNum, RoomNum] = {}
-    self._TestAssertions()
 
   def _ClearTables(self) -> None:
     self.level_1_to_6_rooms = []
@@ -108,7 +86,7 @@ class LevelDataTable():
       return self.level_7_to_9_rooms[room_num]
     return self.level_1_to_6_rooms[room_num]
 
-  def GetOverworldCave(self, cave_num: CaveNum) -> Cave:
+  def GetCave(self, cave_num: CaveNum) -> Cave:
     assert cave_num in Range.VALID_CAVE_NUMBERS
     return self.overworld_caves[cave_num]
 
@@ -121,15 +99,15 @@ class LevelDataTable():
 
   def WriteDataToRom(self):
     logging.debug("Beginning to write level/overworld data to disk.")
-    self._WriteLevelDataForLevelGrid(self.LEVEL_1_TO_6_DATA_START_ADDRESS, self.level_1_to_6_rooms)
-    self._WriteLevelDataForLevelGrid(self.LEVEL_7_TO_9_DATA_START_ADDRESS, self.level_7_to_9_rooms)
+    self._WriteDataForLevelGrid(self.LEVEL_1_TO_6_DATA_START_ADDRESS, self.level_1_to_6_rooms)
+    self._WriteDataForLevelGrid(self.LEVEL_7_TO_9_DATA_START_ADDRESS, self.level_7_to_9_rooms)
 
   def _WriteDataForLevelGrid(self, start_address, rooms) -> None:
     for room_num in Range.VALID_ROOM_NUMBERS:
       room_data = rooms[room_num].GetRomData()
       assert len(room_data) == self.NUM_BYTES_OF_DATA_PER_ROOM
 
-      for table_num in Range.VALID_TABLE_NUMBERS:
+      for table_num in range(0, self.NUM_BYTES_OF_DATA_PER_ROOM):
         self.rom.WriteByte(
             address=start_address + table_num * self.LEVEL_TABLE_SIZE + room_num,
             data=room_data[table_num])
@@ -150,7 +128,7 @@ class LevelDataTable():
         self.rom.WriteByte(self.COAST_ITEM_ADDRESS, self.overworld_caves[cave_num].getSingleItem())
         continue
 
-      # Note that the OverworldCave class is responsible for protecting bits 6 and 7 in its item data
+      # Note that the Cave class is responsible for protecting bits 6 and 7 in its item data
       self.rom.WriteBytes(self.CAVE_ITEM_DATA_START_ADDRESS + (3 * cave_num),
                           self.overworld_caves[cave_num].getItemData())
       self.rom.WriteBytes(self.CAVE_PRICE_DATA_START_ADDRESS + (3 * cave_num),
@@ -159,10 +137,10 @@ class LevelDataTable():
   def UpdateTriforceLocation(self, level_num: LevelNum, room_num: RoomNum):
     self.triforce_locations[level_num] = room_num
 
-  def _GetSpecialDataAddressForLevel(self, type: str, level: int) -> int:
-    assert type in self.SPECIAL_DATA_ADDRESSES.keys()
+  def _GetSpecialDataAddressForLevel(self, data_type: str, level: int) -> int:
+    assert data_type in self.SPECIAL_DATA_ADDRESSES.keys()
     assert level in Range.VALID_LEVEL_NUMBERS
-    return self.SPECIAL_DATA_ADDRESSES[type] + (level - 1) * self.SPECIAL_DATA_LEVEL_OFFSET
+    return self.SPECIAL_DATA_ADDRESSES[data_type] + (level - 1) * self.SPECIAL_DATA_LEVEL_OFFSET
 
   # Gets the coordinates of the start screen for a level.
   #
@@ -204,3 +182,27 @@ class LevelDataTable():
       staircase_list.append(self.LEVEL_3_RAFT_ROOM_NUMBER)
 
     return staircase_list
+
+
+"""
+  def _TestAssertions(self):
+    WOOD_SWORD_ITEM_ADDRESS = 0x18601
+    WHITE_SWORD_ITEM_ADDRESS = 0x18607
+    MAGICAL_SWORD_ITEM_ADDRESS = 0x1860A
+    LETTER_ITEM_ADDRESS = 0x18619
+    TAKE_ANY_HEART_ADDRESS = 0x18605
+    WOOD_ARROWS_ITEM_ADDRESS = 0x18629
+    BLUE_CANDLE_ITEM_ADDRESS = 0x1862C
+    BLUE_RING_ITEM_ADDRESS = 0x18631
+
+    assert self.rom.ReadByte(ARMOS_ITEM_ADDRESS) & 0x3F == 0x14
+    assert self.rom.ReadByte(COAST_ITEM_ADDRESS) & 0x3F == 0x1A
+    assert self.rom.ReadByte(WOOD_SWORD_ITEM_ADDRESS) & 0x3F == 0x01
+    assert self.rom.ReadByte(WHITE_SWORD_ITEM_ADDRESS) & 0x3F == 0x02
+    assert self.rom.ReadByte(MAGICAL_SWORD_ITEM_ADDRESS) & 0x3F == 0x03
+    assert self.rom.ReadByte(LETTER_ITEM_ADDRESS) & 0x3F == 0x15
+    assert self.rom.ReadByte(TAKE_ANY_HEART_ADDRESS) & 0x3F == 0x1A
+    assert self.rom.ReadByte(WOOD_ARROWS_ITEM_ADDRESS) & 0x3F == 0x08
+    assert self.rom.ReadByte(BLUE_CANDLE_ITEM_ADDRESS) & 0x3F == 0x06
+    assert self.rom.ReadByte(BLUE_RING_ITEM_ADDRESS) & 0x3F == 0x12    
+    """

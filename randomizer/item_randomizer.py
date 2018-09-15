@@ -98,4 +98,4 @@ class ItemRandomizer():
       elif level_or_cave_num >= 0x10:
         cave_num = CaveNum(level_or_cave_num)
         position_num = PositionNum(room_or_position_num)
-      self.level_table.GetCave(cave_num).SetItemNumberAtPosition(item_num, position_num)
+      self.level_table.GetCave(cave_num).SetItemAtPosition(item_num, position_num)

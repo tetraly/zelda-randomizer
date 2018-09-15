@@ -4,7 +4,7 @@ from absl import logging
 from randomizer.constants import Direction, Enemy, Item, Range, RoomNum, RoomType, WallType
 
 
-class LevelRoom():
+class Room():
 
   # According to http://www.bwass.org/romhack/zelda1/zelda1bank6.txt:
   # Bytes in table 0 represent:
@@ -43,7 +43,7 @@ class LevelRoom():
 
   def __init__(self, rom_data: List[int]) -> None:
     self.rom_data = rom_data
-    self.staircase_room_num: RoomNum = None
+    self.staircase_room_num: RoomNum
     self.marked_as_visited = False
 
   def GetRomData(self) -> List[int]:
