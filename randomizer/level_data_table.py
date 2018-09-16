@@ -11,14 +11,15 @@ from randomizer.rom import Rom
 class LevelDataTable():
   CAVE_ITEM_DATA_START_ADDRESS = 0x18600
   CAVE_PRICE_DATA_START_ADDRESS = 0x1863C
-  NUM_OF_ACTUAL_CAVES = 20
   CAVE_NUMBER_REPRESENTING_ARMOS_ITEM = 20
   CAVE_NUMBER_REPRESENTING_COAST_ITEM = 21
 
   LEVEL_1_TO_6_DATA_START_ADDRESS = 0x18700
   LEVEL_7_TO_9_DATA_START_ADDRESS = 0x18A00
   LEVEL_TABLE_SIZE = 0x80
+  OVERWORLD_TABLE_SIZE = 0x80
   NUM_BYTES_OF_DATA_PER_ROOM = 6
+  NUM_BYTES_OF_DATA_PER_SCREEN = 6
 
   LEVEL_3_RAFT_ROOM_NUMBER = RoomNum(0x0F)
   STAIRCASE_ROOM_NUMBER_SENTINEL_VALUE = 0xFF
@@ -34,52 +35,64 @@ class LevelDataTable():
 
   def __init__(self, rom: Rom) -> None:
     self.rom = rom
+    self._ClearTables()
+
+  def _ClearTables(self) -> None:
     self.level_1_to_6_rooms: List[Room] = []
     self.level_7_to_9_rooms: List[Room] = []
     self.overworld_caves: List[Cave] = []
+    # self.overworld_screens: List[Screen] = []
     self.triforce_locations: Dict[LevelNum, RoomNum] = {}
-
-  def _ClearTables(self) -> None:
-    self.level_1_to_6_rooms = []
+    """self.level_1_to_6_rooms = []
     self.level_7_to_9_rooms = []
     self.overworld_caves = []
-    self.triforce_locations = {}
+    self.triforce_locations = {}"""
 
   def ReadDataFromRom(self) -> None:
     self._ClearTables()
     self.level_1_to_6_rooms = self._ReadDataForLevelGrid(self.LEVEL_1_TO_6_DATA_START_ADDRESS)
     self.level_7_to_9_rooms = self._ReadDataForLevelGrid(self.LEVEL_7_TO_9_DATA_START_ADDRESS)
     self._ReadDataForOverworldCaves()
+    # self._ReadDataForOverworldScreens()
 
   def _ReadDataForLevelGrid(self, start_address: int) -> List[Room]:
     rooms: List[Room] = []
     for room_num in Range.VALID_ROOM_NUMBERS:
-      data = []
+      raw_data: List[int] = []
       for byte_num in range(0, self.NUM_BYTES_OF_DATA_PER_ROOM):
-        data.append(self.rom.ReadByte(start_address + byte_num * self.LEVEL_TABLE_SIZE + room_num))
-      rooms.append(Room(data))
+        raw_data.append(
+            self.rom.ReadByte(start_address + byte_num * self.LEVEL_TABLE_SIZE + room_num))
+      rooms.append(Room(raw_data))
     return rooms
+
+  # TODO: Refactor this with _ReadDataForLevelGrid since they're so similar
+  """def _ReadDataForOverworldScreens(self) -> None:
+    for screen_num in Range.VALID_SCREEN_NUMBERS:
+      raw_data: List[int] = []
+      for byte_num in range(0, self.NUM_BYTES_OF_DATA_PER_SCREEN):
+        raw_data.append(
+            self.rom.ReadByte(start_address + byte_num * self.OVERWORLD_TABLE_SIZE + screen_num))
+      self.overworld_screens.append(Screen(raw_data))"""
 
   def _ReadDataForOverworldCaves(self) -> None:
     for cave_num in Range.VALID_CAVE_NUMBERS:
-      if cave_num >= self.NUM_OF_ACTUAL_CAVES:
-        break
-      data: List[int] = []
-      data.extend(self.rom.ReadBytes(self.CAVE_ITEM_DATA_START_ADDRESS + 3 * (cave_num - 1), 3))
-      data.extend(self.rom.ReadBytes(self.CAVE_PRICE_DATA_START_ADDRESS + 3 * (cave_num - 1), 3))
-      self.overworld_caves.append(Cave(data))
-
-    assert len(self.overworld_caves) == 20
-    armos_item = self.rom.ReadByte(self.ARMOS_ITEM_ADDRESS)
-    self.overworld_caves.append(Cave([0x3F, armos_item, 0x7F, 0x00, 0x00, 0x00]))
-    assert armos_item == self.overworld_caves[
-        self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM].GetItemAtPosition(2)
-
-    assert len(self.overworld_caves) == 21
-    coast_item = self.rom.ReadByte(self.COAST_ITEM_ADDRESS)
-    self.overworld_caves.append(Cave([0x3F, coast_item, 0x7F, 0x00, 0x00, 0x00]))
-    assert coast_item == self.overworld_caves[
-        self.CAVE_NUMBER_REPRESENTING_COAST_ITEM].GetItemAtPosition(2)
+      if cave_num == self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM:
+        armos_item = self.rom.ReadByte(self.ARMOS_ITEM_ADDRESS)
+        self.overworld_caves.append(Cave([0x3F, armos_item, 0x7F, 0x00, 0x00, 0x00]))
+        assert armos_item == self.overworld_caves[
+            self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM].GetItemAtPosition(2)
+      elif cave_num == self.CAVE_NUMBER_REPRESENTING_COAST_ITEM:
+        coast_item = self.rom.ReadByte(self.COAST_ITEM_ADDRESS)
+        self.overworld_caves.append(Cave([0x3F, coast_item, 0x7F, 0x00, 0x00, 0x00]))
+        assert coast_item == self.overworld_caves[
+            self.CAVE_NUMBER_REPRESENTING_COAST_ITEM].GetItemAtPosition(2)
+      else:
+        assert cave_num in range(0, 20)
+        data: List[int] = []
+        data.extend(self.rom.ReadBytes(self.CAVE_ITEM_DATA_START_ADDRESS + 3 * cave_num, 3))
+        data.extend(self.rom.ReadBytes(self.CAVE_PRICE_DATA_START_ADDRESS + 3 * cave_num, 3))
+        self.overworld_caves.append(Cave(data))
+    assert len(self.overworld_caves) == 22  # 0-19 are actual caves, 20-21 are for the armos/coast
 
   def GetRoom(self, level_num: LevelNum, room_num: RoomNum) -> Room:
     assert level_num in Range.VALID_LEVEL_NUMBERS
@@ -89,9 +102,11 @@ class LevelDataTable():
       return self.level_7_to_9_rooms[room_num]
     return self.level_1_to_6_rooms[room_num]
 
+  # def GetScreen(self, screen_num: ScreenNum) -> Screen:
+  #   return self.overworld_screens[screen_num]
+
   def GetRoomItem(self, location: Location) -> Item:
     assert location.IsLevelRoom()
-
     if location.GetLevelNum() in [7, 8, 9]:
       return self.level_7_to_9_rooms[location.GetRoomNum()].GetItem()
     return self.level_1_to_6_rooms[location.GetRoomNum()].GetItem()
@@ -122,6 +137,7 @@ class LevelDataTable():
     logging.debug("Beginning to write level/overworld data to disk.")
     self._WriteDataForLevelGrid(self.LEVEL_1_TO_6_DATA_START_ADDRESS, self.level_1_to_6_rooms)
     self._WriteDataForLevelGrid(self.LEVEL_7_TO_9_DATA_START_ADDRESS, self.level_7_to_9_rooms)
+    self._WriteOverworldItemDataToRom()
 
   def _WriteDataForLevelGrid(self, start_address: int, rooms: List[Room]) -> None:
     for room_num in Range.VALID_ROOM_NUMBERS:
@@ -143,10 +159,14 @@ class LevelDataTable():
   def _WriteOverworldItemDataToRom(self) -> None:
     for cave_num in Range.VALID_CAVE_NUMBERS:
       if cave_num == self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM:
+        print( "writing %x to %x" % (self.ARMOS_ITEM_ADDRESS,
+                           self.overworld_caves[cave_num].GetItemAtPosition(2)))
         self.rom.WriteByte(self.ARMOS_ITEM_ADDRESS,
                            self.overworld_caves[cave_num].GetItemAtPosition(2))
         continue
       if cave_num == self.CAVE_NUMBER_REPRESENTING_COAST_ITEM:
+        print( "writing %x to %x" % (self.COAST_ITEM_ADDRESS,
+                           self.overworld_caves[cave_num].GetItemAtPosition(2)))
         self.rom.WriteByte(self.COAST_ITEM_ADDRESS,
                            self.overworld_caves[cave_num].GetItemAtPosition(2))
         continue

@@ -11,15 +11,17 @@ class ItemRandomizer():
     self.level_table = level_table
     self.item_shuffler = item_shuffler
 
-  WHITE_SWORD_LOCATION = Location.CavePosition(3, 2)
-  LETTER_LOCATION = Location.CavePosition(9, 2)
-  WOODEN_ARROWS_LOCATION = Location.CavePosition(14, 3)
-  BLUE_CANDLE_LOCATION = Location.CavePosition(15, 3)
-  BLUE_RING_LOCATION = Location.CavePosition(17, 2)
+  WHITE_SWORD_LOCATION = Location.CavePosition(2, 2)
+  LETTER_LOCATION = Location.CavePosition(8, 2)
+  WOODEN_ARROWS_LOCATION = Location.CavePosition(13, 3)
+  BLUE_CANDLE_LOCATION = Location.CavePosition(14, 3)
+  BLUE_RING_LOCATION = Location.CavePosition(16, 2)
+  ARMOS_ITEM_LOCATION = Location.CavePosition(20, 2)
+  COAST_ITEM_LOCATION = Location.CavePosition(21, 2)
 
   CAVE_ITEMS_TO_SHUFFLE = [
       WHITE_SWORD_LOCATION, LETTER_LOCATION, WOODEN_ARROWS_LOCATION, BLUE_CANDLE_LOCATION,
-      BLUE_RING_LOCATION
+      BLUE_RING_LOCATION, ARMOS_ITEM_LOCATION, COAST_ITEM_LOCATION
   ]
 
   def ReadItemsAndLocationsFromTable(self) -> None:

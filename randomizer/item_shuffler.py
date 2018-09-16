@@ -37,6 +37,9 @@ class ItemShuffler():
       num_locations_needing_an_item = len(self.per_level_item_location_lists[level_num]) - len(
           self.per_level_item_lists[level_num])
 
+      if level_num == 10:
+        print(self.item_num_list)
+
       while num_locations_needing_an_item > 0:
         self.per_level_item_lists[level_num].append(self.item_num_list.pop())
         num_locations_needing_an_item = num_locations_needing_an_item - 1
