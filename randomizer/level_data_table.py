@@ -159,14 +159,14 @@ class LevelDataTable():
   def _WriteOverworldItemDataToRom(self) -> None:
     for cave_num in Range.VALID_CAVE_NUMBERS:
       if cave_num == self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM:
-        print( "writing %x to %x" % (self.ARMOS_ITEM_ADDRESS,
-                           self.overworld_caves[cave_num].GetItemAtPosition(2)))
+        print("writing %x to %x" % (self.ARMOS_ITEM_ADDRESS,
+                                    self.overworld_caves[cave_num].GetItemAtPosition(2)))
         self.rom.WriteByte(self.ARMOS_ITEM_ADDRESS,
                            self.overworld_caves[cave_num].GetItemAtPosition(2))
         continue
       if cave_num == self.CAVE_NUMBER_REPRESENTING_COAST_ITEM:
-        print( "writing %x to %x" % (self.COAST_ITEM_ADDRESS,
-                           self.overworld_caves[cave_num].GetItemAtPosition(2)))
+        print("writing %x to %x" % (self.COAST_ITEM_ADDRESS,
+                                    self.overworld_caves[cave_num].GetItemAtPosition(2)))
         self.rom.WriteByte(self.COAST_ITEM_ADDRESS,
                            self.overworld_caves[cave_num].GetItemAtPosition(2))
         continue

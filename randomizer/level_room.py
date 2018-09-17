@@ -5,7 +5,6 @@ from randomizer.constants import Direction, Enemy, Item, Range, RoomNum, RoomTyp
 
 
 class Room():
-
   # According to http://www.bwass.org/romhack/zelda1/zelda1bank6.txt:
   # Bytes in table 0 represent:
   # xxx. ....	Type of Door on Top Wall
@@ -50,14 +49,50 @@ class Room():
     return self.rom_data
 
   # TODO: Change this back to use an Enemy enum type.
-  def GetEnemy(self) -> int:
-    return self.rom_data[2] & 0x3F
+  def GetEnemy(self) -> Enemy:
+    return Enemy(self.rom_data[2] & 0x3F)
 
-  def GetRoomType(self) -> RoomType:
+  def HasPotentialLadderBlock(self) -> bool:
+    return self.GetItem() in self.POTENTIAL_LADDER_BLOCK_ROOMS
+
+  def HasGannon(self):
+    return self.GetEnemy() == Enemy.GANNON
+
+  def HasWizzrobes(self):
+    return self.GetEnemy() in [Enemy.RED_WIZZROBE, Enemy.BLUE_WIZZROBE]
+
+  def HasDigdogger(self):
+    return self.GetEnemy() in [Enemy.SINGLE_DIGDOGGER_1, Enemy.TRIPLE_DIGDOGGER]
+
+  def HasGohma(self):
+    return self.GetEnemy() in [Enemy.RED_GOHMA, Enemy.BLUE_BLUE]
+
+  def HasSwordOrWandRequiredEnemies(self):
+    return self.GetEnemy() in [
+        Enemy.GLEEOK_2, Enemy.GLEEOK_3, Enemy.GLEEOK_4, Enemy.PATRA_1, Enemy.PATRA_2, Enemy.PATRA_3,
+        Enemy.RED_DARKNUT, Enemy.BLUE_DARKNUT
+    ]
+
+  def HasPolsVoice(self):
+    return self.GetEnemy() in [Enemy.POLS_VOICE]  # TODO: Add mixed types
+
+  def HasHungryGoriya(self):
+    return self.GetEnemy() == Enemy.HUNGRY_GORIYA
+
+  def HasNoEnemiesToKill(self):
+    return self.GetEnemy() in [Enemy.BUBBLES, Enemy.TRAPS, Enemy.NONE]
+
+  def HasOnlyZeroHPEnemies(self):
+    return self.GetEnemy() in [Enemy.GEL, Enemy.KEESE]
+
+  def HasUnobstructedStaircase(self):
+    return self.GetType() in [RoomType.SPIRAL_STAIRCASE, RoomType.RIGHT_STAIRCASE]
+
+  def GetType(self) -> RoomType:
     return RoomType(self.rom_data[3] & 0x3F)
 
   def GetWallType(self, direction: Direction) -> WallType:
-    assert self.GetRoomType() not in [RoomType.ITEM_STAIRCASE, RoomType.TRANSPORT_STAIRCASE]
+    assert self.GetType() not in [RoomType.ITEM_STAIRCASE, RoomType.TRANSPORT_STAIRCASE]
     (table_num, offset) = self.WALL_TYPE_TABLE_NUMBERS_AND_OFFSETS[direction]
     return WallType(self.rom_data[table_num] >> offset & 0x07)
 
@@ -69,10 +104,10 @@ class Room():
     return self.rom_data[5] & 0x04 > 0
 
   def IsItemStaircase(self) -> bool:
-    return self.GetRoomType() == RoomType.ITEM_STAIRCASE
+    return self.GetType() == RoomType.ITEM_STAIRCASE
 
   def IsTransportStaircase(self) -> bool:
-    return self.GetRoomType() == RoomType.TRANSPORT_STAIRCASE
+    return self.GetType() == RoomType.TRANSPORT_STAIRCASE
 
   def GetLeftExit(self) -> RoomNum:
     return RoomNum(self.rom_data[0] & 0x7F)
@@ -80,7 +115,7 @@ class Room():
   def GetRightExit(self) -> RoomNum:
     return RoomNum(self.rom_data[1] & 0x7F)
 
-  def HasStaircaseRoom(self) -> bool:
+  def HasStaircase(self) -> bool:
     return self.staircase_room_num is not None
 
   def GetStaircaseRoomNumber(self) -> RoomNum:
@@ -89,50 +124,24 @@ class Room():
   def SetStaircaseRoomNumber(self, staircase_room_num: RoomNum) -> None:
     self.staircase_room_num = staircase_room_num
 
-  def CanMove(self, from_direction: Direction, to_direction: Direction, missing_item: Item) -> bool:
-    if (self.GetRoomType() in self.MOVEMENT_CONSTRAINED_ROOMS and
-        (from_direction not in
-         self.MOVEMENT_CONSTRAINED_ROOMS_VALID_TRAVEL_DIRECTIONS[self.GetRoomType()] or to_direction
-         not in self.MOVEMENT_CONSTRAINED_ROOMS_VALID_TRAVEL_DIRECTIONS[self.GetRoomType()])):
-      return False
+  def PathUnconditionallyObstructed(self, from_direction: Direction,
+                                    to_direction: Direction) -> bool:
+    if (self.GetType() in self.MOVEMENT_CONSTRAINED_ROOMS
+        and (from_direction not in
+             self.MOVEMENT_CONSTRAINED_ROOMS_VALID_TRAVEL_DIRECTIONS[self.GetType()] or to_direction
+             not in self.MOVEMENT_CONSTRAINED_ROOMS_VALID_TRAVEL_DIRECTIONS[self.GetType()])):
+      return True
+    return False
 
-    if (missing_item == Item.LADDER and self.GetRoomType() in self.POTENTIAL_LADDER_BLOCK_ROOMS):
+  def PathObstructedByWater(self, from_direction: Direction, to_direction: Direction,
+                            has_ladder: bool) -> bool:
+    if not has_ladder and self.GetType() in self.POTENTIAL_LADDER_BLOCK_ROOMS:
       if (from_direction not in
-          self.POTENTIAL_LADDER_BLOCK_ROOMS_VALID_TRAVEL_DIRECTIONS[self.GetRoomType()]
-          or to_direction not in
-          self.POTENTIAL_LADDER_BLOCK_ROOMS_VALID_TRAVEL_DIRECTIONS[self.GetRoomType()]):
-        return False
+          self.POTENTIAL_LADDER_BLOCK_ROOMS_VALID_TRAVEL_DIRECTIONS[self.GetType()] or to_direction
+          not in self.POTENTIAL_LADDER_BLOCK_ROOMS_VALID_TRAVEL_DIRECTIONS[self.GetType()]):
+        return True
 
-    # Check for recorder/bow blocks due to not being able to defeat enemies.
-    if self.GetWallType(
-        to_direction) == WallType.SHUTTER_DOOR and not self.CanDefeatEnemies(missing_item):
-      return False
-    return True
-
-  def CanDefeatEnemies(self, missing_item: Item) -> bool:
-    if missing_item == Item.RECORDER:
-      if self.GetEnemy() in [int(Enemy.DIGDOGGER_SINGLE), int(Enemy.DIGDOGGER_TRIPLE)]:
-        return False
-    if missing_item == Item.BOW and self.GetEnemy() in [
-        int(Enemy.GOHMA_RED), int(Enemy.GOHMA_BLUE)
-    ]:
-      return False
-    return True
-
-  def CanGetItem(self, entry_direction: Direction, missing_item: Item) -> bool:
-    # Can't pick up a room in any rooms with water/moats without a ladder.
-    # TODO: Make a better determination here based on the drop location and the entry direction.
-    if missing_item == Item.LADDER and self.GetRoomType() in self.POTENTIAL_LADDER_BLOCK_ROOMS:
-      return False
-    if self.HasDropBitSet() and not self.CanDefeatEnemies(missing_item):
-      return False
-    if self.GetRoomType() == RoomType.HORIZONTAL_CHUTE_ROOM:
-      if entry_direction in [Direction.NORTH, Direction.SOUTH]:
-        return False
-    if self.GetRoomType() == RoomType.VERTICAL_CHUTE_ROOM:
-      if entry_direction in [Direction.EAST, Direction.WEST]:
-        return False
-    return True
+    return False
 
   def SetItem(self, item_num_param: Item) -> None:
     item_num = int(item_num_param)
@@ -147,6 +156,17 @@ class Room():
     assert new_value & 0x1F == item_num
     self.rom_data[4] = new_value
     logging.debug("Changed item %x to %x" % (old_item_num, item_num))
+
+    if item_num == Item.MAGICAL_SWORD:
+      print("Byte 5 was: %x" % self.rom_data[5])
+      if self.rom_data[5] & 0x04 == 0:
+        print("Setting drop bit")
+        self.rom_data[5] = self.rom_data[5] + 0x04
+        print("Byte 5 is now: %x" % self.rom_data[5])
+      if self.rom_data[5] & 0x01 == 0:
+        print("Setting other bit")
+        self.rom_data[5] = self.rom_data[5] + 0x01
+      print("Byte 5 is now: %x" % self.rom_data[5])
 
   def IsMarkedAsVisited(self) -> bool:
     return self.marked_as_visited

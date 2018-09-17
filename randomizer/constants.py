@@ -14,7 +14,7 @@ class Range():
   VALID_LEVEL_AND_CAVE_NUMBERS = range(1, 11)  # L1-9 plus L10 repreenting OW caves (1-indexed)
   VALID_ITEM_NUMBERS = range(0, 0x20)
   VALID_CAVE_NUMBERS = range(0, 22)  # Includes 20 actual +2 virtual caves 0-19, 20-21.
-  VALID_CAVE_POSITION_NUM = range(1, 4)  # Three possible positions per cave (1-indexed)
+  VALID_CAVE_POSITION_NUMBERS = range(1, 4)  # Three possible positions per cave (1-indexed)
 
 
 class Direction(IntEnum):
@@ -24,13 +24,6 @@ class Direction(IntEnum):
   DOWN = 0x00
   WEST = -0x1
   EAST = 0x1
-
-
-class Enemy(IntEnum):
-  GOHMA_BLUE = 0x33
-  GOHMA_RED = 0x34
-  DIGDOGGER_TRIPLE = 0x38
-  DIGDOGGER_SINGLE = 0x39
 
 
 class Item(IntEnum):
@@ -63,6 +56,7 @@ class Item(IntEnum):
   KEY = 0x19
   HEART_CONTAINER = 0x1A
   TRINGLE = 0x1B
+  WHAT_IS_THIS = 0x1C
   LORD_BANANA = 0x1D
   INFERIOR_MODEL = 0x1E
   BLUE_POTION = 0x1F
@@ -110,6 +104,50 @@ class RoomType(IntEnum):
   TRIFORCE_ROOM = 0x29
   TRANSPORT_STAIRCASE = 0x3E
   ITEM_STAIRCASE = 0x3F
+
+
+class Enemy(IntEnum):
+  GOHMA_BLUE = 0x33
+  GOHMA_RED = 0x34
+  DIGDOGGER_TRIPLE = 0x38
+  DIGDOGGER_SINGLE = 0x39
+  BLUE_GORIYA = 0x05
+  RED_GORIYA = 0x06
+  RED_DARKNUT = 0x0B
+  BLUE_DARKNUT = 0x0C
+  """0x12: "Vire",
+    0x13: "Zol",
+    0x15: "Gel",
+    0x16: "PolVoi",
+    0x17: "LikeLk",
+    0x1B: "Keese",
+    0x1C: "Keese",
+    0x1D: "Keese",
+    0x23: "B Wizz",
+    0x24: "R Wizz",
+    0x27: "WallM",
+    0x28: "Rope",
+    0x2A: "Stalfs",
+    0x2B: "Bubble",
+    0x2C: "Bubble",
+    0x2D: "Bubble",
+    0x2E: "Traps",
+    0x30: "Gibdo",
+    0x31: "Dodong",
+    0x32: "Dodong",
+    0x33: "BGohma",
+    0x34: "RGohma",
+    0x35: "RupeeB",
+    0x36: "Hungry",
+    0x37: "Zelda",
+    0x38: "DigDog",  # The one in vanilla 7
+    0x39: "DigDog",
+    0x3A: "R Lanm",
+    0x3B: "B Lamn",
+    0x3C: "Manhnd",
+    0x3D: "Aquamn",
+    0x3E: "Gannon",
+}"""
 
 
 class WallType(IntEnum):

@@ -86,7 +86,7 @@ class LogicValidator():
         self._GetProgressionItemsInLevelRecursively(level_num, RoomNum(room_num + direction),
                                                     Direction(-1 * direction), missing_item,
                                                     items_obtained)
-    if room.HasStaircaseRoom():
+    if room.HasStaircase():
       self._GetProgressionItemsInLevelRecursively(level_num, room.GetStaircaseRoomNumber(),
                                                   Direction.DOWN, missing_item, items_obtained)
 
