@@ -1,7 +1,6 @@
 from typing import List, Set
 
-from randomizer.constants import Item, LevelNum, Range
-from randomizer.cave import Cave
+from randomizer.constants import Item, LevelNum
 
 
 class Inventory(object):
@@ -22,6 +21,7 @@ class Inventory(object):
 
   def ClearMakingProgressBit(self) -> None:
     self.still_making_progress_bit = False
+    self.num_tringles = 0
 
   def StillMakingProgress(self) -> bool:
     return self.still_making_progress_bit

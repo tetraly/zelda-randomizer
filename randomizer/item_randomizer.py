@@ -56,7 +56,7 @@ class ItemRandomizer():
       assert staircase_room.GetLeftExit() != staircase_room.GetRightExit()
       for associated_room_num in [staircase_room.GetLeftExit(), staircase_room.GetRightExit()]:
         self.data_table.GetRoom(level_num,
-                                 associated_room_num).SetStaircaseRoomNumber(staircase_room_num)
+                                associated_room_num).SetStaircaseRoomNumber(staircase_room_num)
     else:
       logging.fatal("Room in staircase room number list (%x) didn't have staircase type (%x)." %
                     (staircase_room_num, staircase_room.GetType()))

@@ -37,17 +37,12 @@ class DataTable():
     self.overworld_caves: List[Cave] = []
     # self.overworld_screens: List[Screen] = []
     self.triforce_locations: Dict[LevelNum, RoomNum] = {}
-    """self.level_1_to_6_rooms = []
-    self.level_7_to_9_rooms = []
-    self.overworld_caves = []
-    self.triforce_locations = {}"""
 
   def ReadDataFromRom(self) -> None:
     self._ClearTables()
     self.level_1_to_6_rooms = self._ReadDataForLevelGrid(self.LEVEL_1_TO_6_DATA_START_ADDRESS)
     self.level_7_to_9_rooms = self._ReadDataForLevelGrid(self.LEVEL_7_TO_9_DATA_START_ADDRESS)
     self._ReadDataForOverworldCaves()
-    # self._ReadDataForOverworldScreens()
 
   def _ReadDataForLevelGrid(self, start_address: int) -> List[Room]:
     rooms: List[Room] = []

@@ -34,7 +34,6 @@ class Validator(object):
 
   def CanDefeatEnemies(self, room: Room) -> bool:
     if room.HasNoEnemiesToKill():
-      print("No enemies!")
       return True
     if ((room.HasGannon() and not self.inventory.HasBowSilverArrowsAndSword())
         or (room.HasDigdogger() and not self.inventory.HasRecorderAndReusableWeapon())
@@ -49,7 +48,6 @@ class Validator(object):
       return False
 
     # At this point, assume regular enemies
-    print("Regular enemy")
     return self.inventory.HasReusableWeapon()
 
   def CanGetItemsFromCave(self, cave_num: CaveNum) -> bool:
@@ -77,7 +75,7 @@ class Validator(object):
     return True
 
   def IsSeedBeatable(self) -> bool:
-    print("IsSeedBeatable?")
+    print("--------------- RESET ---------------")
     self.inventory.Reset()
     self.inventory.SetStillMakingProgressBit()
     while self.inventory.StillMakingProgress():
@@ -97,7 +95,7 @@ class Validator(object):
 
   def _RecursivelyTraverseLevel(self, level_num: LevelNum, room_num: RoomNum,
                                 entry_direction: Direction) -> None:
-    print("Level %d Room %x" % (level_num, room_num))
+#    print("Level %d Room %x" % (level_num, room_num))
     if not room_num in Range.VALID_ROOM_NUMBERS:
       return  # No escaping back into the overworld! :)
     room = self.data_table.GetRoom(level_num, room_num)
@@ -110,14 +108,14 @@ class Validator(object):
 
     # An item staircase room is a dead-end, so no need to recurse more.
     if room.IsItemStaircase():
-      print("In an Item Staircase")
+#      print("In an Item Staircase")
       return
 
     # For a transport staircase, we don't know whether we came in through the left or right.
     # So try to leave both ways; the one that we came from will have already been marked as
     # visited, which won't do anything.
     elif room.IsTransportStaircase():
-      print("In an transport Staircase")
+#      print("In an transport Staircase")
       for room_num_to_visit in [room.GetLeftExit(), room.GetRightExit()]:
         self._RecursivelyTraverseLevel(
             level_num,
@@ -133,17 +131,17 @@ class Validator(object):
         self._RecursivelyTraverseLevel(level_num, RoomNum(room_num + direction),
                                        Direction(-1 * direction))
 
-    print("Checking for a staircase.")
+#    print("Checking for a staircase.")
     if room.HasUnobstructedStaircase():
-      print("Taking unobstructed stairs")
+#      print("Taking unobstructed stairs")
       self._RecursivelyTraverseLevel(level_num, room.GetStaircaseRoomNumber(), Direction.STAIRCASE)
     elif room.HasStaircase():
       if self.CanDefeatEnemies(room):
-        print("Taking obstructed staircase")
+ #       print("Taking obstructed staircase")
         self._RecursivelyTraverseLevel(level_num, room.GetStaircaseRoomNumber(),
                                        Direction.STAIRCASE)
-      else:
-        print("Couldn't take staircase")
+#      else:
+ #       print("Couldn't take staircase")
 
   def CanMove(self, entry_direction: Direction, exit_direction: Direction, room: Room) -> bool:
     if (room.PathUnconditionallyObstructed(entry_direction, exit_direction)

@@ -146,7 +146,6 @@ class Room():
     enemy_code = self.rom_data[2] & 0x3F
     if self.rom_data[3] & 0x80 > 0:
       enemy_code += 0x40
-    print("Enemy is %s" % Enemy(enemy_code))
     return Enemy(enemy_code)
 
   def HasGannon(self):
@@ -154,7 +153,7 @@ class Room():
 
   def HasWizzrobes(self):
     return self.GetEnemy() in [
-        Enemy.RED_WIZZROBE, Enemy.BLUE_WIZZROBE, BLUE_WIZZROBE_RED_WIZZROBE_BUBBLE,
+        Enemy.RED_WIZZROBE, Enemy.BLUE_WIZZROBE, Enemy.BLUE_WIZZROBE_RED_WIZZROBE_BUBBLE,
         Enemy.BLUE_WIZZROBE_RED_WIZZROBE_TRAPS, Enemy.BLUE_WIZZROBE_RED_WIZZROBE,
         Enemy.BLUE_WIZZROBE_LIKE_LIKE_BUBBLE
     ]
@@ -183,7 +182,7 @@ class Room():
   def HasNoEnemiesToKill(self):
     return self.GetEnemy() in [
         Enemy.BUBBLE, Enemy.THREE_PAIRS_OF_TRAPS, Enemy.CORNER_TRAPS, Enemy.OLD_MAN,
-        Enemy.THE_KIDDNAPPED, Enemy.NOTHING
+        Enemy.THE_KIDNAPPED, Enemy.NOTHING
     ]
 
   def HasOnlyZeroHPEnemies(self):
