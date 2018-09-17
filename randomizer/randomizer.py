@@ -8,6 +8,7 @@ from randomizer.level_data_table import LevelDataTable
 from randomizer.logic_validator import LogicValidator
 from randomizer.rom import Rom
 from randomizer.text.text_data_table import TextDataTable
+from new_logic_validator import NewLogicValidator
 
 
 class Z1Randomizer():
@@ -26,7 +27,7 @@ class Z1Randomizer():
     self.text_speed = text_speed
     self.level_text = level_text
 
-  def Run(self):
+  def Run(self) -> None:
     input_rom = Rom(self.input_filename, add_nes_header_offset=True)
     input_rom.OpenFile()
     (input_path, input_full_filename) = os.path.split(self.input_filename)
@@ -44,6 +45,7 @@ class Z1Randomizer():
     item_shuffler = ItemShuffler()
     item_randomizer = ItemRandomizer(level_data_table, item_shuffler)
     logic_validator = LogicValidator(level_data_table)
+    new_validator = NewLogicValidator(level_data_table)
     text_data_table = TextDataTable(output_rom)
 
     # Main loop: Try a seed, if it isn't valid, try another one until it is valid.
@@ -56,7 +58,7 @@ class Z1Randomizer():
       item_randomizer.ReadItemsAndLocationsFromTable()
       item_randomizer.ShuffleItems()
       item_randomizer.WriteItemsAndLocationsToTable()
-      is_valid_seed = logic_validator.Validate()
+      is_valid_seed = new_validator.IsSeedBeatable()
     level_data_table.WriteDataToRom()
 
     converted_text_speed = TextSpeed.NORMAL

@@ -1,5 +1,5 @@
 from typing import List
-from randomizer.constants import Item
+from randomizer.constants import Item, Range
 
 
 class Cave(object):
@@ -8,6 +8,14 @@ class Cave(object):
 
   def GetItemAtPosition(self, position_num: int) -> Item:
     return Item(self.raw_data[position_num - 1] & 0x3F)
+
+  def GetAllItems(self) -> List[Item]:
+    actual_items: List[Item] = []
+    for position in Range.VALID_CAVE_POSITION_NUMBERS:
+      maybe_item = self.GetItemAtPosition(position)
+      if maybe_item != Item.OVERWORLD_NO_ITEM:
+        actual_items.append(maybe_item)
+    return actual_items
 
   def SetItemAtPosition(self, item: Item, position_num: int) -> None:
     part_not_to_change = self.raw_data[position_num - 1] & 0xC0  # The two highest bits

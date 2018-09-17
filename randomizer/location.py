@@ -15,7 +15,7 @@ class Location(object):
 
     elif cave_num is not None:
       assert cave_num in Range.VALID_CAVE_NUMBERS
-      assert position_num in Range.VALID_CAVE_POSITION_NUM
+      assert position_num in Range.VALID_CAVE_POSITION_NUMBERS
       assert level_num is None
       assert room_num is None
       self.level_id = cave_num + 15

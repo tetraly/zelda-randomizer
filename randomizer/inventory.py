@@ -1,4 +1,4 @@
-from typing import Set
+from typing import List, Set
 
 from randomizer.constants import Item, LevelNum, Range
 from randomizer.overworld_cave import Cave
@@ -17,6 +17,7 @@ class Inventory(object):
     self.num_keys = 0
 
   def SetStillMakingProgressBit(self) -> None:
+    print("Still making progress!")
     self.still_making_progress_bit = True
 
   def ClearMakingProgressBit(self) -> None:
@@ -25,19 +26,28 @@ class Inventory(object):
   def StillMakingProgress(self) -> bool:
     return self.still_making_progress_bit
 
-  def AddAllItemsInCave(self, cave: Cave) -> None:
-    for position in Range.VALID_CAVE_POSITION_NUMBERS:
-      self.AddItem(cave.GetItemAtPosition(position))
+  def AddMultipleItems(self, items: List[Item]) -> None:
+    for item in items:
+      self.AddItem(item)
 
   def AddItem(self, item: Item) -> None:
-    assert item in range(0, 0x20)
+    if item in [
+        Item.OVERWORLD_NO_ITEM, Item.MAP, Item.COMPASS, Item.MAGICAL_SHIELD, Item.BOMBS,
+        Item.FIVE_RUPEES, Item.RUPEE, Item.SINGLE_HEART
+    ]:
+      return
+    assert item in range(0, 0x21)  # Includes red potion 0x20
     if item == Item.HEART_CONTAINER:
       self.num_heart_containers += 1
     elif item == Item.TRINGLE:
       self.num_tringles += 1
     elif item == Item.KEY:
       self.num_keys += 1
+    elif item in self.items:
+      return
     else:
+      print("----------------------------   Adding %s to inventory" % item)
+      self.SetStillMakingProgressBit()
       self.items.add(item)
 
   def GetHeartCount(self) -> int:

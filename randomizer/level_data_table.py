@@ -1,7 +1,7 @@
 from typing import Dict, List
 from absl import logging
 
-from randomizer.constants import Item, LevelNum, Range, RoomNum
+from randomizer.constants import CaveNum, Item, LevelNum, Range, RoomNum
 from randomizer.level_room import Room
 from randomizer.location import Location
 from randomizer.overworld_cave import Cave
@@ -114,6 +114,9 @@ class LevelDataTable():
   def GetCaveItem(self, location: Location) -> Item:
     assert location.IsCavePosition()
     return self.overworld_caves[location.GetCaveNum()].GetItemAtPosition(location.GetPositionNum())
+
+  def GetAllCaveItems(self, cave_num: CaveNum) -> List[Item]:
+    return self.overworld_caves[cave_num].GetAllItems()
 
   def SetRoomItem(self, location: Location, item: Item) -> None:
     assert location.IsLevelRoom()

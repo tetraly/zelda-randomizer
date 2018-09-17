@@ -48,9 +48,12 @@ class Room():
   def GetRomData(self) -> List[int]:
     return self.rom_data
 
-  # TODO: Change this back to use an Enemy enum type.
   def GetEnemy(self) -> Enemy:
-    return Enemy(self.rom_data[2] & 0x3F)
+    enemy_code = self.rom_data[2] & 0x3F
+    if self.rom_data[3] & 0x80 > 0:
+      enemy_code += 0x40
+    print("Enemy is %s" % Enemy(enemy_code))
+    return Enemy(enemy_code)
 
   def HasPotentialLadderBlock(self) -> bool:
     return self.GetItem() in self.POTENTIAL_LADDER_BLOCK_ROOMS
@@ -62,15 +65,15 @@ class Room():
     return self.GetEnemy() in [Enemy.RED_WIZZROBE, Enemy.BLUE_WIZZROBE]
 
   def HasDigdogger(self):
-    return self.GetEnemy() in [Enemy.SINGLE_DIGDOGGER_1, Enemy.TRIPLE_DIGDOGGER]
+    return self.GetEnemy() in [Enemy.SINGLE_DIGDOGGER, Enemy.TRIPLE_DIGDOGGER]
 
   def HasGohma(self):
-    return self.GetEnemy() in [Enemy.RED_GOHMA, Enemy.BLUE_BLUE]
+    return self.GetEnemy() in [Enemy.RED_GOHMA, Enemy.BLUE_GOHMA]
 
   def HasSwordOrWandRequiredEnemies(self):
     return self.GetEnemy() in [
-        Enemy.GLEEOK_2, Enemy.GLEEOK_3, Enemy.GLEEOK_4, Enemy.PATRA_1, Enemy.PATRA_2, Enemy.PATRA_3,
-        Enemy.RED_DARKNUT, Enemy.BLUE_DARKNUT
+        Enemy.GLEEOK_1, Enemy.GLEEOK_2, Enemy.GLEEOK_3, Enemy.GLEEOK_4, Enemy.PATRA_1,
+        Enemy.PATRA_2, Enemy.RED_DARKNUT, Enemy.BLUE_DARKNUT
     ]
 
   def HasPolsVoice(self):
@@ -80,13 +83,17 @@ class Room():
     return self.GetEnemy() == Enemy.HUNGRY_GORIYA
 
   def HasNoEnemiesToKill(self):
-    return self.GetEnemy() in [Enemy.BUBBLES, Enemy.TRAPS, Enemy.NONE]
+    return self.GetEnemy() in [
+        Enemy.BUBBLE, Enemy.THREE_PAIRS_OF_TRAPS, Enemy.CORNER_TRAPS, Enemy.NOTHING
+    ]
 
   def HasOnlyZeroHPEnemies(self):
-    return self.GetEnemy() in [Enemy.GEL, Enemy.KEESE]
+    return self.GetEnemy() in [
+        Enemy.GEL_1, Enemy.GEL_2, Enemy.BLUE_KEESE, Enemy.RED_KEESE, Enemy.DARK_KEESE
+    ]
 
   def HasUnobstructedStaircase(self):
-    return self.GetType() in [RoomType.SPIRAL_STAIRCASE, RoomType.RIGHT_STAIRCASE]
+    return self.GetType() in [RoomType.SPIRAL_STAIR_ROOM, RoomType.NARROW_STAIR_ROOM]
 
   def GetType(self) -> RoomType:
     return RoomType(self.rom_data[3] & 0x3F)
@@ -157,16 +164,12 @@ class Room():
     self.rom_data[4] = new_value
     logging.debug("Changed item %x to %x" % (old_item_num, item_num))
 
+    # TODO: Clean this up.
     if item_num == Item.MAGICAL_SWORD:
-      print("Byte 5 was: %x" % self.rom_data[5])
       if self.rom_data[5] & 0x04 == 0:
-        print("Setting drop bit")
         self.rom_data[5] = self.rom_data[5] + 0x04
-        print("Byte 5 is now: %x" % self.rom_data[5])
       if self.rom_data[5] & 0x01 == 0:
-        print("Setting other bit")
         self.rom_data[5] = self.rom_data[5] + 0x01
-      print("Byte 5 is now: %x" % self.rom_data[5])
 
   def IsMarkedAsVisited(self) -> bool:
     return self.marked_as_visited
