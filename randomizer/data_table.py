@@ -1,26 +1,21 @@
 from typing import Dict, List
 from absl import logging
-
 from randomizer.constants import CaveNum, Item, LevelNum, Range, RoomNum
-from randomizer.level_room import Room
+from randomizer.room import Room
 from randomizer.location import Location
-from randomizer.overworld_cave import Cave
+from randomizer.cave import Cave
 from randomizer.rom import Rom
 
 
-class LevelDataTable():
+class DataTable():
   CAVE_ITEM_DATA_START_ADDRESS = 0x18600
   CAVE_PRICE_DATA_START_ADDRESS = 0x1863C
   CAVE_NUMBER_REPRESENTING_ARMOS_ITEM = 20
   CAVE_NUMBER_REPRESENTING_COAST_ITEM = 21
-
   LEVEL_1_TO_6_DATA_START_ADDRESS = 0x18700
   LEVEL_7_TO_9_DATA_START_ADDRESS = 0x18A00
   LEVEL_TABLE_SIZE = 0x80
-  OVERWORLD_TABLE_SIZE = 0x80
   NUM_BYTES_OF_DATA_PER_ROOM = 6
-  NUM_BYTES_OF_DATA_PER_SCREEN = 6
-
   LEVEL_3_RAFT_ROOM_NUMBER = RoomNum(0x0F)
   STAIRCASE_ROOM_NUMBER_SENTINEL_VALUE = 0xFF
   SPECIAL_DATA_LEVEL_OFFSET = 0xFC
@@ -29,7 +24,6 @@ class LevelDataTable():
       "triforce_room": 0x1942C,
       "staircase_data": 0x19430
   }
-
   ARMOS_ITEM_ADDRESS = 0x10CF5
   COAST_ITEM_ADDRESS = 0x1788A
 
@@ -65,15 +59,6 @@ class LevelDataTable():
       rooms.append(Room(raw_data))
     return rooms
 
-  # TODO: Refactor this with _ReadDataForLevelGrid since they're so similar
-  """def _ReadDataForOverworldScreens(self) -> None:
-    for screen_num in Range.VALID_SCREEN_NUMBERS:
-      raw_data: List[int] = []
-      for byte_num in range(0, self.NUM_BYTES_OF_DATA_PER_SCREEN):
-        raw_data.append(
-            self.rom.ReadByte(start_address + byte_num * self.OVERWORLD_TABLE_SIZE + screen_num))
-      self.overworld_screens.append(Screen(raw_data))"""
-
   def _ReadDataForOverworldCaves(self) -> None:
     for cave_num in Range.VALID_CAVE_NUMBERS:
       if cave_num == self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM:
@@ -102,21 +87,11 @@ class LevelDataTable():
       return self.level_7_to_9_rooms[room_num]
     return self.level_1_to_6_rooms[room_num]
 
-  # def GetScreen(self, screen_num: ScreenNum) -> Screen:
-  #   return self.overworld_screens[screen_num]
-
   def GetRoomItem(self, location: Location) -> Item:
     assert location.IsLevelRoom()
     if location.GetLevelNum() in [7, 8, 9]:
       return self.level_7_to_9_rooms[location.GetRoomNum()].GetItem()
     return self.level_1_to_6_rooms[location.GetRoomNum()].GetItem()
-
-  def GetCaveItem(self, location: Location) -> Item:
-    assert location.IsCavePosition()
-    return self.overworld_caves[location.GetCaveNum()].GetItemAtPosition(location.GetPositionNum())
-
-  def GetAllCaveItems(self, cave_num: CaveNum) -> List[Item]:
-    return self.overworld_caves[cave_num].GetAllItems()
 
   def SetRoomItem(self, location: Location, item: Item) -> None:
     assert location.IsLevelRoom()
@@ -124,6 +99,13 @@ class LevelDataTable():
       self.level_7_to_9_rooms[location.GetRoomNum()].SetItem(item)
     else:
       self.level_1_to_6_rooms[location.GetRoomNum()].SetItem(item)
+
+  def GetCaveItem(self, location: Location) -> Item:
+    assert location.IsCavePosition()
+    return self.overworld_caves[location.GetCaveNum()].GetItemAtPosition(location.GetPositionNum())
+
+  def GetAllCaveItems(self, cave_num: CaveNum) -> List[Item]:
+    return self.overworld_caves[cave_num].GetAllItems()
 
   def SetCaveItem(self, location: Location, item: Item) -> None:
     assert location.IsCavePosition()

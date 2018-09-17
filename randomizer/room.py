@@ -1,6 +1,5 @@
 from typing import Dict, List
 from absl import logging
-
 from randomizer.constants import Direction, Enemy, Item, Range, RoomNum, RoomType, WallType
 
 
@@ -48,74 +47,21 @@ class Room():
   def GetRomData(self) -> List[int]:
     return self.rom_data
 
-  def GetEnemy(self) -> Enemy:
-    enemy_code = self.rom_data[2] & 0x3F
-    if self.rom_data[3] & 0x80 > 0:
-      enemy_code += 0x40
-    print("Enemy is %s" % Enemy(enemy_code))
-    return Enemy(enemy_code)
+  def IsMarkedAsVisited(self) -> bool:
+    return self.marked_as_visited
 
-  def HasPotentialLadderBlock(self) -> bool:
-    return self.GetItem() in self.POTENTIAL_LADDER_BLOCK_ROOMS
+  def MarkAsVisited(self) -> None:
+    self.marked_as_visited = True
 
-  def HasGannon(self):
-    return self.GetEnemy() == Enemy.GANNON
-
-  def HasWizzrobes(self):
-    return self.GetEnemy() in [Enemy.RED_WIZZROBE, Enemy.BLUE_WIZZROBE]
-
-  def HasDigdogger(self):
-    return self.GetEnemy() in [Enemy.SINGLE_DIGDOGGER, Enemy.TRIPLE_DIGDOGGER]
-
-  def HasGohma(self):
-    return self.GetEnemy() in [Enemy.RED_GOHMA, Enemy.BLUE_GOHMA]
-
-  def HasSwordOrWandRequiredEnemies(self):
-    return self.GetEnemy() in [
-        Enemy.GLEEOK_1, Enemy.GLEEOK_2, Enemy.GLEEOK_3, Enemy.GLEEOK_4, Enemy.PATRA_1,
-        Enemy.PATRA_2, Enemy.RED_DARKNUT, Enemy.BLUE_DARKNUT
-    ]
-
-  def HasPolsVoice(self):
-    return self.GetEnemy() in [Enemy.POLS_VOICE]  # TODO: Add mixed types
-
-  def HasHungryGoriya(self):
-    return self.GetEnemy() == Enemy.HUNGRY_GORIYA
-
-  def HasNoEnemiesToKill(self):
-    return self.GetEnemy() in [
-        Enemy.BUBBLE, Enemy.THREE_PAIRS_OF_TRAPS, Enemy.CORNER_TRAPS, Enemy.NOTHING
-    ]
-
-  def HasOnlyZeroHPEnemies(self):
-    return self.GetEnemy() in [
-        Enemy.GEL_1, Enemy.GEL_2, Enemy.BLUE_KEESE, Enemy.RED_KEESE, Enemy.DARK_KEESE
-    ]
-
-  def HasUnobstructedStaircase(self):
-    return self.GetType() in [RoomType.SPIRAL_STAIR_ROOM, RoomType.NARROW_STAIR_ROOM]
-
-  def GetType(self) -> RoomType:
-    return RoomType(self.rom_data[3] & 0x3F)
+  def ClearVisitMark(self) -> None:
+    self.marked_as_visited = False
 
   def GetWallType(self, direction: Direction) -> WallType:
     assert self.GetType() not in [RoomType.ITEM_STAIRCASE, RoomType.TRANSPORT_STAIRCASE]
     (table_num, offset) = self.WALL_TYPE_TABLE_NUMBERS_AND_OFFSETS[direction]
     return WallType(self.rom_data[table_num] >> offset & 0x07)
 
-  def GetItem(self) -> Item:
-    return Item(self.rom_data[4] & 0x1F)
-
-  def HasDropBitSet(self) -> bool:
-    assert self.rom_data[5] & 0x04 in [0, 4]
-    return self.rom_data[5] & 0x04 > 0
-
-  def IsItemStaircase(self) -> bool:
-    return self.GetType() == RoomType.ITEM_STAIRCASE
-
-  def IsTransportStaircase(self) -> bool:
-    return self.GetType() == RoomType.TRANSPORT_STAIRCASE
-
+  ### Staircase room methods ###
   def GetLeftExit(self) -> RoomNum:
     return RoomNum(self.rom_data[0] & 0x7F)
 
@@ -131,6 +77,7 @@ class Room():
   def SetStaircaseRoomNumber(self, staircase_room_num: RoomNum) -> None:
     self.staircase_room_num = staircase_room_num
 
+  ### Room type-related methods ###
   def PathUnconditionallyObstructed(self, from_direction: Direction,
                                     to_direction: Direction) -> bool:
     if (self.GetType() in self.MOVEMENT_CONSTRAINED_ROOMS
@@ -150,6 +97,22 @@ class Room():
 
     return False
 
+  def GetType(self) -> RoomType:
+    return RoomType(self.rom_data[3] & 0x3F)
+
+  def HasPotentialLadderBlock(self) -> bool:
+    return self.GetType() in self.POTENTIAL_LADDER_BLOCK_ROOMS
+
+  def HasUnobstructedStaircase(self):
+    return self.GetType() in [RoomType.SPIRAL_STAIR_ROOM, RoomType.NARROW_STAIR_ROOM]
+
+  def IsItemStaircase(self) -> bool:
+    return self.GetType() == RoomType.ITEM_STAIRCASE
+
+  def IsTransportStaircase(self) -> bool:
+    return self.GetType() == RoomType.TRANSPORT_STAIRCASE
+
+  ### Item-related methods ###
   def SetItem(self, item_num_param: Item) -> None:
     item_num = int(item_num_param)
     old_item_num = self.rom_data[4] & 0x1F
@@ -171,11 +134,60 @@ class Room():
       if self.rom_data[5] & 0x01 == 0:
         self.rom_data[5] = self.rom_data[5] + 0x01
 
-  def IsMarkedAsVisited(self) -> bool:
-    return self.marked_as_visited
+  def GetItem(self) -> Item:
+    return Item(self.rom_data[4] & 0x1F)
 
-  def MarkAsVisited(self) -> None:
-    self.marked_as_visited = True
+  def HasDropBitSet(self) -> bool:
+    assert self.rom_data[5] & 0x04 in [0, 4]
+    return self.rom_data[5] & 0x04 > 0
 
-  def ClearVisitMark(self) -> None:
-    self.marked_as_visited = False
+  ### Enemy-related methods ###
+  def GetEnemy(self) -> Enemy:
+    enemy_code = self.rom_data[2] & 0x3F
+    if self.rom_data[3] & 0x80 > 0:
+      enemy_code += 0x40
+    print("Enemy is %s" % Enemy(enemy_code))
+    return Enemy(enemy_code)
+
+  def HasGannon(self):
+    return self.GetEnemy() == Enemy.GANNON
+
+  def HasWizzrobes(self):
+    return self.GetEnemy() in [
+        Enemy.RED_WIZZROBE, Enemy.BLUE_WIZZROBE, BLUE_WIZZROBE_RED_WIZZROBE_BUBBLE,
+        Enemy.BLUE_WIZZROBE_RED_WIZZROBE_TRAPS, Enemy.BLUE_WIZZROBE_RED_WIZZROBE,
+        Enemy.BLUE_WIZZROBE_LIKE_LIKE_BUBBLE
+    ]
+
+  def HasDigdogger(self):
+    return self.GetEnemy() in [Enemy.SINGLE_DIGDOGGER, Enemy.TRIPLE_DIGDOGGER]
+
+  def HasGohma(self):
+    return self.GetEnemy() in [Enemy.RED_GOHMA, Enemy.BLUE_GOHMA]
+
+  def HasSwordOrWandRequiredEnemies(self):
+    return self.GetEnemy() in [
+        Enemy.GLEEOK_1, Enemy.GLEEOK_2, Enemy.GLEEOK_3, Enemy.GLEEOK_4, Enemy.PATRA_1,
+        Enemy.PATRA_2, Enemy.RED_DARKNUT, Enemy.BLUE_DARKNUT,
+        Enemy.BLUE_DARKNUT_RED_DARKNUT_GORIYA_BUBBLE, Enemy.BLUE_DARKNUT_RED_DARKNUT_POLS_VOICE
+    ]
+
+  def HasPolsVoice(self):
+    return self.GetEnemy() in [
+        Enemy.POLS_VOICE, Enemy.POLS_VOICE_GIBDO_KEESE, Enemy.BLUE_DARKNUT_RED_DARKNUT_POLS_VOICE
+    ]
+
+  def HasHungryGoriya(self):
+    return self.GetEnemy() == Enemy.HUNGRY_GORIYA
+
+  def HasNoEnemiesToKill(self):
+    return self.GetEnemy() in [
+        Enemy.BUBBLE, Enemy.THREE_PAIRS_OF_TRAPS, Enemy.CORNER_TRAPS, Enemy.OLD_MAN,
+        Enemy.THE_KIDDNAPPED, Enemy.NOTHING
+    ]
+
+  def HasOnlyZeroHPEnemies(self):
+    return self.GetEnemy() in [
+        Enemy.GEL_1, Enemy.GEL_2, Enemy.BLUE_KEESE, Enemy.RED_KEESE, Enemy.DARK_KEESE,
+        Enemy.KEESE_TRAPS
+    ]

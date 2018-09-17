@@ -1,11 +1,11 @@
 from randomizer.constants import CaveNum, Direction, Item, LevelNum
 from randomizer.constants import Range, RoomNum, RoomType, WallType
-from randomizer.level_room import Room
+from randomizer.room import Room
 from randomizer.inventory import Inventory
-from randomizer.level_data_table import LevelDataTable
+from randomizer.data_table import DataTable
 
 
-class NewLogicValidator(object):
+class Validator(object):
   WHITE_SWORD_CAVE_NUMBER = 2
   MAGICAL_SWORD_CAVE_NUMBER = 3
   NUM_HEARTS_FOR_WHITE_SWORD_ITEM = 5
@@ -13,9 +13,9 @@ class NewLogicValidator(object):
   POTION_SHOP_NUMBER = 10
   COAST_VIRTUAL_CAVE_NUMBER = 21
 
-  def __init__(self, level_data_table: LevelDataTable) -> None:
+  def __init__(self, data_table: DataTable) -> None:
     self.inventory = Inventory()
-    self.level_data_table = level_data_table
+    self.data_table = data_table
 
   def CanGetRoomItem(self, entry_direction: Direction, room: Room) -> bool:
     # Can't pick up a room in any rooms with water/moats without a ladder.
@@ -83,15 +83,15 @@ class NewLogicValidator(object):
     while self.inventory.StillMakingProgress():
       print("Loopy loop")
       self.inventory.ClearMakingProgressBit()
-      self.level_data_table.ClearAllVisitMarkers()
+      self.data_table.ClearAllVisitMarkers()
       for cave_num in Range.VALID_CAVE_NUMBERS:
         if self.CanGetItemsFromCave(cave_num):
-          self.inventory.AddMultipleItems(self.level_data_table.GetAllCaveItems(cave_num))
+          self.inventory.AddMultipleItems(self.data_table.GetAllCaveItems(cave_num))
       for level_num in Range.VALID_LEVEL_NUMBERS:
         if self.CanEnterLevel(level_num):
           print("Checking level %d" % level_num)
           self._RecursivelyTraverseLevel(level_num,
-                                         self.level_data_table.GetLevelStartRoomNumber(level_num),
+                                         self.data_table.GetLevelStartRoomNumber(level_num),
                                          Direction.NORTH)
     return self.inventory.Has(Item.TRIFORCE_OF_POWER)
 
@@ -100,7 +100,7 @@ class NewLogicValidator(object):
     print("Level %d Room %x" % (level_num, room_num))
     if not room_num in Range.VALID_ROOM_NUMBERS:
       return  # No escaping back into the overworld! :)
-    room = self.level_data_table.GetRoom(level_num, room_num)
+    room = self.data_table.GetRoom(level_num, room_num)
     if room.IsMarkedAsVisited():
       return
     room.MarkAsVisited()

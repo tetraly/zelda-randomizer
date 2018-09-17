@@ -1,7 +1,7 @@
 from typing import List, Set
 
 from randomizer.constants import Item, LevelNum, Range
-from randomizer.overworld_cave import Cave
+from randomizer.cave import Cave
 
 
 class Inventory(object):
