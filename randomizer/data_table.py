@@ -10,8 +10,8 @@ from randomizer.rom import Rom
 class DataTable():
   CAVE_ITEM_DATA_START_ADDRESS = 0x18600
   CAVE_PRICE_DATA_START_ADDRESS = 0x1863C
-  CAVE_NUMBER_REPRESENTING_ARMOS_ITEM = 20
-  CAVE_NUMBER_REPRESENTING_COAST_ITEM = 21
+  CAVE_NUMBER_REPRESENTING_ARMOS_ITEM = 0x14
+  CAVE_NUMBER_REPRESENTING_COAST_ITEM = 0x15
   LEVEL_1_TO_6_DATA_START_ADDRESS = 0x18700
   LEVEL_7_TO_9_DATA_START_ADDRESS = 0x18A00
   LEVEL_TABLE_SIZE = 0x80
@@ -67,7 +67,7 @@ class DataTable():
         assert coast_item == self.overworld_caves[
             self.CAVE_NUMBER_REPRESENTING_COAST_ITEM].GetItemAtPosition(2)
       else:
-        assert cave_num in range(0, 20)
+        assert cave_num in range(0, 0x14)
         data: List[int] = []
         data.extend(self.rom.ReadBytes(self.CAVE_ITEM_DATA_START_ADDRESS + 3 * cave_num, 3))
         data.extend(self.rom.ReadBytes(self.CAVE_PRICE_DATA_START_ADDRESS + 3 * cave_num, 3))
@@ -139,14 +139,10 @@ class DataTable():
   def _WriteOverworldItemDataToRom(self) -> None:
     for cave_num in Range.VALID_CAVE_NUMBERS:
       if cave_num == self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM:
-        print("writing %x to %x" % (self.ARMOS_ITEM_ADDRESS,
-                                    self.overworld_caves[cave_num].GetItemAtPosition(2)))
         self.rom.WriteByte(self.ARMOS_ITEM_ADDRESS,
                            self.overworld_caves[cave_num].GetItemAtPosition(2))
         continue
       if cave_num == self.CAVE_NUMBER_REPRESENTING_COAST_ITEM:
-        print("writing %x to %x" % (self.COAST_ITEM_ADDRESS,
-                                    self.overworld_caves[cave_num].GetItemAtPosition(2)))
         self.rom.WriteByte(self.COAST_ITEM_ADDRESS,
                            self.overworld_caves[cave_num].GetItemAtPosition(2))
         continue

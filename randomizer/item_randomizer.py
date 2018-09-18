@@ -10,6 +10,7 @@ class ItemRandomizer():
     self.data_table = data_table
     self.item_shuffler = item_shuffler
 
+  WOOD_SWORD_LOCATION = Location.CavePosition(0, 2)
   WHITE_SWORD_LOCATION = Location.CavePosition(2, 2)
   MAGICAL_SWORD_LOCATION = Location.CavePosition(3, 2)
   LETTER_LOCATION = Location.CavePosition(8, 2)
