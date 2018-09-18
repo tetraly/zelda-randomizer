@@ -103,7 +103,7 @@ class Room():
   def HasPotentialLadderBlock(self) -> bool:
     return self.GetType() in self.POTENTIAL_LADDER_BLOCK_ROOMS
 
-  def HasUnobstructedStaircase(self):
+  def HasUnobstructedStaircase(self) -> bool:
     return self.GetType() in [RoomType.SPIRAL_STAIR_ROOM, RoomType.NARROW_STAIR_ROOM]
 
   def IsItemStaircase(self) -> bool:
@@ -148,20 +148,20 @@ class Room():
       enemy_code += 0x40
     return Enemy(enemy_code)
 
-  def HasGannon(self):
+  def HasGannon(self) -> bool:
     return self.GetEnemy() == Enemy.GANNON
 
-  def HasWizzrobes(self):
+  def HasWizzrobes(self) -> bool:
     return self.GetEnemy() in [
         Enemy.RED_WIZZROBE, Enemy.BLUE_WIZZROBE, Enemy.BLUE_WIZZROBE_RED_WIZZROBE_BUBBLE,
         Enemy.BLUE_WIZZROBE_RED_WIZZROBE_TRAPS, Enemy.BLUE_WIZZROBE_RED_WIZZROBE,
         Enemy.BLUE_WIZZROBE_LIKE_LIKE_BUBBLE
     ]
 
-  def HasDigdogger(self):
+  def HasDigdogger(self) -> bool:
     return self.GetEnemy() in [Enemy.SINGLE_DIGDOGGER, Enemy.TRIPLE_DIGDOGGER]
 
-  def HasGohma(self):
+  def HasGohma(self) -> bool:
     return self.GetEnemy() in [Enemy.RED_GOHMA, Enemy.BLUE_GOHMA]
 
   def HasSwordOrWandRequiredEnemies(self):
@@ -171,21 +171,30 @@ class Room():
         Enemy.BLUE_DARKNUT_RED_DARKNUT_GORIYA_BUBBLE, Enemy.BLUE_DARKNUT_RED_DARKNUT_POLS_VOICE
     ]
 
-  def HasPolsVoice(self):
+  def HasHardCombatEnemies(self) -> bool:
+    return self.GetEnemy() in [
+        Enemy.GLEEOK_1, Enemy.GLEEOK_2, Enemy.GLEEOK_3, Enemy.GLEEOK_4, Enemy.PATRA_1,
+        Enemy.PATRA_2, Enemy.BLUE_DARKNUT, Enemy.BLUE_DARKNUT_RED_DARKNUT_GORIYA_BUBBLE,
+        Enemy.BLUE_DARKNUT_RED_DARKNUT_POLS_VOICE, Enemy.BLUE_WIZZROBE,
+        Enemy.BLUE_WIZZROBE_RED_WIZZROBE_BUBBLE, Enemy.BLUE_WIZZROBE_RED_WIZZROBE_TRAPS,
+        Enemy.BLUE_WIZZROBE_RED_WIZZROBE, Enemy.BLUE_WIZZROBE_LIKE_LIKE_BUBBLE
+    ]
+
+  def HasPolsVoice(self) -> bool:
     return self.GetEnemy() in [
         Enemy.POLS_VOICE, Enemy.POLS_VOICE_GIBDO_KEESE, Enemy.BLUE_DARKNUT_RED_DARKNUT_POLS_VOICE
     ]
 
-  def HasHungryGoriya(self):
+  def HasHungryGoriya(self) -> bool:
     return self.GetEnemy() == Enemy.HUNGRY_GORIYA
 
-  def HasNoEnemiesToKill(self):
+  def HasNoEnemiesToKill(self) -> bool:
     return self.GetEnemy() in [
         Enemy.BUBBLE, Enemy.THREE_PAIRS_OF_TRAPS, Enemy.CORNER_TRAPS, Enemy.OLD_MAN,
         Enemy.THE_KIDNAPPED, Enemy.NOTHING
     ]
 
-  def HasOnlyZeroHPEnemies(self):
+  def HasOnlyZeroHPEnemies(self) -> bool:
     return self.GetEnemy() in [
         Enemy.GEL_1, Enemy.GEL_2, Enemy.BLUE_KEESE, Enemy.RED_KEESE, Enemy.DARK_KEESE,
         Enemy.KEESE_TRAPS

@@ -40,7 +40,7 @@ class Z1Randomizer():
 
     seed = self.seed - 1
     data_table = DataTable(output_rom)
-    data_table.ReadDataFromRom()
+    #data_table.ReadDataFromRom()
     item_shuffler = ItemShuffler()
     item_randomizer = ItemRandomizer(data_table, item_shuffler)
     validator = Validator(data_table)

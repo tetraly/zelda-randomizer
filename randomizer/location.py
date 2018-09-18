@@ -4,6 +4,8 @@ from randomizer.constants import CaveNum, LevelNum, PositionNum, Range, RoomNum
 
 
 class Location(object):
+  CAVE_LEVEL_NUMBER_OFFSET = 0x10
+
   def __init__(self, level_num=None, cave_num=None, room_num=None, position_num=None):
     if level_num is not None:
       assert level_num in Range.VALID_LEVEL_NUMBERS
@@ -18,7 +20,7 @@ class Location(object):
       assert position_num in Range.VALID_CAVE_POSITION_NUMBERS
       assert level_num is None
       assert room_num is None
-      self.level_id = cave_num + 15
+      self.level_id = cave_num + self.CAVE_LEVEL_NUMBER_OFFSET
       self.sub_id = position_num
 
     else:
@@ -36,7 +38,7 @@ class Location(object):
     return self.level_id in range(1, 10)
 
   def IsCavePosition(self) -> bool:
-    return self.level_id in range(0x10, 0x25)
+    return self.level_id in range(0x10, 0x26)
 
   def GetLevelNum(self) -> LevelNum:
     assert self.IsLevelRoom()
@@ -48,7 +50,7 @@ class Location(object):
 
   def GetCaveNum(self) -> CaveNum:
     assert self.IsCavePosition()
-    return self.level_id - 15
+    return self.level_id - self.CAVE_LEVEL_NUMBER_OFFSET
 
   def GetPositionNum(self) -> PositionNum:
     assert self.IsCavePosition()

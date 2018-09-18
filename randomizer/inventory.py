@@ -16,7 +16,6 @@ class Inventory(object):
     self.num_keys = 0
 
   def SetStillMakingProgressBit(self) -> None:
-    print("Still making progress!")
     self.still_making_progress_bit = True
 
   def ClearMakingProgressBit(self) -> None:
@@ -46,7 +45,6 @@ class Inventory(object):
     elif item in self.items:
       return
     else:
-      print("----------------------------   Adding %s to inventory" % item)
       self.SetStillMakingProgressBit()
       self.items.add(item)
 
@@ -67,7 +65,8 @@ class Inventory(object):
 
   def HasSword(self) -> bool:
     return (Item.WOOD_SWORD in self.items or Item.WHITE_SWORD in self.items
-            or Item.MAGICAL_SWORD in self.items)
+            #or Item.MAGICAL_SWORD in self.items
+            )
 
   def HasBowAndArrows(self) -> bool:
     return (Item.BOW in self.items

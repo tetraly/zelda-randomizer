@@ -28,6 +28,5 @@ class Cave(object):
   def GetPriceData(self) -> List[int]:
     assert len(self.raw_data[3:6]) == 3
     if self.raw_data[3:6] == [0x00, 0x0A, 0x00]:
-      print("Cheater!!")
       return [0x00, 0x1E, 0x00]
     return self.raw_data[3:6]
