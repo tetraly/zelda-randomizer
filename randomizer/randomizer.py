@@ -3,11 +3,12 @@ import random
 
 from randomizer.constants import TextSpeed
 from randomizer.item_randomizer import ItemRandomizer
-from randomizer.item_shuffler import ItemShuffler
-from randomizer.level_data_table import LevelDataTable
-from randomizer.logic_validator import LogicValidator
+from randomizer.item_randomizer import ItemShuffler
+from randomizer.data_table import DataTable
 from randomizer.rom import Rom
 from randomizer.text.text_data_table import TextDataTable
+from randomizer.validator import Validator
+
 
 class Z1Randomizer():
   def __init__(self):
@@ -17,14 +18,15 @@ class Z1Randomizer():
     self.text_speed: str = None
     self.level_text: str = None
 
-  def SetFlags(self, input_filename: str, output_location: str, seed: int, text_speed: str, level_text: str) -> None:
+  def SetFlags(self, input_filename: str, output_location: str, seed: int, text_speed: str,
+               level_text: str) -> None:
     self.input_filename = input_filename
     self.output_location = output_location
     self.seed = seed
     self.text_speed = text_speed
     self.level_text = level_text
 
-  def Run(self):
+  def Run(self) -> None:
     input_rom = Rom(self.input_filename, add_nes_header_offset=True)
     input_rom.OpenFile()
     (input_path, input_full_filename) = os.path.split(self.input_filename)
@@ -37,11 +39,11 @@ class Z1Randomizer():
     output_rom.OpenFile(write_mode=True)
 
     seed = self.seed - 1
-    level_data_table = LevelDataTable(output_rom)
-    level_data_table.ReadLevelDataFromRom()
+    data_table = DataTable(output_rom)
+    #data_table.ReadDataFromRom()
     item_shuffler = ItemShuffler()
-    item_randomizer = ItemRandomizer(level_data_table, item_shuffler)
-    logic_validator = LogicValidator(level_data_table)
+    item_randomizer = ItemRandomizer(data_table, item_shuffler)
+    validator = Validator(data_table)
     text_data_table = TextDataTable(output_rom)
 
     # Main loop: Try a seed, if it isn't valid, try another one until it is valid.
@@ -50,15 +52,15 @@ class Z1Randomizer():
       seed += 1
       random.seed(seed)
       item_shuffler.ResetState()
-      level_data_table.ReadLevelDataFromRom()
+      data_table.ReadDataFromRom()
       item_randomizer.ReadItemsAndLocationsFromTable()
       item_randomizer.ShuffleItems()
       item_randomizer.WriteItemsAndLocationsToTable()
-      is_valid_seed = logic_validator.Validate()
-    level_data_table.WriteLevelDataToRom()
+      is_valid_seed = validator.IsSeedBeatable()
+    data_table.WriteDataToRom()
 
     converted_text_speed = TextSpeed.NORMAL
-    if (self.text_speed == 'random'):
+    if self.text_speed == 'random':
       converted_text_speed = random.choice(list(TextSpeed))
     else:
       converted_text_speed = TextSpeed[self.text_speed.upper()]

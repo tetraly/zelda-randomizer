@@ -8,7 +8,6 @@ from randomizer.randomizer import Z1Randomizer
 
 from z1r_ui import Z1rUI
 
-
 flags.DEFINE_integer(name='seed', default=0, help='The seed number to initialize RNG with.')
 flags.DEFINE_string(
     name='input_filename', default='', help='The filename of the vanilla ROM to randomize.')
@@ -23,14 +22,12 @@ flags.DEFINE_enum(
 )
 
 # TODO: Turn this enum into a string with lambda validation.
-flags.DEFINE_enum(
-    'level_text',
-    'level-',
-    ['level-', 'house-', 'block-', 'random', 'cage_-', 'home_-', 'castle'],
-    'What are the dungeons called? This is strictly for fun.'
-)
+flags.DEFINE_enum('level_text', 'level-',
+                  ['level-', 'house-', 'block-', 'random', 'cage_-', 'home_-', 'castle'],
+                  'What are the dungeons called? This is strictly for fun.')
 
 FLAGS = flags.FLAGS
+
 
 class Z1RandomizerApp(Z1rUI):
   def __init__(self, parent=None) -> None:
@@ -43,7 +40,8 @@ class Z1RandomizerApp(Z1rUI):
   # Override
   def _RunRandomizer(self) -> None:
     z1r = Z1Randomizer()
-    z1r.SetFlags(self.input_filename_flag, self.output_location_flag, self.seed_flag, "normal", "level-")
+    z1r.SetFlags(self.input_filename_flag, self.output_location_flag, self.seed_flag, "normal",
+                 "level-")
     z1r.Run()
 
 
@@ -57,7 +55,8 @@ def main(unused_argv) -> None:
     sys.exit(0)
 
   z1randomizer = Z1Randomizer()
-  z1randomizer.SetFlags(FLAGS.input_filename, FLAGS.output_location, FLAGS.seed, FLAGS.text_speed, FLAGS.level_text)
+  z1randomizer.SetFlags(FLAGS.input_filename, FLAGS.output_location, FLAGS.seed, FLAGS.text_speed,
+                        FLAGS.level_text)
   z1randomizer.Run()
 
 
