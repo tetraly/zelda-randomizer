@@ -56,11 +56,6 @@ class Patch:
         :param data: Patch data as raw bytes.
         :type data: bytearray|bytes|list[int]|int|str
         """
-    # For integers and strings, convert them to byte representations.
-    #   if isinstance(data, int) and data <= 0xff:
-    #      data = data.to_bytes(1, 'little')
-    #    elif isinstance(data, str):
-    #      data = data.encode('latin1')
     self._data[addr] = data
 
   def RemoveData(self, addr: int) -> None:

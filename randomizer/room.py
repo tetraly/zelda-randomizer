@@ -188,14 +188,14 @@ class Room():
   def HasHungryGoriya(self) -> bool:
     return self.GetEnemy() == Enemy.HUNGRY_GORIYA
 
-  def HasNoEnemiesToKill(self) -> bool:
-    return self.GetEnemy() in [
-        Enemy.BUBBLE, Enemy.THREE_PAIRS_OF_TRAPS, Enemy.CORNER_TRAPS, Enemy.OLD_MAN,
-        Enemy.THE_KIDNAPPED, Enemy.NOTHING
-    ]
-
   def HasOnlyZeroHPEnemies(self) -> bool:
     return self.GetEnemy() in [
         Enemy.GEL_1, Enemy.GEL_2, Enemy.BLUE_KEESE, Enemy.RED_KEESE, Enemy.DARK_KEESE,
         Enemy.KEESE_TRAPS
+    ]
+
+  def HasNoEnemiesToKill(self) -> bool:
+    return self.GetEnemy() in [
+        Enemy.BUBBLE, Enemy.THREE_PAIRS_OF_TRAPS, Enemy.CORNER_TRAPS, Enemy.OLD_MAN,
+        Enemy.THE_KIDNAPPED, Enemy.NOTHING
     ]
