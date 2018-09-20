@@ -1,6 +1,7 @@
 import os
 import random
 
+from typing import List
 from randomizer.constants import TextSpeed
 from randomizer.item_randomizer import ItemRandomizer
 from randomizer.item_randomizer import ItemShuffler
@@ -27,11 +28,8 @@ class Z1Randomizer():
     self.level_text = level_text
 
   def Run(self) -> None:
-    input_rom = Rom(self.input_filename, add_nes_header_offset=True)
-    input_rom.OpenFile()
     (input_path, input_full_filename) = os.path.split(self.input_filename)
     (input_filename, input_extension) = os.path.splitext(input_full_filename)
-
     output_filename = os.path.join(
         self.output_location or input_path,
         "%s-randomized-%d%s" % (input_filename, self.seed, input_extension or ".nes"))
@@ -39,8 +37,7 @@ class Z1Randomizer():
     output_rom.OpenFile(write_mode=True)
 
     seed = self.seed - 1
-    data_table = DataTable(output_rom)
-    #data_table.ReadDataFromRom()
+    data_table = DataTable()
     item_shuffler = ItemShuffler()
     item_randomizer = ItemRandomizer(data_table, item_shuffler)
     validator = Validator(data_table)
@@ -52,12 +49,17 @@ class Z1Randomizer():
       seed += 1
       random.seed(seed)
       item_shuffler.ResetState()
-      data_table.ReadDataFromRom()
+      data_table.ResetToVanilla()
       item_randomizer.ReadItemsAndLocationsFromTable()
       item_randomizer.ShuffleItems()
       item_randomizer.WriteItemsAndLocationsToTable()
       is_valid_seed = validator.IsSeedBeatable()
-    data_table.WriteDataToRom()
+    patch = data_table.GetPatch()
+
+    for address in patch.GetAddresses():
+      foo: List[int] = []
+      foo = patch.GetData(address)
+      output_rom.WriteBytes(address, foo)
 
     converted_text_speed = TextSpeed.NORMAL
     if self.text_speed == 'random':
@@ -67,3 +69,10 @@ class Z1Randomizer():
 
     text_data_table.WriteTextSpeedToRom(converted_text_speed)
     text_data_table.WriteLevelNameToRom(self.level_text)
+
+    # Select Swap
+    output_rom.WriteBytes(0x1EC3C, [0x4C, 0xC0, 0xFF])
+    output_rom.WriteBytes(0x1FFC0, [
+        0xA9, 0x05, 0x20, 0xAC, 0xFF, 0xAD, 0x56, 0x06, 0xC9, 0x0F, 0xD2, 0xA9, 0x07, 0xA8, 0xA9,
+        0x01, 0x20, 0xC8, 0xB7, 0x4C, 0x58, 0xEC
+    ])

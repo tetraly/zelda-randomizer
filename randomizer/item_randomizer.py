@@ -45,6 +45,7 @@ class ItemRandomizer():
     self._ReadItemsAndLocationsRecursively(level_num, level_start_room_num)
 
   def _ParseStaircaseRoom(self, level_num: LevelNum, staircase_room_num: RoomNum) -> None:
+    print ("Parsing level: %d   room: %x" % (level_num, staircase_room_num))
     staircase_room = self.data_table.GetRoom(level_num, staircase_room_num)
 
     if staircase_room.GetType() == RoomType.ITEM_STAIRCASE:
