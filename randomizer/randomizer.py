@@ -64,8 +64,7 @@ class Z1Randomizer():
   def GetPatch(self) -> Patch:
     seed = self.seed - 1
     data_table = DataTable()
-    item_shuffler = ItemShuffler()
-    item_randomizer = ItemRandomizer(data_table, item_shuffler)
+    item_randomizer = ItemRandomizer(data_table)
     validator = Validator(data_table)
 
     # Main loop: Try a seed, if it isn't valid, try another one until it is valid.
@@ -73,10 +72,10 @@ class Z1Randomizer():
     while not is_valid_seed:
       seed += 1
       random.seed(seed)
-      item_shuffler.ResetState()
       data_table.ResetToVanilla()
+      item_randomizer.ResetState()
       item_randomizer.ReadItemsAndLocationsFromTable()
       item_randomizer.ShuffleItems()
       item_randomizer.WriteItemsAndLocationsToTable()
-      is_valid_seed = validator.IsSeedBeatable()
+      is_valid_seed = validator.IsSeedValid()
     return data_table.GetPatch()

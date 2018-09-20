@@ -88,12 +88,9 @@ class DataTable():
   def _ReadDataForOverworldCaves(self) -> None:
     self.overworld_caves = []
     for cave_num in Range.VALID_CAVE_NUMBERS:
-      print("Cave %d" % cave_num)
       if cave_num == self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM:
-        print("Adding a armos cave")
         self.overworld_caves.append(Cave([0x3F, Item.POWER_BRACELET, 0x7F, 0x00, 0x00, 0x00]))
       elif cave_num == self.CAVE_NUMBER_REPRESENTING_COAST_ITEM:
-        print("Adding a coast cave")
         self.overworld_caves.append(Cave([0x3F, Item.HEART_CONTAINER, 0x7F, 0x00, 0x00, 0x00]))
       else:
         assert cave_num in range(0, 0x14)
@@ -102,9 +99,7 @@ class DataTable():
           cave_data.append(self.overworld_cave_raw_data[(3 * cave_num) + a])
         for b in range(0, 3):
           cave_data.append(self.overworld_cave_raw_data[0x3C + (3 * cave_num) + b])
-        print("Adding a cave")
         self.overworld_caves.append(Cave(cave_data))
-    print(len(self.overworld_caves))
     assert len(self.overworld_caves) == 22  # 0-19 are actual caves, 20-21 are for the armos/coast
 
   def GetRoom(self, level_num: LevelNum, room_num: RoomNum) -> Room:

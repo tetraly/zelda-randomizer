@@ -17,7 +17,7 @@ class Validator(object):
     self.inventory = Inventory()
     self.data_table = data_table
 
-  def IsSeedBeatable(self) -> bool:
+  def IsSeedValid(self) -> bool:
     self.inventory.Reset()
     self.inventory.SetStillMakingProgressBit()
     while self.inventory.StillMakingProgress():
