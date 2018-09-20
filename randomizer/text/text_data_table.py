@@ -1,34 +1,47 @@
+import random
+from absl import logging
 from typing import List
 
-from absl import logging
-
 from randomizer.constants import TextSpeed
-from randomizer.rom import Rom
+from randomizer.patch import Patch
 
 class TextDataTable():
   TEXT_SPEED_ADDRESS = 0x481D
   TEXT_LEVEL_ADDRESS = 0x19D07
 
-  def __init__(self, rom: Rom) -> None:
-    self.rom = rom
+  def __init__(self,  text_speed: str,  phrase: str) -> None:
+    self.patch = Patch()
+    self.text_speed = text_speed
+    self.phrase = phrase
 
-  def WriteTextSpeedToRom(self, text_speed: TextSpeed) -> None:
+  def GetPatch(self) -> Patch:
+    self._AddTextSpeedToPatchIfNeeded()
+    self._AddLevelNameToPatchIfNeeded()
+    return self.patch
+
+  def _AddTextSpeedToPatchIfNeeded(self) -> None:
     logging.debug("Updating text speed.")
-    self.rom.WriteByte(address=self.TEXT_SPEED_ADDRESS, data=int(text_speed))
+    
+    converted_text_speed = TextSpeed.NORMAL
+    if self.text_speed == 'normal':
+      return
+    elif self.text_speed == 'random':
+      converted_text_speed = random.choice(list(TextSpeed))
+    else:
+      converted_text_speed = TextSpeed[self.text_speed.upper()]
+    
+    self.patch.AddData(self.TEXT_SPEED_ADDRESS, [int(converted_text_speed)])
 
-  def WriteLevelNameToRom(self, phrase: str) -> None:
-    assert len(phrase) == 6, "The level prefix must be six characters long."
-    if phrase.lower() == 'level-':
+  def _AddLevelNameToPatchIfNeeded(self) -> None:
+    assert len(self.phrase) == 6, "The level prefix must be six characters long."
+    if self.phrase.lower() == 'level-':
       return # No need to replace the existing text with the same text.
 
-    self.rom.WriteBytes(
-        address=self.TEXT_LEVEL_ADDRESS,
-        data=self.__ascii_string_to_bytes(phrase)
-    )
+    self.patch.AddData(self.TEXT_LEVEL_ADDRESS, self.__ascii_string_to_bytes(self.phrase))
 
   def __ascii_string_to_bytes(self, phrase: str) -> List[int]:
     """Convert the string to a form the game can understand."""
-    return map(self._ascii_char_to_bytes, phrase)
+    return list(map(self._ascii_char_to_bytes, phrase))
 
   @staticmethod
   def _ascii_char_to_bytes(char: str) -> int:

@@ -2,9 +2,7 @@ import os
 import random
 
 from typing import List
-from randomizer.constants import TextSpeed
 from randomizer.item_randomizer import ItemRandomizer
-from randomizer.item_randomizer import ItemShuffler
 from randomizer.data_table import DataTable
 from randomizer.rom import Rom
 from randomizer.text.text_data_table import TextDataTable
@@ -36,23 +34,16 @@ class Z1Randomizer():
         "%s-randomized-%d%s" % (input_filename, self.seed, input_extension or ".nes"))
     output_rom = Rom(output_filename, src=self.input_filename, add_nes_header_offset=True)
     output_rom.OpenFile(write_mode=True)
-    text_data_table = TextDataTable(output_rom)
 
     patch = self.GetPatch()
 
     for address in patch.GetAddresses():
-      foo: List[int] = []
-      foo = patch.GetData(address)
-      output_rom.WriteBytes(address, foo)
+      data: List[int]
+      data = patch.GetData(address)
+      output_rom.WriteBytes(address, data)
 
-    converted_text_speed = TextSpeed.NORMAL
-    if self.text_speed == 'random':
-      converted_text_speed = random.choice(list(TextSpeed))
-    else:
-      converted_text_speed = TextSpeed[self.text_speed.upper()]
-
-    text_data_table.WriteTextSpeedToRom(converted_text_speed)
-    text_data_table.WriteLevelNameToRom(self.level_text)
+    text_data_table = TextDataTable(self.text_speed, self.level_text)
+    patch += text_data_table.GetPatch()
 
     # Select Swap
     output_rom.WriteBytes(0x1EC3C, [0x4C, 0xC0, 0xFF])

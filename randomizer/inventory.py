@@ -5,22 +5,26 @@ from randomizer.constants import Item, LevelNum
 
 class Inventory(object):
   def __init__(self) -> None:
-    self.still_making_progress_bit = False
+    self.items: Set[Item]
+    self.num_heart_containers: int
+    self.num_keys: int
+    self.num_triforce_pieces: int
+    self.still_making_progress_bit: bool
     self.Reset()
 
   def Reset(self) -> None:
-    self.items: Set[Item] = set()
-    self.still_making_progress_bit = False
+    self.items = set()
     self.num_heart_containers = 3
-    self.num_tringles = 0
     self.num_keys = 0
+    self.num_triforce_pieces = 0
+    self.still_making_progress_bit = False
 
   def SetStillMakingProgressBit(self) -> None:
     self.still_making_progress_bit = True
 
   def ClearMakingProgressBit(self) -> None:
     self.still_making_progress_bit = False
-    self.num_tringles = 0
+    self.num_triforce_pieces = 0
 
   def StillMakingProgress(self) -> bool:
     return self.still_making_progress_bit
@@ -40,8 +44,8 @@ class Inventory(object):
       self.num_heart_containers += 1
       assert self.num_heart_containers <= 16
     elif item == Item.TRINGLE:
-      self.num_tringles += 1
-      assert self.num_tringles <= 8
+      self.num_triforce_pieces += 1
+      assert self.num_triforce_pieces <= 8
     elif item == Item.KEY:
       self.num_keys += 1
     elif item in self.items:
@@ -54,7 +58,7 @@ class Inventory(object):
     return self.num_heart_containers
 
   def GetTriforceCount(self) -> int:
-    return self.num_tringles
+    return self.num_triforce_pieces
 
   def HasKey(self) -> bool:
     return self.Has(Item.ANY_KEY) or self.num_keys > 0
@@ -73,7 +77,7 @@ class Inventory(object):
     elif level_num == 8:
       return self.HasCandle()
     elif level_num == 9:
-      return self.num_tringles >= 8
+      return self.num_triforce_pieces == 8
     return True
 
   # Methods to check what's in the inventory
@@ -82,7 +86,7 @@ class Inventory(object):
 
   # TODO: Make this work correctly with the Magical sword as well.
   def HasSword(self) -> bool:
-    return (Item.WOOD_SWORD in self.items or Item.WHITE_SWORD in self.items)
+    return Item.WOOD_SWORD in self.items or Item.WHITE_SWORD in self.items
 
   def HasSwordOrWand(self) -> bool:
     return self.HasSword() or Item.WAND in self.items

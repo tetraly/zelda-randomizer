@@ -1,11 +1,11 @@
-from absl import logging
-from random import shuffle
 from typing import DefaultDict, List, Tuple, Iterable
+from collections import defaultdict
+from random import shuffle
+from absl import logging
+
 from randomizer.constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
-from randomizer.location import Location
 from randomizer.data_table import DataTable
 from randomizer.location import Location
-from collections import defaultdict
 
 
 class ItemRandomizer():
@@ -101,7 +101,6 @@ class ItemRandomizer():
     for (location, item_num) in self.item_shuffler.GetAllLocationAndItemData():
       if location.IsLevelRoom():
         self.data_table.SetRoomItem(location, item_num)
-        # TODO: Fix Compass bug for tringles in item staircases
         if item_num == Item.TRINGLE:
           self.data_table.UpdateTriforceLocation(location)
       elif location.IsCavePosition():

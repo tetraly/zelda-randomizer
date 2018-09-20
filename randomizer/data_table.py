@@ -4,9 +4,7 @@ from randomizer.constants import CaveNum, Item, LevelNum, Range, RoomNum
 from randomizer.room import Room
 from randomizer.location import Location
 from randomizer.cave import Cave
-from randomizer.rom import Rom
 from randomizer.patch import Patch
-import os
 
 
 class DataTable():
@@ -95,10 +93,11 @@ class DataTable():
       else:
         assert cave_num in range(0, 0x14)
         cave_data: List[int] = []
-        for a in range(0, 3):
-          cave_data.append(self.overworld_cave_raw_data[(3 * cave_num) + a])
-        for b in range(0, 3):
-          cave_data.append(self.overworld_cave_raw_data[0x3C + (3 * cave_num) + b])
+        for cave_item_byte_num in range(0, 3):
+          cave_data.append(self.overworld_cave_raw_data[(3 * cave_num) + cave_item_byte_num])
+        for cave_price_byte_num in range(0, 3):
+          cave_data.append(
+              self.overworld_cave_raw_data[0x3C + (3 * cave_num) + cave_price_byte_num])
         self.overworld_caves.append(Cave(cave_data))
     assert len(self.overworld_caves) == 22  # 0-19 are actual caves, 20-21 are for the armos/coast
 
