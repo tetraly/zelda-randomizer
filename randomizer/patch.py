@@ -31,11 +31,11 @@ class Patch:
 
   @property
   def addresses(self):
-        """
+    """
         :return: List of all addresses in the patch.
         :rtype: list[int]
         """
-        return list(self._data.keys())
+    return list(self._data.keys())
 
   def GetAddresses(self) -> List[int]:
     """Returns a List of all addresses in the patch."""

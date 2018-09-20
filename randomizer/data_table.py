@@ -8,6 +8,7 @@ from randomizer.rom import Rom
 from randomizer.patch import Patch
 import os
 
+
 class DataTable():
   LEVEL_1_TO_6_DATA_START_ADDRESS = 0x18700
   LEVEL_7_TO_9_DATA_START_ADDRESS = 0x18A00
@@ -85,9 +86,9 @@ class DataTable():
     return rooms
 
   def _ReadDataForOverworldCaves(self) -> None:
-    self.overworld_caves = [] 
+    self.overworld_caves = []
     for cave_num in Range.VALID_CAVE_NUMBERS:
-      print ("Cave %d" % cave_num)
+      print("Cave %d" % cave_num)
       if cave_num == self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM:
         print("Adding a armos cave")
         self.overworld_caves.append(Cave([0x3F, Item.POWER_BRACELET, 0x7F, 0x00, 0x00, 0x00]))
@@ -103,7 +104,7 @@ class DataTable():
           cave_data.append(self.overworld_cave_raw_data[0x3C + (3 * cave_num) + b])
         print("Adding a cave")
         self.overworld_caves.append(Cave(cave_data))
-    print (len(self.overworld_caves) )
+    print(len(self.overworld_caves))
     assert len(self.overworld_caves) == 22  # 0-19 are actual caves, 20-21 are for the armos/coast
 
   def GetRoom(self, level_num: LevelNum, room_num: RoomNum) -> Room:
@@ -183,7 +184,7 @@ class DataTable():
 
       for table_num in range(0, self.NUM_BYTES_OF_DATA_PER_ROOM):
         patch.AddData(start_address + table_num * self.LEVEL_TABLE_SIZE + room_num,
-                       [room_data[table_num]])
+                      [room_data[table_num]])
     # Write Triforce room location to update where the compass displays it in levels 1-8.
     # The room the compass points to in level 9 doesn't change.
     for level_num in range(1, 9):
@@ -198,16 +199,16 @@ class DataTable():
     for cave_num in Range.VALID_CAVE_NUMBERS:
       if cave_num == self.CAVE_NUMBER_REPRESENTING_ARMOS_ITEM:
         patch.AddData(self.ARMOS_ITEM_ADDRESS,
-                       [self.overworld_caves[cave_num].GetItemAtPosition(2)])
+                      [self.overworld_caves[cave_num].GetItemAtPosition(2)])
         continue
       if cave_num == self.CAVE_NUMBER_REPRESENTING_COAST_ITEM:
         patch.AddData(self.COAST_ITEM_ADDRESS,
-                       [self.overworld_caves[cave_num].GetItemAtPosition(2)])
+                      [self.overworld_caves[cave_num].GetItemAtPosition(2)])
         continue
 
       # Note that the Cave class is responsible for protecting bits 6 and 7 in its item data
       patch.AddData(self.CAVE_ITEM_DATA_START_ADDRESS + (3 * cave_num),
-                     self.overworld_caves[cave_num].GetItemData())
+                    self.overworld_caves[cave_num].GetItemData())
       patch.AddData(self.CAVE_PRICE_DATA_START_ADDRESS + (3 * cave_num),
-                     self.overworld_caves[cave_num].GetPriceData())
+                    self.overworld_caves[cave_num].GetPriceData())
     return patch
