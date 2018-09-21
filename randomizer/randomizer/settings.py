@@ -1,4 +1,4 @@
-from randomizer.forms import FLAGS
+from randomizer.flags import FLAGS
 
 class Settings:
     def __init__(self, mode='full', debug_mode=False, custom_flags=None):

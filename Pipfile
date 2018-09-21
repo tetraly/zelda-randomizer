@@ -6,6 +6,19 @@ name = "pypi"
 [packages]
 absl-py = "*"
 "pyqt5" = "*"
+certifi = "==2018.8.24"
+chardet = "==3.0.4"
+idna = "==2.7"
+nlzss = "==0.1.2"
+pycrypto = "==2.6.1"
+pytz = "==2018.5"
+requests = "==2.19.1"
+"urllib3" = "==1.23"
+gunicorn = "*"
+django-heroku = "*"
+Django = "==2.1.1"
+Pillow = "==5.2.0"
+"Wii.py" = "==0.1"
 
 [dev-packages]
 

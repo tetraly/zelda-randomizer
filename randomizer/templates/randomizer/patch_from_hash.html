@@ -1,0 +1,117 @@
+{% extends 'randomizer/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+    {% include 'randomizer/_rom_base.html' %}
+    {% include 'randomizer/_rom_loader.html' %}
+
+    <div id="seed-details" class="info panel panel-success" style="display:none">
+        <div class="panel-heading panel-heading-btn">
+            <h3 class="panel-title pull-left">Game Details: <span class="hash"></span></h3>
+            <div class="btn-toolbar pull-right">
+                {% include 'randomizer/_rom_settings_button.html' %}
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="panel-body">
+            <div class="row" style="padding-bottom:5px;">
+                {% include 'randomizer/_rom_info.html' %}
+                <div class="col-md-6">
+                    <div class="row">
+                        <button name="save_rom" class="btn btn-success btn-save-rom" disabled>Save Rom</button>
+                        <button name="save_wad" class="btn btn-success btn-save-wad" disabled>Save Wad</button>
+                    </div>
+                </div>
+            </div>
+            {% include 'randomizer/_rom_settings.html' %}
+        </div>
+    </div>
+
+    <script>
+        function applyHash(rom) {
+            return new Promise(function (resolve, reject) {
+                $.get("/hash/{{ hash }}/" + rom.region, function (patch) {
+                    $.getJSON("{% static 'randomizer/patches/us_cutscene_skip_apply.json' %}", {}, function (cutscene_skip) {
+                        rom.parsePatch(patch.patch);
+                        resolve({rom: rom, patch: patch});
+                    });
+                }, "json").fail(reject);
+            });
+        }
+
+        function seedApplied(data) {
+            return new Promise(function (resolve) {
+                $(".btn-save-rom").prop("disabled", false);
+                if (wad && wad.valid) {
+                    $(".btn-save-wad").prop("disabled", false);
+                } else {
+                    $(".btn-save-wad").prop("disabled", true);
+                }
+                parseInfoFromPatch(data.patch);
+                data.rom.logic = data.patch.logic;
+                data.rom.mode = data.patch.mode;
+                data.rom.debug_mode = data.patch.debug_mode;
+                data.rom.seed = data.patch.seed;
+                data.rom.hash = data.patch.hash;
+                resolve(rom);
+            });
+        }
+
+        function seedFailed() {
+            $('.alert .message').html('Failed Creating Seed :(');
+            $('.alert').show().delay(2000).fadeOut("slow");
+        }
+
+        // Override regular romOk function
+        function romOk(rom) {
+            checkWad();
+            $("#currently-loaded").show().find(".region").text(rom.region);
+            applyHash(rom).then(seedApplied, seedFailed);
+        }
+
+        $(function () {
+            $('.alert, .info').hide();
+
+            // Save ROM button
+            $(".btn-save-rom").click(function () {
+                return rom.save(rom.makeFilename("sfc"));
+            });
+
+            // Save WAD button
+            $(".btn-save-wad").click(function () {
+                rom.updateChecksum().then(function () {
+                    $(".btn-save-wad").html("Generating...").prop("disabled", true);
+                    $(".btn-save-rom").prop("disabled", true);
+
+                    var fd = new FormData();
+                    fd.append("region", rom.region);
+                    fd.append("rom", rom.toBlob());
+                    fd.append("wad", wad.toBlob());
+
+                    $.ajax("{% url 'randomizer:pack' %}", {
+                        method: "POST",
+                        processData: false,
+                        contentType: false,
+                        dataType: 'binary',
+                        data: fd,
+                        xhrFields: {
+                            responseType: 'blob'
+                        },
+                        success: function (result) {
+                            var filename = rom.makeFilename("wad");
+                            saveAs(result, filename);
+                        },
+                        error: function () {
+                            $(".alert .message").html("Failed Packing Wad :(");
+                            $(".alert").show().delay(2000).fadeOut("slow");
+                        },
+                        complete: function () {
+                            $(".btn-save-wad").html("Save Wad").prop("disabled", false);
+                            $(".btn-save-rom").prop("disabled", false);
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}

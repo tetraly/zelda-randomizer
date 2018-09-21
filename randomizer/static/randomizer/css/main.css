@@ -1,0 +1,18 @@
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css?family=Cabin|Schoolbell:300,400,600");
+
+body {
+    font-family: "Cabin", sans-serif;
+}
+
+label {
+    font-weight: normal;
+}
+
+.navbar-brand {
+    padding: 0;
+}
+
+.pb-5 {
+    padding-bottom: 15px;
+}

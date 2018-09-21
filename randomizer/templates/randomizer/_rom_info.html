@@ -1,0 +1,46 @@
+<div class="col-md-6">
+    <div>Randomization Mode: <span class="mode"></span></div>
+    <div id="info-debug-mode" class="bg-info">Debug Test Mode: <span>Yes</span></div>
+    <div id="info-custom">Custom Mode Settings:
+        <ul>
+            {% for flag in flags %}
+                <li>{{ flag.1 }}: <span id="info-{{ flag.0 }}"></span></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>Seed: <span class="seed"></span></div>
+</div>
+
+<script>
+    function parseInfoFromPatch(patch) {
+        var seed = $('.info .seed');
+        seed.html(patch.seed); // + " [<a href='/h/" + patch.hash + "' target='_blank'>permalink</a>]");
+
+        // If seed is not provided in the response, just show the hash instead (i.e. on the patch-from-hash screen).
+        if (!patch.seed && patch.hash) {
+            seed.html(patch.hash);
+        }
+
+        $(".hash").html(patch.hash);
+        $(".info .mode").html(patch.mode);
+
+        // Debug mode seed?
+        if (patch.debug_mode) {
+            $("#info-debug-mode").show();
+        } else {
+            $("#info-debug-mode").hide();
+        }
+
+        // Custom mode settings.
+        if (patch.mode === "custom") {
+            {% for flag in flags %}
+                $("#info-{{ flag.0 }}").html(patch.custom_flags.{{ flag.0 }} ? "Yes" : "No");
+            {% endfor %}
+            $("#info-custom").show();
+        } else {
+            $("#info-custom").hide();
+        }
+
+        $(".info").show();
+    }
+</script>

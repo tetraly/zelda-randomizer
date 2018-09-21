@@ -1,0 +1,34 @@
+{% extends 'randomizer/layouts/default.html' %}
+
+{% block content %}
+    <h1>How To Play</h1>
+    <div class="panel panel-info">
+        <div class="panel-body">
+            <p>First off, head on over to <a href="{% url 'randomizer:randomize' %}">Generate Randomize Game</a>
+                and provide your ROM. Once you've got a randomized ROM, you need a way to play. There's a couple
+                options for that...</p>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">Option 1: Use an Emulator</h3>
+        </div>
+        <div class="panel-body">
+            <p>An emulator is a program that closely replicates NES hardware, allowing you to run NES games on
+                your computer.
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">Option 2: Play on Original Hardware</h3>
+        </div>
+        <div class="panel-body">
+            <p>Playing a
+                randomizer seed on original hardware requires a "flash cart", which is a special cartridge designed for that
+                hardware that allows you to put the randomized ROM on some kind of portable flash memory (usually an SD
+                or MicroSD card) which is inserted into the flash cart, which then goes in the original console.</p>
+            <p>Many people in the community consider the Everdrive N8 to be best NES flash cart on the market right now.  You can learn more about it, download the firmware, and find a shop to buy one on
+                their website <a href="https://krikzz.com" target="_blank">here</a>.</p>            </div>
+    </div>
+  </div>
+{% endblock %}
