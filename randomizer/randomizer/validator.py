@@ -1,8 +1,8 @@
-from randomizer.constants import CaveNum, Direction, Item, LevelNum
-from randomizer.constants import Range, RoomNum, RoomType, WallType
-from randomizer.room import Room
-from randomizer.inventory import Inventory
-from randomizer.data_table import DataTable
+from .constants import CaveNum, Direction, Item, LevelNum
+from .constants import Range, RoomNum, RoomType, WallType
+from .room import Room
+from .inventory import Inventory
+from .data_table import DataTable
 
 
 class Validator(object):

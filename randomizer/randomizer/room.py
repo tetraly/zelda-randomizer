@@ -1,6 +1,6 @@
 from typing import Dict, List
 from absl import logging
-from randomizer.constants import Direction, Enemy, Item, Range, RoomNum, RoomType, WallType
+from .constants import Direction, Enemy, Item, Range, RoomNum, RoomType, WallType
 
 
 class Room():

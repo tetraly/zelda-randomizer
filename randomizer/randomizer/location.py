@@ -1,6 +1,6 @@
 from absl import logging
 
-from randomizer.constants import CaveNum, LevelNum, PositionNum, Range, RoomNum
+from .constants import CaveNum, LevelNum, PositionNum, Range, RoomNum
 
 
 class Location(object):

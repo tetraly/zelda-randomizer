@@ -2,12 +2,12 @@ import random
 from absl import logging
 from typing import List
 
-from randomizer.constants import TextSpeed
-from randomizer.patch import Patch
+from .constants import TextSpeed
+from .patch import Patch
 
 class TextDataTable():
-  TEXT_SPEED_ADDRESS = 0x481D
-  TEXT_LEVEL_ADDRESS = 0x19D07
+  TEXT_SPEED_ADDRESS = 0x482D
+  TEXT_LEVEL_ADDRESS = 0x19D17
 
   def __init__(self,  text_speed: str,  phrase: str) -> None:
     self.patch = Patch()
