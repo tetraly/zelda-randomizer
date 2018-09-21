@@ -17,7 +17,7 @@ class Validator(object):
     self.inventory = Inventory()
     self.data_table = data_table
 
-  def IsSeedBeatable(self) -> bool:
+  def IsSeedValid(self) -> bool:
     self.inventory.Reset()
     self.inventory.SetStillMakingProgressBit()
     while self.inventory.StillMakingProgress():
@@ -65,10 +65,10 @@ class Validator(object):
         and not (self.inventory.HasSwordOrWand() or self.inventory.HasBowAndArrows())):
       return False
 
-    if True:  # TODO: Make this a flag for "no hard combat without ring/White sword"
-      if room.HasHardCombatEnemies() and not (self.inventory.HasRing()
-                                              and self.inventory.Has(Item.WHITE_SWORD)):
-        return False
+    # TODO: Add a flag for "no hard combat without ring/White sword" and only do this if it's set.
+    if room.HasHardCombatEnemies() and not (self.inventory.HasRing()
+                                            and self.inventory.Has(Item.WHITE_SWORD)):
+      return False
 
     # At this point, assume regular enemies
     return self.inventory.HasReusableWeapon()

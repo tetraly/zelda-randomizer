@@ -55,11 +55,3 @@ class Location(object):
   def GetPositionNum(self) -> PositionNum:
     assert self.IsCavePosition()
     return self.sub_id
-
-
-#class RoomLocation(Location):
-# def __init__(self, cave_num, position_num):
-#  assert cave_num in range (1, 22) # 1-indexed
-# assert position_num in range (1, 4) # 1-indexed
-#self.level_id = cave_num + 15
-#self.sub_id = position_num
