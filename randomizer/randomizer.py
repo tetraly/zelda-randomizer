@@ -5,7 +5,7 @@ from typing import List
 from randomizer.item_randomizer import ItemRandomizer
 from randomizer.data_table import DataTable
 from randomizer.rom import Rom
-from randomizer.text.text_data_table import TextDataTable
+from randomizer.text_data_table import TextDataTable
 from randomizer.validator import Validator
 from randomizer.patch import Patch
 
