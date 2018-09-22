@@ -43,6 +43,8 @@ class Settings:
         :type item: str
         :rtype: bool
         """
+        if self._mode == 'full':
+          return True
         if item in self._custom_flags:
             return self._custom_flags[item]
         raise AttributeError(item)
