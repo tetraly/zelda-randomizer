@@ -114,17 +114,8 @@ class GenerateView(FormView):
         for flag in FLAGS:
             custom_flags[flag[0]] = data[flag[0]]
 
-        # Build game world, randomize it, and generate the patch.
-        #        world = GameWorld(seed, Settings(mode, debug_mode, custom_flags))
-        #        world.randomize()
         randomizer = Z1Randomizer()
         randomizer.ConfigureSettings(Settings(mode, debug_mode, custom_flags))
-        #randomizer.SetFlags(
-        #     input_filename="This doesn't matter",
-        #     output_location="This also doesn't matter",
-        #     seed=seed,
-        #     text_speed="normal",
-        #     level_text="hello-")
 
         patches = {'US': randomizer.GetPatch()}
 
@@ -138,10 +129,7 @@ class GenerateView(FormView):
             'custom_flags': custom_flags,
         }
 
-        #if data['region'] == 'EU':
         result['patch'] = patches['US']  # Patch for EU version is the same as US.
-        #else:
-        #    result['patch'] = patches[data['region']]
         return JsonResponse(result, encoder=PatchJSONEncoder)
 
     def form_invalid(self, form):
