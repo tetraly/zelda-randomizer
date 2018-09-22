@@ -1,8 +1,9 @@
 from .constants import CaveNum, Direction, Item, LevelNum
 from .constants import Range, RoomNum, RoomType, WallType
-from .room import Room
-from .inventory import Inventory
 from .data_table import DataTable
+from .inventory import Inventory
+from .room import Room
+from .settings import Settings
 
 class InvalidItemPlacementException(Exception):
   pass
@@ -15,9 +16,10 @@ class Validator(object):
   POTION_SHOP_NUMBER = 10
   COAST_VIRTUAL_CAVE_NUMBER = 21
 
-  def __init__(self, data_table: DataTable) -> None:
-    self.inventory = Inventory()
+  def __init__(self, data_table: DataTable, settings: Settings) -> None:
     self.data_table = data_table
+    self.settings = settings
+    self.inventory = Inventory()
 
   def IsSeedValid(self) -> bool:
     self.inventory.Reset()
@@ -70,9 +72,8 @@ class Validator(object):
         and not (self.inventory.HasSwordOrWand() or self.inventory.HasBowAndArrows())):
       return False
 
-    # TODO: Add a flag for "no hard combat without ring/White sword" and only do this if it's set.
-    if room.HasHardCombatEnemies() and not (self.inventory.HasRing()
-                                            and self.inventory.Has(Item.WHITE_SWORD)):
+    if (self.settings.avoid_required_hard_combat and room.HasHardCombatEnemies()
+        and not (self.inventory.HasRing() and self.inventory.Has(Item.WHITE_SWORD))):
       return False
 
     # At this point, assume regular enemies

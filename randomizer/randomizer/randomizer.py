@@ -21,7 +21,8 @@ class Z1Randomizer():
     self.level_text: str = ""
     self.settings: Settings
     
-  def ConfigureSettings(self, settings: Settings) -> None:
+  def ConfigureSettings(self, seed: int, settings: Settings) -> None:
+    self.seed = seed
     self.settings = settings
 
   def SetFlags(self, input_filename: str, output_location: str, seed: int, text_speed: str,
@@ -53,7 +54,7 @@ class Z1Randomizer():
     seed = self.seed - 1
     data_table = DataTable()
     item_randomizer = ItemRandomizer(data_table, self.settings)
-    validator = Validator(data_table)
+    validator = Validator(data_table, self.settings)
 
     # Main loop: Try a seed, if it isn't valid, try another one until it is valid.
     is_valid_seed = False
