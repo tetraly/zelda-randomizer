@@ -51,7 +51,7 @@ class Z1Randomizer():
       output_rom.WriteBytes(address, data)
 
   def GetPatch(self) -> Patch:
-    seed = self.seed - 1
+    random.seed(self.seed)
     data_table = DataTable()
     item_randomizer = ItemRandomizer(data_table, self.settings)
     validator = Validator(data_table, self.settings)
@@ -59,11 +59,10 @@ class Z1Randomizer():
     # Main loop: Try a seed, if it isn't valid, try another one until it is valid.
     is_valid_seed = False
     
-    num_loops = 0
+    num_iterations = 0
     while not is_valid_seed:
-      seed += 1
-      num_loops += 1
-      random.seed(seed)
+      seed = random.randint(0, 9999999999)
+      num_iterations += 1
       data_table.ResetToVanilla()
       item_randomizer.ResetState()
       item_randomizer.ReadItemsAndLocationsFromTable()
@@ -71,6 +70,7 @@ class Z1Randomizer():
       item_randomizer.WriteItemsAndLocationsToTable()
       is_valid_seed = validator.IsSeedValid()
     patch = data_table.GetPatch()
+    print ("Number of iterations: %d" % num_iterations)
     
     if self.settings.select_swap:
       patch.AddData(0x1EC4C, [0x4C, 0xC0, 0xFF])
