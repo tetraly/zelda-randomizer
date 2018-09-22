@@ -4,6 +4,8 @@ from .room import Room
 from .inventory import Inventory
 from .data_table import DataTable
 
+class InvalidItemPlacementException(Exception):
+  pass
 
 class Validator(object):
   WHITE_SWORD_CAVE_NUMBER = 2
@@ -28,9 +30,12 @@ class Validator(object):
           self.inventory.AddMultipleItems(self.data_table.GetAllCaveItems(cave_num))
       for level_num in Range.VALID_LEVEL_NUMBERS:
         if self.CanEnterLevel(level_num):
-          self._RecursivelyTraverseLevel(level_num,
+          try:
+            self._RecursivelyTraverseLevel(level_num,
                                          self.data_table.GetLevelStartRoomNumber(level_num),
                                          Direction.NORTH)
+          except InvalidItemPlacementException:
+            return False
       if self.inventory.Has(Item.TRIFORCE_OF_POWER):
         return True
     return False
@@ -59,7 +64,7 @@ class Validator(object):
         or (room.HasWizzrobes() and not self.inventory.HasSword())
         or (room.HasSwordOrWandRequiredEnemies() and not self.inventory.HasSwordOrWand())
         or (room.HasOnlyZeroHPEnemies() and not self.inventory.HasReusableWeaponOrBoomerang())
-        or (room.HasHungryGoriya and not self.inventory.Has(Item.BAIT))):
+        or (room.HasHungryGoriya() and not self.inventory.Has(Item.BAIT))):
       return False
     if (room.HasPolsVoice()
         and not (self.inventory.HasSwordOrWand() or self.inventory.HasBowAndArrows())):
@@ -111,6 +116,9 @@ class Validator(object):
 
     # An item staircase room is a dead-end, so no need to recurse more.
     if room.IsItemStaircase():
+      # For some reason, the Magical Sword doesn't show up when it's in an item staircase.
+      if room.GetItem() == Item.MAGICAL_SWORD:
+        raise InvalidItemPlacementException
       return
 
     # For a transport staircase, we don't know whether we came in through the left or right.

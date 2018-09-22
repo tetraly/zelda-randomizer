@@ -115,7 +115,7 @@ class GenerateView(FormView):
             custom_flags[flag[0]] = data[flag[0]]
 
         randomizer = Z1Randomizer()
-        randomizer.ConfigureSettings(Settings(mode, debug_mode, custom_flags))
+        randomizer.ConfigureSettings(seed, Settings(mode, debug_mode, custom_flags))
 
         patches = {'US': randomizer.GetPatch()}
 
