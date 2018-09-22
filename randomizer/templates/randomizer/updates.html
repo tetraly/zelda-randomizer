@@ -2,13 +2,16 @@
 
 {% block content %}
     <h1>Update History</h1>
-    <h2>V1 Updates</h2>
+    <h2>V0.05 Updates</h2>
     <div class="well">
-        <ul>This is the initial version of the web randomizer, which makes it more convenient to randomize ROMs and added several toggle flags:
+        <ul>This is the initial version of the web randomizer, which makes it more convenient to randomize ROMs.  New features over the 0.04 release include:
             <li>Added flags for controlling randomization of certain overworld items</li>
             <li>Added a flag for Swapping items with the select button.</li>
             <li>Added a flag for randomizing the "LEVEL-" text in dungeons.</li>
             <li>Added a flag to speed up text scrolling speed.</li>
+            <li>Added a flag for avoiding "hard" combat situations.</li>
+            <li>Fixed bug sometimes causing an item not to appear in a staircase room.</li>
+            <li>Fixed bug that caused consecutitve seed numbers to sometimes produce the same game.</li>
         </ul>
     </div>
 {% endblock %}
