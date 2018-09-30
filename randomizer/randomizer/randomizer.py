@@ -10,7 +10,7 @@ from .settings import Settings
 from .text_data_table import TextDataTable
 from .validator import Validator
 
-VERSION = '0.05'
+VERSION = '0.06'
 
 
 class Z1Randomizer():
@@ -26,7 +26,7 @@ class Z1Randomizer():
     self.seed = seed
     self.settings = settings
 
-  def SetFlags(self, input_filename: str, output_location: str, seed: int, text_speed: str,
+  def Settings(self, input_filename: str, output_location: str, seed: int, text_speed: str,
                level_text: str) -> None:
     self.input_filename = input_filename
     self.output_location = output_location
