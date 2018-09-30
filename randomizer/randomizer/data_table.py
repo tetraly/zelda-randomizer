@@ -7,6 +7,7 @@ from .cave import Cave
 from .patch import Patch
 from .data import *
 
+
 class DataTable():
   NES_FILE_OFFSET = 0x10
   LEVEL_1_TO_6_DATA_START_ADDRESS = 0x18700 + NES_FILE_OFFSET
@@ -61,9 +62,12 @@ class DataTable():
   }
 
   def __init__(self) -> None:
-    self.level_1_to_6_raw_data = list(open("randomizer/randomizer/data/level-1-6-data.bin", 'rb').read(0x300))
-    self.level_7_to_9_raw_data = list(open("randomizer/randomizer/data/level-7-9-data.bin", 'rb').read(0x300))
-    self.overworld_cave_raw_data = list(open("randomizer/randomizer/data/overworld-cave-data.bin", 'rb').read(0x80))
+    self.level_1_to_6_raw_data = list(
+        open("randomizer/randomizer/data/level-1-6-data.bin", 'rb').read(0x300))
+    self.level_7_to_9_raw_data = list(
+        open("randomizer/randomizer/data/level-7-9-data.bin", 'rb').read(0x300))
+    self.overworld_cave_raw_data = list(
+        open("randomizer/randomizer/data/overworld-cave-data.bin", 'rb').read(0x80))
     self.level_1_to_6_rooms: List[Room] = []
     self.level_7_to_9_rooms: List[Room] = []
     self.overworld_caves: List[Cave] = []

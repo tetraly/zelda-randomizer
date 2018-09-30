@@ -10,7 +10,8 @@ from .settings import Settings
 from .text_data_table import TextDataTable
 from .validator import Validator
 
-VERSION = '0.05'
+VERSION = '0.06'
+
 
 class Z1Randomizer():
   def __init__(self) -> None:
@@ -20,12 +21,12 @@ class Z1Randomizer():
     self.text_speed: str = ""
     self.level_text: str = ""
     self.settings: Settings
-    
+
   def ConfigureSettings(self, seed: int, settings: Settings) -> None:
     self.seed = seed
     self.settings = settings
 
-  def SetFlags(self, input_filename: str, output_location: str, seed: int, text_speed: str,
+  def Settings(self, input_filename: str, output_location: str, seed: int, text_speed: str,
                level_text: str) -> None:
     self.input_filename = input_filename
     self.output_location = output_location
@@ -58,7 +59,7 @@ class Z1Randomizer():
 
     # Main loop: Try a seed, if it isn't valid, try another one until it is valid.
     is_valid_seed = False
-    
+
     num_iterations = 0
     while not is_valid_seed:
       seed = random.randint(0, 9999999999)
@@ -70,18 +71,20 @@ class Z1Randomizer():
       item_randomizer.WriteItemsAndLocationsToTable()
       is_valid_seed = validator.IsSeedValid()
     patch = data_table.GetPatch()
-    print ("Number of iterations: %d" % num_iterations)
-    
+    print("Number of iterations: %d" % num_iterations)
+
     if self.settings.select_swap:
       patch.AddData(0x1EC4C, [0x4C, 0xC0, 0xFF])
       patch.AddData(0x1FFD0, [
           0xA9, 0x05, 0x20, 0xAC, 0xFF, 0xAD, 0x56, 0x06, 0xC9, 0x0F, 0xD0, 0x02, 0xA9, 0x07, 0xA8,
-          0xA9, 0x01, 0x20, 0xC8, 0xB7, 0x4C, 0x58, 0xEC])
-      
+          0xA9, 0x01, 0x20, 0xC8, 0xB7, 0x4C, 0x58, 0xEC
+      ])
+
     if self.settings.randomize_level_text or self.settings.speed_up_text:
-      random_level_text = random.choice(['palace', 'house-', 'block-', 'random', 'cage_-', 'home_-', 'castle'])
+      random_level_text = random.choice(
+          ['palace', 'house-', 'block-', 'random', 'cage_-', 'home_-', 'castle'])
       text_data_table = TextDataTable(
-          "very_fast" if self.settings.speed_up_text else "normal",
-          random_level_text if self.settings.randomize_level_text else "level-")
+          "very_fast" if self.settings.speed_up_text else "normal", random_level_text
+          if self.settings.randomize_level_text else "level-")
       patch += text_data_table.GetPatch()
     return patch

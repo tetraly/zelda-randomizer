@@ -1,7 +1,7 @@
 # Taken with love from Dorkmaster Flek's SMRPG Randomizer
 
-from django.core.serializers.json import DjangoJSONEncoder
 from typing import List, Dict
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 class Patch:
@@ -43,7 +43,8 @@ class Patch:
     return list(self._data.keys())
 
   def GetData(self, addr: int) -> List[int]:
-    """Get data in the patch for this address.  If the address is not present in the patch, returns empty bytes.
+    """Get data in the patch for this address.  
+       If the address is not present in the patch, returns empty bytes.
         :param addr: Address for the start of the data.
         :type addr: int
         :rtype: bytearray|bytes|list[int]
@@ -71,26 +72,27 @@ class Patch:
       del self._data[addr]
 
   def for_json(self):
-        """Return patch as a JSON serializable object.
+    """Return patch as a JSON serializable object.
 
         :rtype: list[dict]
         """
-        patch = []
-        addrs = list(self._data.keys())
-        addrs.sort()
+    patch = []
+    addrs = list(self._data.keys())
+    addrs.sort()
 
-        for addr in addrs:
-            patch.append({addr: self._data[addr]})
+    for addr in addrs:
+      patch.append({addr: self._data[addr]})
 
-        return patch
+    return patch
+
 
 class PatchJSONEncoder(DjangoJSONEncoder):
-    """Extension of the Django JSON serializer to support randomizer patch data."""
+  """Extension of the Django JSON serializer to support randomizer patch data."""
 
-    def default(self, o):
-        # Support bytes and bytearray objects, which are just lists of integers.
-        if isinstance(o, (bytearray, bytes)):
-            return list(o)
-        elif isinstance(o, Patch):
-            return o.for_json()
-        return super().default(o)
+  def default(self, o):
+    # Support bytes and bytearray objects, which are just lists of integers.
+    if isinstance(o, (bytearray, bytes)):
+      return list(o)
+    elif isinstance(o, Patch):
+      return o.for_json()
+    return super().default(o)
