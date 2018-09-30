@@ -5,11 +5,12 @@ from typing import List
 from .constants import TextSpeed
 from .patch import Patch
 
+
 class TextDataTable():
   TEXT_SPEED_ADDRESS = 0x482D
   TEXT_LEVEL_ADDRESS = 0x19D17
 
-  def __init__(self,  text_speed: str,  phrase: str) -> None:
+  def __init__(self, text_speed: str, phrase: str) -> None:
     self.patch = Patch()
     self.text_speed = text_speed
     self.phrase = phrase
@@ -21,7 +22,7 @@ class TextDataTable():
 
   def _AddTextSpeedToPatchIfNeeded(self) -> None:
     logging.debug("Updating text speed.")
-    
+
     converted_text_speed = TextSpeed.NORMAL
     if self.text_speed == 'normal':
       return
@@ -29,13 +30,13 @@ class TextDataTable():
       converted_text_speed = random.choice(list(TextSpeed))
     else:
       converted_text_speed = TextSpeed[self.text_speed.upper()]
-    
+
     self.patch.AddData(self.TEXT_SPEED_ADDRESS, [int(converted_text_speed)])
 
   def _AddLevelNameToPatchIfNeeded(self) -> None:
     assert len(self.phrase) == 6, "The level prefix must be six characters long."
     if self.phrase.lower() == 'level-':
-      return # No need to replace the existing text with the same text.
+      return  # No need to replace the existing text with the same text.
 
     self.patch.AddData(self.TEXT_LEVEL_ADDRESS, self.__ascii_string_to_bytes(self.phrase))
 
@@ -45,16 +46,16 @@ class TextDataTable():
 
   @staticmethod
   def _ascii_char_to_bytes(char: str) -> int:
-    if ord(char) >= 48 and ord(char) <= 57: # 0-9
+    if ord(char) >= 48 and ord(char) <= 57:  # 0-9
       return ord(char) - 48
-    if ord(char) >= 65 and ord(char) <= 90: # A-Z
+    if ord(char) >= 65 and ord(char) <= 90:  # A-Z
       return ord(char) - 55
-    if ord(char) >= 97 and ord(char) <= 122: # a-z
+    if ord(char) >= 97 and ord(char) <= 122:  # a-z
       return ord(char) - 87
 
     misc_char_map = {
-        '_': 0x24, # Meant to represent a space.
-        '~': 0x25, # Meant to represent leading space.
+        '_': 0x24,  # Meant to represent a space.
+        '~': 0x25,  # Meant to represent leading space.
         ',': 0x28,
         '!': 0x29,
         "'": 0x2A,

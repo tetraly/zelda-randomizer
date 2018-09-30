@@ -71,26 +71,27 @@ class Patch:
       del self._data[addr]
 
   def for_json(self):
-        """Return patch as a JSON serializable object.
+    """Return patch as a JSON serializable object.
 
         :rtype: list[dict]
         """
-        patch = []
-        addrs = list(self._data.keys())
-        addrs.sort()
+    patch = []
+    addrs = list(self._data.keys())
+    addrs.sort()
 
-        for addr in addrs:
-            patch.append({addr: self._data[addr]})
+    for addr in addrs:
+      patch.append({addr: self._data[addr]})
 
-        return patch
+    return patch
+
 
 class PatchJSONEncoder(DjangoJSONEncoder):
-    """Extension of the Django JSON serializer to support randomizer patch data."""
+  """Extension of the Django JSON serializer to support randomizer patch data."""
 
-    def default(self, o):
-        # Support bytes and bytearray objects, which are just lists of integers.
-        if isinstance(o, (bytearray, bytes)):
-            return list(o)
-        elif isinstance(o, Patch):
-            return o.for_json()
-        return super().default(o)
+  def default(self, o):
+    # Support bytes and bytearray objects, which are just lists of integers.
+    if isinstance(o, (bytearray, bytes)):
+      return list(o)
+    elif isinstance(o, Patch):
+      return o.for_json()
+    return super().default(o)

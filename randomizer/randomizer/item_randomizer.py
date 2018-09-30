@@ -8,6 +8,7 @@ from .data_table import DataTable
 from .location import Location
 from .settings import Settings
 
+
 class ItemRandomizer():
   def __init__(self, data_table: DataTable, settings: Settings) -> None:
     self.data_table = data_table
@@ -44,11 +45,11 @@ class ItemRandomizer():
     if self.settings.shuffle_letter:
       items.append(self.LETTER_LOCATION)
     if self.settings.shuffle_shop_items:
-      items.extend([self. BAIT_LOCATION_1, self.BAIT_LOCATION_2, 
-                   self.WOODEN_ARROWS_LOCATION, self.BLUE_CANDLE_LOCATION,
-                   self.BLUE_RING_LOCATION])
+      items.extend([
+          self.BAIT_LOCATION_1, self.BAIT_LOCATION_2, self.WOODEN_ARROWS_LOCATION,
+          self.BLUE_CANDLE_LOCATION, self.BLUE_RING_LOCATION
+      ])
     return items
-  
 
   def ResetState(self):
     self.item_shuffler.ResetState()

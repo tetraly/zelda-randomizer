@@ -5,8 +5,10 @@ from .inventory import Inventory
 from .room import Room
 from .settings import Settings
 
+
 class InvalidItemPlacementException(Exception):
   pass
+
 
 class Validator(object):
   WHITE_SWORD_CAVE_NUMBER = 2
@@ -34,8 +36,8 @@ class Validator(object):
         if self.CanEnterLevel(level_num):
           try:
             self._RecursivelyTraverseLevel(level_num,
-                                         self.data_table.GetLevelStartRoomNumber(level_num),
-                                         Direction.NORTH)
+                                           self.data_table.GetLevelStartRoomNumber(level_num),
+                                           Direction.NORTH)
           except InvalidItemPlacementException:
             return False
       if self.inventory.Has(Item.TRIFORCE_OF_POWER):
