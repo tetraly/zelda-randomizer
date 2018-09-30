@@ -19,7 +19,6 @@
                 <div class="col-md-6">
                     <div class="row">
                         <button name="save_rom" class="btn btn-success btn-save-rom" disabled>Save Rom</button>
-                        <button name="save_wad" class="btn btn-success btn-save-wad" disabled>Save Wad</button>
                     </div>
                 </div>
             </div>
@@ -42,11 +41,6 @@
         function seedApplied(data) {
             return new Promise(function (resolve) {
                 $(".btn-save-rom").prop("disabled", false);
-                if (wad && wad.valid) {
-                    $(".btn-save-wad").prop("disabled", false);
-                } else {
-                    $(".btn-save-wad").prop("disabled", true);
-                }
                 parseInfoFromPatch(data.patch);
                 data.rom.logic = data.patch.logic;
                 data.rom.mode = data.patch.mode;
@@ -64,7 +58,6 @@
 
         // Override regular romOk function
         function romOk(rom) {
-            checkWad();
             $("#currently-loaded").show().find(".region").text(rom.region);
             applyHash(rom).then(seedApplied, seedFailed);
         }
