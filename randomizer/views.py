@@ -2,14 +2,7 @@ import base64
 import binascii
 import hashlib
 import json
-import os
 import random
-import string
-import tempfile
-import shutil
-
-import Wii
-import nlzss
 
 from django.conf import settings
 from django.db import transaction
@@ -138,12 +131,8 @@ class GenerateView(FormView):
 
 
 class GenerateFromHashView(View):
-    def get(self, request, hash, region):
+    def get(self, request, hash):
         """Get a previously generated patch via hash value."""
-
-        # EU patch is actually the US one.
-        if region == 'EU':
-            region = 'US'
 
         try:
             s = Seed.objects.get(hash=hash)
@@ -165,112 +154,3 @@ class GenerateFromHashView(View):
             'patch': json.loads(p.patch),
         }
         return JsonResponse(result)
-
-
-@method_decorator(csrf_exempt, name='dispatch')
-class PackingView(View):
-    def post(self, request):
-        """Pack uploaded ROM into the provided WAD file as downloaded file."""
-        if not request.FILES.get('rom'):
-            return HttpResponseBadRequest("ROM file not provided")
-        elif not request.FILES.get('wad'):
-            return HttpResponseBadRequest("WAD file not provided")
-
-        with tempfile.TemporaryDirectory() as dumpdir:
-            romfile = os.path.join(dumpdir, 'rom.sfc')
-            with open(romfile, 'wb') as f:
-                shutil.copyfileobj(request.FILES['rom'], f)
-
-            # Compress ROM file for US and EU (not JP)
-            rom_to_copy = romfile
-            if request.POST.get('region') in ('US', 'EU'):
-              romcompressed = os.path.join(dumpdir, 'rom_compressed.sfc')
-              nlzss.encode_file(romfile, romcompressed)
-              rom_to_copy = romcompressed
-
-            # Dump WAD file
-            wadf = Wii.WAD.load(request.FILES['wad'].read())
-            wadf.dumpDir(dumpdir)
-
-            # Dump U8 archive
-            u8file = os.path.join(dumpdir, '00000005.app')
-            u8unpackdir = u8file + '_unpacked'
-            u8archive = Wii.U8.loadFile(u8file)
-            u8archive.dumpDir(u8unpackdir)
-
-            # Copy randomized ROM over
-            for f in os.listdir(u8unpackdir):
-                if f.lower().endswith(".rom"):
-                    wadrom = os.path.join(u8unpackdir, f)
-                    shutil.copyfile(rom_to_copy, wadrom)
-                    break
-
-            # Put U8 archive back together
-            newu8 = Wii.U8.loadDir(u8unpackdir)
-            newu8.dumpFile(u8file)
-
-            # Build new WAD
-            newwadfile = os.path.join(dumpdir, 'smrpg_randomized.wad')
-            newwad = Wii.WAD.loadDir(dumpdir)
-
-            # Make new channel title with seed (sync for all languages).
-            # Read title from ROM and make sure it's in the correct spot.  If not, leave the title alone.
-            with open(romfile, 'rb') as f:
-                f.seek(0x7fc0)
-                title = f.read(20).strip()
-                title = title.ljust(20)
-
-            if not title.startswith(b'SMRPG-R'):
-                return HttpResponseBadRequest("Bad ROM title {!r}".format(title))
-
-            try:
-                seed = int(title[7:].strip())
-            except:
-                return HttpResponseBadRequest("Bad ROM title {!r}".format(title))
-
-            # Read first content file data to find the channel title data and update it.
-            if newwad.contents[0][0x80:0x84] != b'IMET':
-                return HttpResponseBadRequest("Can't find IMET in WAD contents file")
-
-            imetpos = 0x80
-            i = 0
-            content = bytearray(newwad.contents[0])
-
-            # Channel names start 29 bytes after the "IMET" string, and there are 7 of them in a row.
-            jpos = imetpos + 29
-            for i in list(range(7)):
-                for j, char in enumerate(title):
-                    pos = jpos + (i * 84) + (j * 2)
-                    content[pos] = char
-
-            # Update MD5 hash for this content file.
-            data = content[64:1584]
-            data += b'\x00' * 16
-            hash = Wii.Crypto.createMD5Hash(data)
-            for i in range(16):
-                content[1584 + i] = hash[i]
-
-            newwad.contents[0] = bytes(content)
-
-            # Generate random title ID for the WAD that doesn't conflict with existing channels.
-            choices = list(string.ascii_letters + string.digits)
-            # The first character of the four byte title ID should exclude existing ones to avoid conflicts.
-            first_char_choices = list(set(choices) -
-                                      {'C', 'D', 'E', 'F', 'G', 'H', 'J', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'W', 'X'})
-            first_char_choices.sort()
-
-            random.seed(seed)
-            new_id = bytearray([0x00, 0x01, 0x00, 0x01, ord(random.choice(first_char_choices))])
-            for i in range(3):
-                new_id.append(ord(random.choice(choices)))
-
-            tid = int.from_bytes(new_id, 'big')
-            newwad.tmd.setTitleID(tid)
-            newwad.tik.setTitleID(tid)
-
-            newwad.dumpFile(newwadfile, fakesign=False)
-
-            # Return new WAD file
-            response = HttpResponse(open(newwadfile, 'rb'), content_type='application/octet-stream')
-            response['Content-Disposition'] = 'attachment; filename="smrpg.wad"'
-            return response

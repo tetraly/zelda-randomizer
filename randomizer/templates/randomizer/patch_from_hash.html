@@ -19,7 +19,6 @@
                 <div class="col-md-6">
                     <div class="row">
                         <button name="save_rom" class="btn btn-success btn-save-rom" disabled>Save Rom</button>
-                        <button name="save_wad" class="btn btn-success btn-save-wad" disabled>Save Wad</button>
                     </div>
                 </div>
             </div>
@@ -31,10 +30,8 @@
         function applyHash(rom) {
             return new Promise(function (resolve, reject) {
                 $.get("/hash/{{ hash }}/" + rom.region, function (patch) {
-                    $.getJSON("{% static 'randomizer/patches/us_cutscene_skip_apply.json' %}", {}, function (cutscene_skip) {
                         rom.parsePatch(patch.patch);
                         resolve({rom: rom, patch: patch});
-                    });
                 }, "json").fail(reject);
             });
         }
@@ -42,11 +39,6 @@
         function seedApplied(data) {
             return new Promise(function (resolve) {
                 $(".btn-save-rom").prop("disabled", false);
-                if (wad && wad.valid) {
-                    $(".btn-save-wad").prop("disabled", false);
-                } else {
-                    $(".btn-save-wad").prop("disabled", true);
-                }
                 parseInfoFromPatch(data.patch);
                 data.rom.logic = data.patch.logic;
                 data.rom.mode = data.patch.mode;
@@ -64,7 +56,6 @@
 
         // Override regular romOk function
         function romOk(rom) {
-            checkWad();
             $("#currently-loaded").show().find(".region").text(rom.region);
             applyHash(rom).then(seedApplied, seedFailed);
         }
@@ -75,42 +66,6 @@
             // Save ROM button
             $(".btn-save-rom").click(function () {
                 return rom.save(rom.makeFilename("sfc"));
-            });
-
-            // Save WAD button
-            $(".btn-save-wad").click(function () {
-                rom.updateChecksum().then(function () {
-                    $(".btn-save-wad").html("Generating...").prop("disabled", true);
-                    $(".btn-save-rom").prop("disabled", true);
-
-                    var fd = new FormData();
-                    fd.append("region", rom.region);
-                    fd.append("rom", rom.toBlob());
-                    fd.append("wad", wad.toBlob());
-
-                    $.ajax("{% url 'randomizer:pack' %}", {
-                        method: "POST",
-                        processData: false,
-                        contentType: false,
-                        dataType: 'binary',
-                        data: fd,
-                        xhrFields: {
-                            responseType: 'blob'
-                        },
-                        success: function (result) {
-                            var filename = rom.makeFilename("wad");
-                            saveAs(result, filename);
-                        },
-                        error: function () {
-                            $(".alert .message").html("Failed Packing Wad :(");
-                            $(".alert").show().delay(2000).fadeOut("slow");
-                        },
-                        complete: function () {
-                            $(".btn-save-wad").html("Save Wad").prop("disabled", false);
-                            $(".btn-save-rom").prop("disabled", false);
-                        }
-                    });
-                });
             });
         });
     </script>

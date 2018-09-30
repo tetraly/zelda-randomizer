@@ -4,13 +4,6 @@
             <h4 class="panel-title">ROM Settings</h4>
         </div>
         <div class="panel-body">
-    {#        <div class="row">#}
-    {#            <div class="col-md-6 pb-5">#}
-    {#                <input id="cutscene-skip" type="checkbox" checked value="true" data-toggle="toggle" data-on="Yes"#}
-    {#                       data-off="No" data-size="small">#}
-    {#                <label for="cutscene-skip">Cutscene Skip (EXPERIMENTAL)<sup><strong>*</strong></sup></label>#}
-    {#            </div>#}
-    {#        </div>#}
             {% if debug_enabled %}
                 <div class="row">
                     <div class="col-md-6 pb-5">
@@ -22,26 +15,10 @@
             {% endif %}
             <div class="clearfix"></div>
         </div>
-    {#    <div class="panel-footer">#}
-    {#        {% include 'randomizer/_cutscene_skip_notes.html' %}#}
-    {#    </div>#}
     </div>
 
     <script>
         $(function () {
-            // Cutscene skip
-            {#$("#cutscene-skip").change(function () {#}
-            {#    if (rom) {#}
-            {#        rom.setCutsceneSkip($(this).prop('checked'));#}
-            {#    }#}
-            {#    localforage.setItem("rom.cutscene_skip", $(this).prop("checked"));#}
-            {#    $("#form_cutscene_skip").val($(this).prop("checked"));#}
-            {# }).change();#}
-            {#localforage.getItem("rom.cutscene_skip").then(function (value) {#}
-            {#    if (value === null) return;#}
-            {#    $("#cutscene-skip").prop("checked", value).change();#}
-            {# });#}
-
             // Debug mode flag
             $("#debug-mode").change(function () {
                 localforage.setItem("rom.debug_mode", $(this).prop("checked"));
