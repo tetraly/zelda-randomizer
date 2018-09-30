@@ -81,6 +81,7 @@
                 localforage.setItem("rom", rom.getArrayBuffer());
             }
             if (rom.valid) {
+                alert("Loading rom!!");
                 romOk(rom);
             } else {
               $(".alert .message").html("Warning: This ROM doesn't appear to be an unmodified US Legend of Zelda ROM.  If you know what you're doing, you can ignore this message.");
@@ -115,14 +116,16 @@
             loadRom(this.files[0], true);
         });
 
-        // Load ROM from local storage if it"s there
+        // Load ROM from local storage if it's there
         localforage.getItem("rom").then(function (blob) {
-            loadRom(new Blob([blob]));
+            if (blob != null) {
+              loadRom(new Blob([blob]));
+            } else {
+              $("#rom-select").show();
+            }
         });
-
 
         // Clear rom when clicked.
         $("#clear-rom").click(clearRom);
-
     });
 </script>
