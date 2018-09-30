@@ -20,5 +20,4 @@ urlpatterns = [
     path('seed', views.GenerateView.as_view(), name='generate'),
     path('h/<slug:hash>', views.HashView.as_view(), name='patch-from-hash'),
     path('hash/<slug:hash>', views.GenerateFromHashView.as_view(), name='generate-from-hash'),
-    path('pack', views.PackingView.as_view(), name='pack'),
 ]
