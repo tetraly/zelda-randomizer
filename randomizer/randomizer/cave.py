@@ -1,5 +1,5 @@
 from typing import List
-from randomizer.constants import Item, Range
+from .constants import Item, Range
 
 
 class Cave(object):

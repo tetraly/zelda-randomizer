@@ -3,14 +3,15 @@ from collections import defaultdict
 from random import shuffle
 from absl import logging
 
-from randomizer.constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
-from randomizer.data_table import DataTable
-from randomizer.location import Location
-
+from .constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
+from .data_table import DataTable
+from .location import Location
+from .settings import Settings
 
 class ItemRandomizer():
-  def __init__(self, data_table: DataTable) -> None:
+  def __init__(self, data_table: DataTable, settings: Settings) -> None:
     self.data_table = data_table
+    self.settings = settings
     self.item_shuffler = ItemShuffler()
 
   WOOD_SWORD_LOCATION = Location.CavePosition(0, 2)
@@ -26,11 +27,24 @@ class ItemRandomizer():
   ARMOS_ITEM_LOCATION = Location.CavePosition(20, 2)
   COAST_ITEM_LOCATION = Location.CavePosition(21, 2)
 
-  CAVE_ITEMS_TO_SHUFFLE = [
-      WHITE_SWORD_LOCATION, MAGICAL_SWORD_LOCATION, LETTER_LOCATION, BLUE_POTION_LOCATION,
-      BAIT_LOCATION_1, BAIT_LOCATION_2, WOODEN_ARROWS_LOCATION, BLUE_CANDLE_LOCATION,
-      BLUE_RING_LOCATION, ARMOS_ITEM_LOCATION, COAST_ITEM_LOCATION
-  ]
+  def _GetOverworldItemsToShuffle(self) -> List[Location]:
+    items: List[Location] = []
+    if self.settings.shuffle_white_sword:
+      items.append(self.WHITE_SWORD_LOCATION)
+    if self.settings.shuffle_magical_sword:
+      items.append(self.MAGICAL_SWORD_LOCATION)
+    if self.settings.shuffle_coast_item:
+      items.append(self.COAST_ITEM_LOCATION)
+    if self.settings.shuffle_armos_item:
+      items.append(self.ARMOS_ITEM_LOCATION)
+    if self.settings.shuffle_letter:
+      items.append(self.LETTER_LOCATION)
+    if self.settings.shuffle_shop_items:
+      items.extend([self. BAIT_LOCATION_1, self.BAIT_LOCATION_2, 
+                   self.WOODEN_ARROWS_LOCATION, self.BLUE_CANDLE_LOCATION,
+                   self.BLUE_RING_LOCATION])
+    return items
+  
 
   def ResetState(self):
     self.item_shuffler.ResetState()
@@ -38,7 +52,7 @@ class ItemRandomizer():
   def ReadItemsAndLocationsFromTable(self) -> None:
     for level_num in Range.VALID_LEVEL_NUMBERS:
       self._ReadItemsAndLocationsForUndergroundLevel(level_num)
-    for location in self.CAVE_ITEMS_TO_SHUFFLE:
+    for location in self._GetOverworldItemsToShuffle():
       item_num = self.data_table.GetCaveItem(location)
       self.item_shuffler.AddLocationAndItem(location, item_num)
 

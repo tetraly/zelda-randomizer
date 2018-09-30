@@ -1,6 +1,6 @@
 from typing import List, Set
 
-from randomizer.constants import Item, LevelNum
+from .constants import Item, LevelNum
 
 
 class Inventory(object):

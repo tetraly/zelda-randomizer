@@ -1,9 +1,12 @@
-from randomizer.constants import CaveNum, Direction, Item, LevelNum
-from randomizer.constants import Range, RoomNum, RoomType, WallType
-from randomizer.room import Room
-from randomizer.inventory import Inventory
-from randomizer.data_table import DataTable
+from .constants import CaveNum, Direction, Item, LevelNum
+from .constants import Range, RoomNum, RoomType, WallType
+from .data_table import DataTable
+from .inventory import Inventory
+from .room import Room
+from .settings import Settings
 
+class InvalidItemPlacementException(Exception):
+  pass
 
 class Validator(object):
   WHITE_SWORD_CAVE_NUMBER = 2
@@ -13,9 +16,10 @@ class Validator(object):
   POTION_SHOP_NUMBER = 10
   COAST_VIRTUAL_CAVE_NUMBER = 21
 
-  def __init__(self, data_table: DataTable) -> None:
-    self.inventory = Inventory()
+  def __init__(self, data_table: DataTable, settings: Settings) -> None:
     self.data_table = data_table
+    self.settings = settings
+    self.inventory = Inventory()
 
   def IsSeedValid(self) -> bool:
     self.inventory.Reset()
@@ -28,9 +32,12 @@ class Validator(object):
           self.inventory.AddMultipleItems(self.data_table.GetAllCaveItems(cave_num))
       for level_num in Range.VALID_LEVEL_NUMBERS:
         if self.CanEnterLevel(level_num):
-          self._RecursivelyTraverseLevel(level_num,
+          try:
+            self._RecursivelyTraverseLevel(level_num,
                                          self.data_table.GetLevelStartRoomNumber(level_num),
                                          Direction.NORTH)
+          except InvalidItemPlacementException:
+            return False
       if self.inventory.Has(Item.TRIFORCE_OF_POWER):
         return True
     return False
@@ -59,15 +66,14 @@ class Validator(object):
         or (room.HasWizzrobes() and not self.inventory.HasSword())
         or (room.HasSwordOrWandRequiredEnemies() and not self.inventory.HasSwordOrWand())
         or (room.HasOnlyZeroHPEnemies() and not self.inventory.HasReusableWeaponOrBoomerang())
-        or (room.HasHungryGoriya and not self.inventory.Has(Item.BAIT))):
+        or (room.HasHungryGoriya() and not self.inventory.Has(Item.BAIT))):
       return False
     if (room.HasPolsVoice()
         and not (self.inventory.HasSwordOrWand() or self.inventory.HasBowAndArrows())):
       return False
 
-    # TODO: Add a flag for "no hard combat without ring/White sword" and only do this if it's set.
-    if room.HasHardCombatEnemies() and not (self.inventory.HasRing()
-                                            and self.inventory.Has(Item.WHITE_SWORD)):
+    if (self.settings.avoid_required_hard_combat and room.HasHardCombatEnemies()
+        and not (self.inventory.HasRing() and self.inventory.Has(Item.WHITE_SWORD))):
       return False
 
     # At this point, assume regular enemies
@@ -111,6 +117,9 @@ class Validator(object):
 
     # An item staircase room is a dead-end, so no need to recurse more.
     if room.IsItemStaircase():
+      # For some reason, the Magical Sword doesn't show up when it's in an item staircase.
+      if room.GetItem() == Item.MAGICAL_SWORD:
+        raise InvalidItemPlacementException
       return
 
     # For a transport staircase, we don't know whether we came in through the left or right.

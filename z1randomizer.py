@@ -4,7 +4,7 @@ from absl import app
 from absl import flags
 from PyQt5.QtWidgets import QApplication
 
-from randomizer.randomizer import Z1Randomizer
+from randomizer.randomizer.randomizer import Z1Randomizer
 
 from z1r_ui import Z1rUI
 

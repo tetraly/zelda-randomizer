@@ -1,0 +1,14 @@
+certifi==2018.8.24
+chardet==3.0.4
+Django==2.1.1
+idna==2.7
+nlzss==0.1.2
+Pillow==5.2.0
+pycrypto==2.6.1
+pytz==2018.5
+requests==2.19.1
+urllib3==1.23
+Wii.py==0.1
+gunicorn
+django-heroku
+absl-py

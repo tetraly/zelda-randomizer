@@ -1,6 +1,6 @@
 from typing import Dict, List
 from absl import logging
-from randomizer.constants import Direction, Enemy, Item, Range, RoomNum, RoomType, WallType
+from .constants import Direction, Enemy, Item, Range, RoomNum, RoomType, WallType
 
 
 class Room():
@@ -40,9 +40,10 @@ class Room():
   MOVEMENT_CONSTRAINED_ROOMS = MOVEMENT_CONSTRAINED_ROOMS_VALID_TRAVEL_DIRECTIONS.keys()
 
   def __init__(self, rom_data: List[int]) -> None:
-    self.rom_data = rom_data
-    self.staircase_room_num: RoomNum = None
     self.marked_as_visited = False
+    self.rom_data = rom_data
+    # -1 is used as a sentinal value indicating a lack of stairway room
+    self.staircase_room_num = RoomNum(-1)
 
   def GetRomData(self) -> List[int]:
     return self.rom_data
@@ -69,7 +70,8 @@ class Room():
     return RoomNum(self.rom_data[1] & 0x7F)
 
   def HasStaircase(self) -> bool:
-    return self.staircase_room_num is not None
+    # -1 is used as a sentinal value indicating a lack of stairway room
+    return self.staircase_room_num != RoomNum(-1)
 
   def GetStaircaseRoomNumber(self) -> RoomNum:
     return self.staircase_room_num
