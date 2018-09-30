@@ -1,6 +1,6 @@
 import random
-from absl import logging
 from typing import List
+from absl import logging
 
 from .constants import TextSpeed
 from .patch import Patch

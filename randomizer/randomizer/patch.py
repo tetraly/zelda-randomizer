@@ -1,7 +1,7 @@
 # Taken with love from Dorkmaster Flek's SMRPG Randomizer
 
-from django.core.serializers.json import DjangoJSONEncoder
 from typing import List, Dict
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 class Patch:
@@ -43,7 +43,8 @@ class Patch:
     return list(self._data.keys())
 
   def GetData(self, addr: int) -> List[int]:
-    """Get data in the patch for this address.  If the address is not present in the patch, returns empty bytes.
+    """Get data in the patch for this address.  
+       If the address is not present in the patch, returns empty bytes.
         :param addr: Address for the start of the data.
         :type addr: int
         :rtype: bytearray|bytes|list[int]
