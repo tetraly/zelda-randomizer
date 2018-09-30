@@ -133,26 +133,6 @@
             name = name + "." + ext;
             return name;
         };
-
-        // *** Optional settings ***
-
-        // Cutscene skip (only for US and EU regions)
-        this.setCutsceneSkip = function (enable) {
-            return new Promise(function (resolve) {
-                if (rom.region === 'US' || rom.region === 'EU') {
-                    if (enable) {
-                        $.getJSON("{% static 'randomizer/patches/us_cutscene_skip_apply.json' %}", {}, function (patch) {
-                            //rom.parsePatch(patch);
-                        });
-                    } else {
-                        $.getJSON("{% static 'randomizer/patches/us_cutscene_skip_remove.json' %}", {}, function (patch) {
-                            //rom.parsePatch(patch);
-                        });
-                    }
-                }
-                resolve(this);
-            }.bind(this));
-        }.bind(this);
     });
 
 </script>

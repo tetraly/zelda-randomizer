@@ -81,7 +81,6 @@
                 localforage.setItem("rom", rom.getArrayBuffer());
             }
             if (rom.valid) {
-                alert("Loading rom!!");
                 romOk(rom);
             } else {
               $(".alert .message").html("Warning: This ROM doesn't appear to be an unmodified US Legend of Zelda ROM.  If you know what you're doing, you can ignore this message.");

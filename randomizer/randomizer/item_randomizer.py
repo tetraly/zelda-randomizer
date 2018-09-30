@@ -15,15 +15,19 @@ class ItemRandomizer():
     self.item_shuffler = ItemShuffler()
 
   WOOD_SWORD_LOCATION = Location.CavePosition(0, 2)
+  TAKE_ANY_HEART_LOCATION = Location.CavePosition(1, 3)
   WHITE_SWORD_LOCATION = Location.CavePosition(2, 2)
   MAGICAL_SWORD_LOCATION = Location.CavePosition(3, 2)
   LETTER_LOCATION = Location.CavePosition(8, 2)
   BLUE_POTION_LOCATION = Location.CavePosition(10, 1)
+  SHIELD_LOCATION_1 = Location.CavePosition(13, 1)
   WOODEN_ARROWS_LOCATION = Location.CavePosition(13, 3)
+  SHIELD_LOCATION_2 = Location.CavePosition(14, 1)
   BLUE_CANDLE_LOCATION = Location.CavePosition(14, 3)
+  SHIELD_LOCATION_3 = Location.CavePosition(15, 1)
   BAIT_LOCATION_1 = Location.CavePosition(15, 2)
-  BAIT_LOCATION_2 = Location.CavePosition(16, 3)
   BLUE_RING_LOCATION = Location.CavePosition(16, 2)
+  BAIT_LOCATION_2 = Location.CavePosition(16, 3)
   ARMOS_ITEM_LOCATION = Location.CavePosition(20, 2)
   COAST_ITEM_LOCATION = Location.CavePosition(21, 2)
 
@@ -55,6 +59,13 @@ class ItemRandomizer():
     for location in self._GetOverworldItemsToShuffle():
       item_num = self.data_table.GetCaveItem(location)
       self.item_shuffler.AddLocationAndItem(location, item_num)
+    if self.settings.shuffle_take_any_hearts_shields_and_bait:
+      self.item_shuffler.AddLocationAndItem(self.BAIT_LOCATION_1, Item.BAIT)
+      self.item_shuffler.AddLocationAndItem(self.BAIT_LOCATION_2, Item.HEART_CONTAINER)
+      self.item_shuffler.AddLocationAndItem(self.SHIELD_LOCATION_1, Item.MAGICAL_SHIELD)
+      self.item_shuffler.AddLocationAndItem(self.SHIELD_LOCATION_2, Item.HEART_CONTAINER)
+      self.item_shuffler.AddLocationAndItem(self.SHIELD_LOCATION_3, Item.HEART_CONTAINER)
+      self.item_shuffler.AddLocationAndItem(self.TAKE_ANY_HEART_LOCATION, Item.HEART_CONTAINER)
 
   def _ReadItemsAndLocationsForUndergroundLevel(self, level_num: LevelNum) -> None:
     logging.debug("Reading staircase room data for level %d " % level_num)

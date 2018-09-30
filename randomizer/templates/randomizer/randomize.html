@@ -97,10 +97,8 @@
                 $("#form_region").val(rom.region);
                 $("#form_seed").val(seed);
                 $.post("{% url 'randomizer:generate' %}", $("#config").serialize(), function (patch) {
-                    $.getJSON("{% static 'randomizer/patches/us_cutscene_skip_apply.json' %}", {}, function (cutscene_skip) {
                       rom.parsePatch(patch.patch);
                       resolve({rom: rom, patch: patch});
-                    });
                 }, "json").fail(reject);
             });
         }
