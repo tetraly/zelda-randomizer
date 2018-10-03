@@ -143,6 +143,11 @@ class Room():
     assert self.rom_data[5] & 0x04 in [0, 4]
     return self.rom_data[5] & 0x04 > 0
 
+  def HasItem(self) -> bool:
+    if self.GetItem() == Item.MAGICAL_SWORD and not self.HasDropBitSet():
+      return False
+    return True
+
   ### Enemy-related methods ###
   def GetEnemy(self) -> Enemy:
     enemy_code = self.rom_data[2] & 0x3F
@@ -153,6 +158,7 @@ class Room():
   def HasGannon(self) -> bool:
     return self.GetEnemy() == Enemy.GANNON
 
+  #TODO: Make constants for these lists of enemies
   def HasWizzrobes(self) -> bool:
     return self.GetEnemy() in [
         Enemy.RED_WIZZROBE, Enemy.BLUE_WIZZROBE, Enemy.BLUE_WIZZROBE_RED_WIZZROBE_BUBBLE,

@@ -73,6 +73,12 @@ class Z1Randomizer():
     patch = data_table.GetPatch()
     print("Number of iterations: %d" % num_iterations)
 
+    if self.settings.progressive_items:
+      patch.AddData(0x6B49, [0x11, 0x12, 0x13])  # Swords
+      patch.AddData(0x6B4E, [0x11, 0x12])  # Candles
+      patch.AddData(0x6B50, [0x11, 0x12])  # Arrows
+      patch.AddData(0x6B5A, [0x11, 0x12])  # Rings
+
     if self.settings.select_swap:
       patch.AddData(0x1EC4C, [0x4C, 0xC0, 0xFF])
       patch.AddData(0x1FFD0, [

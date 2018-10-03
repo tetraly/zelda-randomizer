@@ -131,9 +131,6 @@ class DataTable():
     assert location.IsCavePosition()
     return self.overworld_caves[location.GetCaveNum()].GetItemAtPosition(location.GetPositionNum())
 
-  def GetAllCaveItems(self, cave_num: CaveNum) -> List[Item]:
-    return self.overworld_caves[cave_num].GetAllItems()
-
   def SetCaveItem(self, location: Location, item: Item) -> None:
     assert location.IsCavePosition()
     self.overworld_caves[location.GetCaveNum()].SetItemAtPosition(item, location.GetPositionNum())

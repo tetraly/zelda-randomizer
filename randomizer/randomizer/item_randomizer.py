@@ -13,7 +13,7 @@ class ItemRandomizer():
   def __init__(self, data_table: DataTable, settings: Settings) -> None:
     self.data_table = data_table
     self.settings = settings
-    self.item_shuffler = ItemShuffler()
+    self.item_shuffler = ItemShuffler(settings)
 
   WOOD_SWORD_LOCATION = Location.CavePosition(0, 2)
   TAKE_ANY_HEART_LOCATION = Location.CavePosition(1, 3)
@@ -134,7 +134,8 @@ class ItemRandomizer():
 
 
 class ItemShuffler():
-  def __init__(self) -> None:
+  def __init__(self, settings:Settings) -> None:
+    self.settings = settings
     self.item_num_list: List[Item] = []
     self.per_level_item_location_lists: DefaultDict[LevelNum, List[Location]] = defaultdict(list)
     self.per_level_item_lists: DefaultDict[LevelNum, List[Item]] = defaultdict(list)
@@ -151,6 +152,17 @@ class ItemShuffler():
     self.per_level_item_location_lists[level_num].append(location)
     if item_num in [Item.MAP, Item.COMPASS, Item.TRINGLE]:
       return
+    if self.settings.progressive_items and item_num == Item.RED_CANDLE:
+      item_num = Item.BLUE_CANDLE
+    if self.settings.progressive_items and item_num == Item.RED_RING:
+      item_num = Item.BLUE_RING
+    if self.settings.progressive_items and item_num == Item.SILVER_ARROWS:
+      item_num = Item.WOOD_ARROWS
+    if self.settings.progressive_items and item_num == Item.WHITE_SWORD:
+      item_num = Item.WOOD_SWORD
+    if self.settings.progressive_items and item_num == Item.MAGICAL_SWORD:
+      item_num = Item.WOOD_SWORD
+
     self.item_num_list.append(item_num)
 
   def ShuffleItems(self) -> None:

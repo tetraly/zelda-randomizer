@@ -1,6 +1,9 @@
 # List of option checkbox fields for dynamic page generation.
 FLAGS = (
-    ('shuffle_white_sword', 'Shuffle White Sword', 'Adds the White Sword to the item shuffle pool'),
+    ('progressive_items', 'Progressive swords, rings, arrows, and candles',
+     'If enabled, there will be three wood swords, two wood arrows, two blue rings, and two blue candles in the item pool.  Collecting multiples of each will upgrade the item.'
+     ), ('shuffle_white_sword', 'Shuffle White Sword',
+         'Adds the White Sword to the item shuffle pool'),
     ('shuffle_magical_sword', 'Shuffle Magical Sword',
      'Adds the Magical Sword to the item shuffle pool'),
     ('shuffle_letter', 'Shuffle Letter',
