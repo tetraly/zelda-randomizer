@@ -60,6 +60,8 @@ class Validator(object):
     if (room.GetType() == RoomType.VERTICAL_CHUTE_ROOM
         and entry_direction in [Direction.EAST, Direction.WEST]):
       return False
+    if room.GetType() == RoomType.T_ROOM:
+      return False
     return True
 
   def CanDefeatEnemies(self, room: Room) -> bool:
