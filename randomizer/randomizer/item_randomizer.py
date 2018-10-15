@@ -155,16 +155,20 @@ class ItemShuffler():
     self.per_level_item_location_lists[level_num].append(location)
     if item_num in [Item.MAP, Item.COMPASS, Item.TRINGLE]:
       return
-    if self.settings.progressive_items and item_num == Item.RED_CANDLE:
-      item_num = Item.BLUE_CANDLE
-    if self.settings.progressive_items and item_num == Item.RED_RING:
-      item_num = Item.BLUE_RING
-    if self.settings.progressive_items and item_num == Item.SILVER_ARROWS:
-      item_num = Item.WOOD_ARROWS
-    if self.settings.progressive_items and item_num == Item.WHITE_SWORD:
-      item_num = Item.WOOD_SWORD
-    if self.settings.progressive_items and item_num == Item.MAGICAL_SWORD:
-      item_num = Item.WOOD_SWORD
+    #TODO: This would be more elgant with a dict lookup
+    if self.settings.progressive_items:
+      if item_num == Item.RED_CANDLE:
+        item_num = Item.BLUE_CANDLE
+      if item_num == Item.RED_RING:
+        item_num = Item.BLUE_RING
+      if item_num == Item.SILVER_ARROWS:
+        item_num = Item.WOOD_ARROWS
+      if item_num == Item.WHITE_SWORD:
+        item_num = Item.WOOD_SWORD
+      if item_num == Item.MAGICAL_SWORD:
+        item_num = Item.WOOD_SWORD
+      if item_num == Item.INFERIOR_MODEL:
+        item_num = Item.LORD_BANANA
 
     self.item_num_list.append(item_num)
 
