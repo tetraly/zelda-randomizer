@@ -55,8 +55,7 @@ def main(unused_argv) -> None:
     sys.exit(0)
 
   z1randomizer = Z1Randomizer()
-  z1randomizer.SetFlags(FLAGS.input_filename, FLAGS.output_location, FLAGS.seed, FLAGS.text_speed,
-                        FLAGS.level_text)
+  z1randomizer.Settings(FLAGS.input_filename, FLAGS.output_location, FLAGS.seed)
   z1randomizer.Run()
 
 

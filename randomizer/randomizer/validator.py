@@ -1,3 +1,4 @@
+import logging
 from .constants import CaveNum, Direction, Item, LevelNum
 from .constants import Range, RoomNum, RoomType, WallType
 from .data_table import DataTable
@@ -5,6 +6,8 @@ from .inventory import Inventory
 from .location import Location
 from .room import Room
 from .settings import Settings
+
+log = logging.getLogger(__name__)
 
 
 class InvalidItemPlacementException(Exception):
@@ -25,11 +28,16 @@ class Validator(object):
     self.inventory = Inventory()
 
   def IsSeedValid(self) -> bool:
+    log.info("Starting check of whether the seed is valid or not")
     self.inventory.Reset()
     self.inventory.SetStillMakingProgressBit()
+    num_iterations = 0
     while self.inventory.StillMakingProgress():
+      num_iterations += 1
+      log.info("Iteration %d of checking" % num_iterations)
       self.inventory.ClearMakingProgressBit()
       self.data_table.ClearAllVisitMarkers()
+      log.info("Checking caves")
       for cave_num in Range.VALID_CAVE_NUMBERS:
         if self.CanGetItemsFromCave(cave_num):
           for position_num in Range.VALID_CAVE_POSITION_NUMBERS:
@@ -37,6 +45,7 @@ class Validator(object):
             self.inventory.AddItem(self.data_table.GetCaveItem(location), location)
       for level_num in Range.VALID_LEVEL_NUMBERS:
         if self.CanEnterLevel(level_num):
+          log.info("Checking level %d" % level_num)
           try:
             self._RecursivelyTraverseLevel(level_num,
                                            self.data_table.GetLevelStartRoomNumber(level_num),
@@ -45,6 +54,9 @@ class Validator(object):
             return False
       if self.inventory.Has(Item.TRIFORCE_OF_POWER):
         return True
+      elif num_iterations > 100:
+        return False
+    log.warning("Seed doesn't appear to be beatable. :(")
     return False
 
   def CanGetRoomItem(self, entry_direction: Direction, room: Room) -> bool:
@@ -119,6 +131,8 @@ class Validator(object):
     room.MarkAsVisited()
 
     if self.CanGetRoomItem(entry_direction, room) and room.HasItem():
+      if room.GetItem() == Item.MAGICAL_SWORD:
+        log.info("Found apparent mags in room 0x%x" % room_num)
       self.inventory.AddItem(room.GetItem(), Location.LevelRoom(level_num, room_num))
 
     # An item staircase room is a dead-end, so no need to recurse more.

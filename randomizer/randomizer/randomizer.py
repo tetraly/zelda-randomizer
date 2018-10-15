@@ -18,21 +18,16 @@ class Z1Randomizer():
     self.input_filename: str = ""
     self.output_location: str = ""
     self.seed: int = 0
-    self.text_speed: str = ""
-    self.level_text: str = ""
     self.settings: Settings
 
   def ConfigureSettings(self, seed: int, settings: Settings) -> None:
     self.seed = seed
     self.settings = settings
 
-  def Settings(self, input_filename: str, output_location: str, seed: int, text_speed: str,
-               level_text: str) -> None:
+  def Settings(self, input_filename: str, output_location: str, seed: int) -> None:
     self.input_filename = input_filename
     self.output_location = output_location
     self.seed = seed
-    self.text_speed = text_speed
-    self.level_text = level_text
     self.settings = Settings()
 
   def Run(self) -> None:

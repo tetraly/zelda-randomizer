@@ -1,7 +1,10 @@
+import logging
 from typing import List, Set, Tuple
 
 from .constants import Direction, Item, LevelNum, RoomNum
-from .location import Location  
+from .location import Location
+
+log = logging.getLogger(__name__)
 
 
 class Inventory(object):
@@ -29,31 +32,39 @@ class Inventory(object):
 
   def ClearMakingProgressBit(self) -> None:
     self.still_making_progress_bit = False
-    self.num_triforce_pieces = 0
 
   def StillMakingProgress(self) -> bool:
     return self.still_making_progress_bit
 
   def AddItem(self, item: Item, item_location: Location) -> None:
-    assert item in range(0, 0x21)  # Includes red potion 0x20
-    if (item_location.GetUniqueIdentifier()) in self.item_locations:
-      return
     if item in [
         Item.OVERWORLD_NO_ITEM, Item.MAP, Item.COMPASS, Item.MAGICAL_SHIELD, Item.BOMBS,
         Item.FIVE_RUPEES, Item.RUPEE, Item.SINGLE_HEART
     ]:
       return
+    assert (item in range(0, 0x21))  # Includes red potion 0x20
+    if (item_location.GetUniqueIdentifier()) in self.item_locations:
+      return
+    self.item_locations.add(item_location.GetUniqueIdentifier())
 
     self.SetStillMakingProgressBit()
+
     if item == Item.HEART_CONTAINER:
       self.num_heart_containers += 1
       assert self.num_heart_containers <= 16
+      return
     elif item == Item.TRINGLE:
       self.num_triforce_pieces += 1
+      log.info("Found %s.  Now have %d tringles" % (item, self.num_triforce_pieces))
       assert self.num_triforce_pieces <= 8
+      return
     elif item == Item.KEY:
       self.num_keys += 1
-    elif item == Item.WOOD_SWORD and Item.WOOD_SWORD in self.items:
+      return
+
+    log.info("Found %s" % item)
+
+    if item == Item.WOOD_SWORD and Item.WOOD_SWORD in self.items:
       self.items.add(Item.WHITE_SWORD)
     elif item == Item.WOOD_SWORD and Item.WHITE_SWORD in self.items:
       self.items.add(Item.MAGICAL_SWORD)
@@ -64,7 +75,6 @@ class Inventory(object):
     elif item == Item.WOOD_ARROWS and Item.WOOD_ARROWS in self.items:
       self.items.add(Item.SILVER_ARROWS)
     else:
-      self.item_locations.add(item_location.GetUniqueIdentifier())
       self.items.add(item)
 
   def GetHeartCount(self) -> int:

@@ -134,7 +134,7 @@ class ItemRandomizer():
 
 
 class ItemShuffler():
-  def __init__(self, settings:Settings) -> None:
+  def __init__(self, settings: Settings) -> None:
     self.settings = settings
     self.item_num_list: List[Item] = []
     self.per_level_item_location_lists: DefaultDict[LevelNum, List[Location]] = defaultdict(list)

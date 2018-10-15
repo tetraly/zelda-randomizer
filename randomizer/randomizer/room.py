@@ -141,10 +141,11 @@ class Room():
 
   def HasDropBitSet(self) -> bool:
     assert self.rom_data[5] & 0x04 in [0, 4]
-    return self.rom_data[5] & 0x04 > 0
+    assert self.rom_data[5] & 0x01 in [0, 1]
+    return self.rom_data[5] & 0x04 > 0 and self.rom_data[5] & 0x01 > 0
 
   def HasItem(self) -> bool:
-    if self.GetItem() == Item.MAGICAL_SWORD and not self.HasDropBitSet():
+    if self.GetItem() == Item.MAGICAL_SWORD and (self.HasStaircase() or not self.HasDropBitSet()):
       return False
     return True
 

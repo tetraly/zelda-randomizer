@@ -9,6 +9,7 @@ class Cave(object):
   def GetItemAtPosition(self, position_num: int) -> Item:
     return Item(self.raw_data[position_num - 1] & 0x3F)
 
+
 #  def GetAllItems(self) -> List[Item]:
 #    actual_items: List[Item] = []
 #    for position in Range.VALID_CAVE_POSITION_NUMBERS:

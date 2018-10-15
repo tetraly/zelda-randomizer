@@ -39,7 +39,7 @@ class Location(object):
 
   def IsCavePosition(self) -> bool:
     return self.level_id in range(0x10, 0x26)
-    
+
   def GetUniqueIdentifier(self) -> int:
     return 1000 * self.level_id + self.sub_id
 
