@@ -45,10 +45,13 @@ class ItemRandomizer():
     if self.settings.shuffle_letter:
       items.append(self.LETTER_LOCATION)
     if self.settings.shuffle_shop_items:
-      items.extend([
-          self.BAIT_LOCATION_1, self.BAIT_LOCATION_2, self.WOODEN_ARROWS_LOCATION,
-          self.BLUE_CANDLE_LOCATION, self.BLUE_RING_LOCATION
-      ])
+      items.extend(
+          [self.WOODEN_ARROWS_LOCATION, self.BLUE_CANDLE_LOCATION, self.BLUE_RING_LOCATION])
+      if not self.settings.shuffle_take_any_hearts_shields_and_bait:
+        items.extend([
+            self.BAIT_LOCATION_1,
+            self.BAIT_LOCATION_2,
+        ])
     return items
 
   def ResetState(self):
