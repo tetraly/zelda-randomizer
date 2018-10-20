@@ -133,6 +133,8 @@ class Room():
     if item_num == Item.MAGICAL_SWORD:
       if self.rom_data[5] & 0x04 == 0:
         self.rom_data[5] = self.rom_data[5] + 0x04
+      if self.rom_data[5] & 0x02 == 0:
+        self.rom_data[5] = self.rom_data[5] + 0x02
       if self.rom_data[5] & 0x01 == 0:
         self.rom_data[5] = self.rom_data[5] + 0x01
 
