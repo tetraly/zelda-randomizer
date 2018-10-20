@@ -2,7 +2,7 @@
 
 from typing import List, Dict
 from django.core.serializers.json import DjangoJSONEncoder
-
+import hashlib
 
 class Patch:
   """Class representing a patch for a specific seed that can be added to as we build it."""
@@ -85,6 +85,15 @@ class Patch:
 
     return patch
 
+  def GetHashCode(self) -> bytes:
+    to_be_returned = b''
+    hash_string = hashlib.sha224()
+    for address in self._data.keys():
+      hash_string.update(str(address).encode('utf-8'))
+      hash_string.update(self._data[address])
+    for int_of_hash in hash_string.digest()[0:4]:
+      to_be_returned += bytes([int_of_hash & 0x1F])
+    return to_be_returned
 
 class PatchJSONEncoder(DjangoJSONEncoder):
   """Extension of the Django JSON serializer to support randomizer patch data."""
