@@ -5,7 +5,7 @@ FLAGS = (
      ), ('shuffle_white_sword', 'Shuffle White Sword',
          'Adds the White Sword to the item shuffle pool'),
     ('shuffle_magical_sword', 'Shuffle Magical Sword',
-     'Adds the Magical Sword to the item shuffle pool'),
+     'Adds the Magical Sword to the item shuffle pool.  Important Note: If the Magical Sword is shuffled into a room that normally has a standing floor item it will become a drop item, meaning that you will need to defeat all enemies in the room in order for the Magical Sword to appear.'),
     ('shuffle_letter', 'Shuffle Letter',
      'Adds the letter for the potion shop to the item shuffle.'),
     ('shuffle_armos_item', 'Shuffle the Armos Item',

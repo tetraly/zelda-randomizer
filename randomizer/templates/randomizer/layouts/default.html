@@ -43,9 +43,9 @@
                     <ul class="dropdown-menu">
                         {# <li class="{% if 'resources' in request.path %}active{% endif %}"><a href="{% url 'randomizer:resources' %}">Resources</a></li> #}
                         <li class="{% if 'options' in request.path %}active{% endif %}"><a href="{% url 'randomizer:options' %}">Game Options</a></li>
-                        <li><a href="http://discord.smrpgspeedruns.com" target="_blank">Join the Discord</a></li>
+                        <li><a href="https://discord.me/z1randomizer" target="_blank">Join the Discord</a></li>
                         <li class="{% if 'updates' in request.path %}active{% endif %}"><a href="{% url 'randomizer:updates' %}">Updates</a></li>
-                        <li><a href="https://github.com/DorkmasterFlek/smrpg_web_randomizer/issues" target="_blank">Report an Issue</a></li>
+                        <li><a href="https://github.com/tetraly/zelda-randomizer/issues" target="_blank">Report an Issue</a></li>
                     </ul>
                 </li>
                 {% if request.user.is_authenticated %}
