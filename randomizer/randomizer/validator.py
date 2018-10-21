@@ -10,10 +10,6 @@ from .settings import Settings
 log = logging.getLogger(__name__)
 
 
-class InvalidItemPlacementException(Exception):
-  pass
-
-
 class Validator(object):
   WHITE_SWORD_CAVE_NUMBER = 2
   MAGICAL_SWORD_CAVE_NUMBER = 3
@@ -46,13 +42,11 @@ class Validator(object):
       for level_num in Range.VALID_LEVEL_NUMBERS:
         if self.CanEnterLevel(level_num):
           log.info("Checking level %d" % level_num)
-          try:
-            self._RecursivelyTraverseLevel(level_num,
-                                           self.data_table.GetLevelStartRoomNumber(level_num),
-                                           Direction.NORTH)
-          except InvalidItemPlacementException:
-            return False
-      if self.inventory.Has(Item.TRIFORCE_OF_POWER):
+          self._RecursivelyTraverseLevel(level_num,
+                                         self.data_table.GetLevelStartRoomNumber(level_num),
+                                         Direction.NORTH)
+      if (self.CanEnterLevel(9) and self.inventory.HasBowSilverArrowsAndSword()
+          and self.inventory.Has(Item.TRIFORCE_OF_POWER)):
         return True
       elif num_iterations > 100:
         return False
@@ -131,15 +125,10 @@ class Validator(object):
     room.MarkAsVisited()
 
     if self.CanGetRoomItem(entry_direction, room) and room.HasItem():
-      if room.GetItem() == Item.MAGICAL_SWORD:
-        log.info("Found apparent mags in room 0x%x" % room_num)
       self.inventory.AddItem(room.GetItem(), Location.LevelRoom(level_num, room_num))
 
     # An item staircase room is a dead-end, so no need to recurse more.
     if room.IsItemStaircase():
-      # For some reason, the Magical Sword doesn't show up when it's in an item staircase.
-      if room.GetItem() == Item.MAGICAL_SWORD:
-        raise InvalidItemPlacementException
       return
 
     # For a transport staircase, we don't know whether we came in through the left or right.

@@ -1,6 +1,8 @@
 from typing import Dict, List
-from absl import logging
+import logging
 from .constants import Direction, Enemy, Item, Range, RoomNum, RoomType, WallType
+
+log = logging.getLogger(__name__)
 
 
 class Room():
@@ -40,8 +42,14 @@ class Room():
   MOVEMENT_CONSTRAINED_ROOMS = MOVEMENT_CONSTRAINED_ROOMS_VALID_TRAVEL_DIRECTIONS.keys()
 
   def __init__(self, rom_data: List[int]) -> None:
-    self.marked_as_visited = False
+    if rom_data[4] & 0x1F == 0x03:
+      log.warning("Changing 0x03 to 0x0E")
+      stuff_not_to_change = rom_data[4] & 0xE0
+      new_value = stuff_not_to_change + 0x0E
+      rom_data[4] = new_value
     self.rom_data = rom_data
+
+    self.marked_as_visited = False
     # -1 is used as a sentinal value indicating a lack of stairway room
     self.staircase_room_num = RoomNum(-1)
 
@@ -128,13 +136,6 @@ class Room():
     assert new_value & 0x1F == item_num
     self.rom_data[4] = new_value
     logging.debug("Changed item %x to %x" % (old_item_num, item_num))
-
-    # TODO: Clean this up.
-    if item_num == Item.MAGICAL_SWORD:
-      if self.rom_data[5] & 0x04 == 0:
-        self.rom_data[5] = self.rom_data[5] + 0x04
-      if self.rom_data[5] & 0x01 == 0:
-        self.rom_data[5] = self.rom_data[5] + 0x01
 
   def GetItem(self) -> Item:
     return Item(self.rom_data[4] & 0x1F)

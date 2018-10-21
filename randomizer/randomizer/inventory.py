@@ -42,6 +42,9 @@ class Inventory(object):
         Item.FIVE_RUPEES, Item.RUPEE, Item.SINGLE_HEART
     ]:
       return
+    if (item == Item.TRIFORCE_OF_POWER
+        and not (item_location.GetLevelNum() == 9 and item_location.GetRoomNum() == 0x42)):
+      return
     assert (item in range(0, 0x21))  # Includes red potion 0x20
     if (item_location.GetUniqueIdentifier()) in self.item_locations:
       return
@@ -49,6 +52,9 @@ class Inventory(object):
 
     self.SetStillMakingProgressBit()
 
+    if item == Item.TRIFORCE_OF_POWER:
+      log.warning("Found Triforce of Power in L%d Room %x" % (item_location.GetLevelNum(),
+                                                              item_location.GetRoomNum()))
     if item == Item.HEART_CONTAINER:
       self.num_heart_containers += 1
       assert self.num_heart_containers <= 16
