@@ -24,16 +24,16 @@ class Validator(object):
     self.inventory = Inventory()
 
   def IsSeedValid(self) -> bool:
-    log.info("Starting check of whether the seed is valid or not")
+    log.warning("Starting check of whether the seed is valid or not")
     self.inventory.Reset()
     self.inventory.SetStillMakingProgressBit()
     num_iterations = 0
     while self.inventory.StillMakingProgress():
       num_iterations += 1
-      log.info("Iteration %d of checking" % num_iterations)
+      log.warning("Iteration %d of checking" % num_iterations)
       self.inventory.ClearMakingProgressBit()
       self.data_table.ClearAllVisitMarkers()
-      log.info("Checking caves")
+      log.warning("Checking caves")
       for cave_num in Range.VALID_CAVE_NUMBERS:
         if self.CanGetItemsFromCave(cave_num):
           for position_num in Range.VALID_CAVE_POSITION_NUMBERS:
@@ -41,12 +41,13 @@ class Validator(object):
             self.inventory.AddItem(self.data_table.GetCaveItem(location), location)
       for level_num in Range.VALID_LEVEL_NUMBERS:
         if self.CanEnterLevel(level_num):
-          log.info("Checking level %d" % level_num)
+          log.warning("Checking level %d" % level_num)
           self._RecursivelyTraverseLevel(level_num,
                                          self.data_table.GetLevelStartRoomNumber(level_num),
                                          Direction.NORTH)
       if (self.CanEnterLevel(9) and self.inventory.HasBowSilverArrowsAndSword()
           and self.inventory.Has(Item.TRIFORCE_OF_POWER)):
+        log.warning("Seed appears to be beatable. :)")
         return True
       elif num_iterations > 100:
         return False
