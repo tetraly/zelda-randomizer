@@ -61,14 +61,14 @@ class Inventory(object):
       return
     elif item == Item.TRINGLE:
       self.num_triforce_pieces += 1
-      log.info("Found %s.  Now have %d tringles" % (item, self.num_triforce_pieces))
+      log.warning("Found %s.  Now have %d tringles" % (item, self.num_triforce_pieces))
       assert self.num_triforce_pieces <= 8
       return
     elif item == Item.KEY:
       self.num_keys += 1
       return
 
-    log.info("Found %s" % item)
+    log.warning("Found %s" % item)
 
     if item == Item.WOOD_SWORD and Item.WOOD_SWORD in self.items:
       self.items.add(Item.WHITE_SWORD)
