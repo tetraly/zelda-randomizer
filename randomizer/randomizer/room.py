@@ -43,7 +43,6 @@ class Room():
 
   def __init__(self, rom_data: List[int]) -> None:
     if rom_data[4] & 0x1F == 0x03:
-      log.warning("Changing 0x03 to 0x0E")
       stuff_not_to_change = rom_data[4] & 0xE0
       new_value = stuff_not_to_change + 0x0E
       rom_data[4] = new_value
