@@ -158,6 +158,13 @@ class Validator(object):
         or room.PathObstructedByWater(entry_direction, exit_direction,
                                       self.inventory.Has(Item.LADDER))):
       return False
+
+    # Hungry goriya room doesn't have a closed shutter door.  So need a special check to similate how
+    # it's not possible to move up in the room until the goriya has been properly fed.
+    if (exit_direction == Direction.NORTH and room.HasHungryGoriya() and not self.inventory.Has(Item.BAIT)):
+      log.warning("Hungry goriya is still hungry :(")
+      return False
+
     wall_type = room.GetWallType(exit_direction)
     if (wall_type == WallType.SOLID_WALL
         or (wall_type == WallType.SHUTTER_DOOR and not self.CanDefeatEnemies(room))):
