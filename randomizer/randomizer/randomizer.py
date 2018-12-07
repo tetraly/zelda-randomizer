@@ -103,6 +103,7 @@ class Z1Randomizer():
           ['palace', 'house-', 'block-', 'random', 'cage_-', 'home_-', 'castle'])
       text_data_table = TextDataTable(
           "very_fast" if self.settings.speed_up_text else "normal", random_level_text
-          if self.settings.randomize_level_text else "level-")
+          if self.settings.randomize_level_text else "level-",
+          True)
       patch += text_data_table.GetPatch()
     return patch
