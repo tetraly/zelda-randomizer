@@ -69,6 +69,7 @@ class Z1Randomizer():
     print("Number of iterations: %d" % num_iterations)
 
     if self.settings.progressive_items:
+      # Note: Boomerang is missing here since the inferior model is an "upgrade", not an upgrade.
       patch.AddData(0x6B49, [0x11, 0x12, 0x13])  # Swords
       patch.AddData(0x6B4E, [0x11, 0x12])  # Candles
       patch.AddData(0x6B50, [0x11, 0x12])  # Arrows

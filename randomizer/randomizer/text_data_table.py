@@ -6,6 +6,27 @@ from .constants import TextSpeed
 from .patch import Patch
 
 
+NEW_QUOTES = [
+  (0x4000, "_____WELCOME TO THE_____|___QUEERING OF ZELDA!___"),
+  (0x4002, "___ARE YOU GAY ENOUGH___|_______FOR THIS?________"),
+  (0x4004, "__I'LL SUPPORT YOU NO___|____MATTER WHAT PATH____|_____YOU TAKE, LINK_____"),
+  (0x400A, "___THANK YOU FOR YOUR___|____DONATION TO THE_____|_____TREVOR PROJECT_____"),
+  (0x400C, "____HAPPY HOLI-GAYS!"),
+  (0x4010, "___MASTER GIVING YOUR___|__INFORMED CONSENT AND__|___YOU CAN HAVE THIS!___"),
+  (0x401C, "___ALL PROCEEDS FROM____|_SALES WILL BE DONATED__|_TO_POWER UP WITH PRIDE_"),
+  (0x401E, "_____WHO HERE HATES_____|______CAPITALISM?_______"),
+  (0x4020, "__GENDER IS NOT BINARY__|___BUT THIS CHOICE IS___"),
+  (0x4022, "_THIS DONATION GOES TO__|____RUNNER'S CHOICE_____"),
+  (0x4024, "__I'M VEGAN.  THAT HAD__|_BETTER BE SOY OR ELSE!_"),
+  (0x4028, "______MY_PRONOUNS_______|____ARE THEY & THEM_____"),
+  (0x402A, "___OMG LINK, YOU LOOK___|_____FABULOUS TODAY!____|____I LOVE YOUR HAIR!___"),
+  (0x402C, "________I'M GAY_________"),
+  (0x0000, "__IF YOU CAN READ THIS__|___SPAM KAPOW IN CHAT___"),
+  (0x4032, "______GLITTER BOMBS_____|______FOR EVERYONE!_____"),
+  (0x4048, "__THE DREAM IS OUTSIDE__|_______THE CLOSET_______"),
+  (0x4038, "THERE ARE FAIRIES WHERE_|__SECRETS DON'T LIVE.___")
+]
+
 class TextDataTable():
   BASE_POINTER_ADDRESS = 0x4010  # Includes 16-byte NES header
   TEXT_SPEED_ADDRESS = 0x482D
@@ -18,41 +39,31 @@ class TextDataTable():
     self.text_speed = text_speed
     self.phrase = phrase
     self.custom_text = custom_text
+    self.next_writeable_byte_addr = 0x7770
 
   def GetPatch(self) -> Patch:
     self._AddTextSpeedToPatchIfNeeded()
     self._AddLevelNameToPatchIfNeeded()
-    self._ChangeTextForMessage(
-        "_____WELCOME TO THE|___QUEERING OF ZELDA!",
-        0, 0x7770)
-    self._ChangeTextForMessage(
-        "___ARE YOU GAY ENOUGH|_______FOR THIS?",
-        1, 0x77A0)
-    self._ChangeTextForMessage(
-        "__I'LL SUPPORT YOU NO|____MATTER WHAT PATH|_____YOU TAKE, LINK!",
-        2, 0x77D0)
-    self._ChangeTextForMessage(
-        "__GENDER IS NOT BINARY|___BUT THIS CHOICE IS",
-        16, 0x7820)
+    for (pointer_addr, quote) in NEW_QUOTES:
+      self._ChangeTextForMessage(pointer_addr, quote)
+
+    # Randomize HCs for white sword and mags.  This should really be done elsewhere.
+    self.patch.AddData(0x490D, [random.choice([0x30, 0x40, 0x50])])
+    self.patch.AddData(0x4916, [random.choice([0x70, 0x80, 0x90, 0xA0, 0xB0])])
     return self.patch
 
-  def _ChangeTextForMessage(
-      self, text: str, pointer_index: int,
-      text_writing_address: int) -> None:
-    self.patch.AddData(text_writing_address,
-                       self._ConvertTextToHex(text))
-
-    pointer_address = self.BASE_POINTER_ADDRESS + 2 * pointer_index
+  def _ChangeTextForMessage(self, pointer_address: int, text: str) -> None:
 
     # Bank 1 in the ROM is from 0x4000 - 0x7FFF.  But when swapped
     # into NES memory, add 0x4000 since it'll be in 0x8000 - 0xBFFF
-    pointer_value = text_writing_address + 0x4000 - 0x10
-
+    pointer_value = self.next_writeable_byte_addr + 0x4000 - 0x10
     pointer_value_high_byte = int(pointer_value / 0x100)
     pointer_value_low_byte = pointer_value % 0x100
-    self.patch.AddData(
-        pointer_address,
-        [pointer_value_low_byte, pointer_value_high_byte])
+    self.patch.AddData(pointer_address + 0x10, [pointer_value_low_byte, pointer_value_high_byte])
+
+    self.patch.AddData(self.next_writeable_byte_addr, self._ConvertTextToHex(text))
+    self.next_writeable_byte_addr += (len(text) + 1)
+    assert self.next_writeable_byte_addr < 0x7C88
 
   def _ConvertTextToHex(self, text: str) -> List[int]:
     to_be_returned: List[int] = []
@@ -68,7 +79,6 @@ class TextDataTable():
         hex_val += self.LINE_CODES[line]
         ptr += 1
         line += 1
-      print("Hex value is: %02x" % hex_val)
       to_be_returned.append(hex_val)
     return to_be_returned
 
