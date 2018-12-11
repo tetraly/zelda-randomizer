@@ -1,18 +1,22 @@
 from typing import Dict, List
 from absl import logging
+import random
+from .cave import Cave
 from .constants import CaveNum, Item, LevelNum, Range, RoomNum
+from .data import *
 from .room import Room
 from .location import Location
-from .cave import Cave
 from .patch import Patch
-from .data import *
+from .screen import Screen
 
 
 class DataTable():
   NES_FILE_OFFSET = 0x10
+  OVERWORLD_DATA_START_ADDRESS = 0x18400 + NES_FILE_OFFSET
   LEVEL_1_TO_6_DATA_START_ADDRESS = 0x18700 + NES_FILE_OFFSET
   LEVEL_7_TO_9_DATA_START_ADDRESS = 0x18A00 + NES_FILE_OFFSET
   LEVEL_TABLE_SIZE = 0x80
+  NUM_BYTES_OF_DATA_PER_SCREEN = 5
   NUM_BYTES_OF_DATA_PER_ROOM = 6
   CAVE_ITEM_DATA_START_ADDRESS = 0x18600 + NES_FILE_OFFSET
   CAVE_PRICE_DATA_START_ADDRESS = 0x1863C + NES_FILE_OFFSET
@@ -62,6 +66,8 @@ class DataTable():
   }
 
   def __init__(self) -> None:
+    self.overworld_raw_data = list(
+        open("randomizer/randomizer/data/overworld-data.bin", 'rb').read(0x300))
     self.level_1_to_6_raw_data = list(
         open("randomizer/randomizer/data/level-1-6-data.bin", 'rb').read(0x300))
     self.level_7_to_9_raw_data = list(
@@ -70,14 +76,27 @@ class DataTable():
         open("randomizer/randomizer/data/overworld-cave-data.bin", 'rb').read(0x80))
     self.level_1_to_6_rooms: List[Room] = []
     self.level_7_to_9_rooms: List[Room] = []
+    self.overworld_screens: List[Screen] = []
     self.overworld_caves: List[Cave] = []
     self.triforce_locations: Dict[LevelNum, RoomNum] = {}
 
   def ResetToVanilla(self) -> None:
+    self._ReadDataForOverworldGrid()
     self.level_1_to_6_rooms = self._ReadDataForLevelGrid(self.level_1_to_6_raw_data)
     self.level_7_to_9_rooms = self._ReadDataForLevelGrid(self.level_7_to_9_raw_data)
     self._ReadDataForOverworldCaves()
     self.triforce_locations = {}
+
+  def _ReadDataForOverworldGrid(self) -> None:
+    for screen_num in Range.VALID_ROOM_NUMBERS:
+      screen_data: List[int] = []
+      for byte_num in [0, 1, 2, 3, 5]:
+        screen_data.append(
+            self.overworld_raw_data[byte_num * self.LEVEL_TABLE_SIZE + screen_num])
+      self.overworld_screens.append(Screen(screen_data))
+
+  def ShuffleOverworld(self) -> None:
+    random.shuffle(self.overworld_screens)
 
   def _ReadDataForLevelGrid(self, level_data: List[int]) -> List[Room]:
     rooms: List[Room] = []
@@ -170,6 +189,19 @@ class DataTable():
     patch += self._GetPatchForLevelGrid(self.LEVEL_7_TO_9_DATA_START_ADDRESS,
                                         self.level_7_to_9_rooms)
     patch += self._GetPatchForOverworldCaveData()
+    patch += self._GetPatchForOverworldGrid()
+    return patch
+
+
+  def _GetPatchForOverworldGrid(self) -> Patch:
+    patch = Patch()
+    for screen_num in Range.VALID_ROOM_NUMBERS:
+      screen_data = self.overworld_screens[screen_num].GetRomData()
+      assert len(screen_data) == self.NUM_BYTES_OF_DATA_PER_SCREEN
+
+      for table_num in [0, 1, 2, 3, 5]:
+        patch.AddData(self.OVERWORLD_DATA_START_ADDRESS + table_num * self.LEVEL_TABLE_SIZE + screen_num,
+                      [screen_data[table_num if table_num < 5 else 4]])
     return patch
 
   def _GetPatchForLevelGrid(self, start_address: int, rooms: List[Room]) -> Patch:

@@ -44,7 +44,7 @@ class Patch:
     return list(self._data.keys())
 
   def GetData(self, addr: int) -> List[int]:
-    """Get data in the patch for this address.  
+    """Get data in the patch for this address.
        If the address is not present in the patch, returns empty bytes.
         :param addr: Address for the start of the data.
         :type addr: int

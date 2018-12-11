@@ -64,6 +64,9 @@ class Z1Randomizer():
       item_randomizer.ReadItemsAndLocationsFromTable()
       item_randomizer.ShuffleItems()
       item_randomizer.WriteItemsAndLocationsToTable()
+
+      data_table.ShuffleOverworld()
+
       is_valid_seed = validator.IsSeedValid()
     patch = data_table.GetPatch()
     print("Number of iterations: %d" % num_iterations)
