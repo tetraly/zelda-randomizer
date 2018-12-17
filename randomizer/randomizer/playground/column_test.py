@@ -1,12 +1,18 @@
 
 class ColumnTest(object):
+
+  COLUMN_GROUP_STARTING_ADDRESSES: List[int] = [
+      0x00, 0x35, 0x66, 0xa8, 0xec, 0x11e, 0x15a, 0x195, 0x1d0, 0x20e,
+      0x24f, 0x294, 0x2d1, 0x307, 0x349, 0x37d]
+      
   def __init__(self) -> None:
     self.screen_raw_data = list(
         open("randomizer/randomizer/data/overworld-screen-data.bin", 'rb').read(0x7C0))
     self.column_raw_data = list(
         open("randomizer/randomizer/data/overworld-column-data.bin", 'rb').read(0x3C4))
+
     self.screen_column_definitions: Dict[int, List[int]] = {}
-    self.column_tile_codes: Dict(int, List[int]) = {}
+    self.column_tile_codes: Dict(int, List[int]) = {} # Maps column num -> 11 tile codes
 
   def GetBooleanColumnData(self, column_num: int) -> List[bool]:
     boolean_data: List[int] = []
@@ -31,19 +37,11 @@ class ColumnTest(object):
       return 'X'
     print ("What are you doing here?  You shouldn't be here!")
 
-  def DoStuff(self) -> None:
-    print("")
-    print("Hello World")
-    print("")
-
-    column_group_starting_addresses: List[int] = [
-        0x00, 0x35, 0x66, 0xa8, 0xec, 0x11e, 0x15a, 0x195, 0x1d0, 0x20e,
-        0x24f, 0x294, 0x2d1, 0x307, 0x349, 0x37d]
-
+  def ReadColumnTileCodes(self) -> None:
     for column_group_number in range(0, 0x10):
       # Figure out what addresses column definitions start on
       # Start addresses are denoted by having a 1 for the MSB of the data
-      searching_address = column_group_starting_addresses[column_group_number]
+      searching_address = COLUMN_GROUP_STARTING_ADDRESSES[column_group_number]
       column_start_addresses: List[int] = []
       for column_number in range (0, 0x0A):
         while True:
@@ -55,10 +53,10 @@ class ColumnTest(object):
             break
 
       for column_number in range(0, 0x0A):
-        column_start_address = column_start_addresses[column_number]
+        addr = column_start_addresses[column_number]
         tile_codes: List[int] = []
         num_tile_codes_read: int = 0
-        addr = column_start_address
+
         assert self.column_raw_data[addr] & 0x80 == 0x80
         while num_tile_codes_read < 11:
           tile_code = self.column_raw_data[addr] & 0x3F
@@ -71,11 +69,10 @@ class ColumnTest(object):
           addr += 1
         assert num_tile_codes_read == 11
 
-        column_number = 0x10 * column_group_number + column_number
-        self.column_tile_codes[column_number] = tile_codes
+        self.column_tile_codes[0x10 * column_group_number + column_number] = tile_codes
 
     # Now, we have all of our tile data.  Time to parse the screen definitions
-
+  def ReadScreenStuff(self) -> None:
     for screen_code in range(0, 0x7D):
       screen_column_definition = (
           self.screen_raw_data[0x10 * screen_code : 0x10 * (screen_code + 1)])
