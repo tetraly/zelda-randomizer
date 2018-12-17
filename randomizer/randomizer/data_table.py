@@ -28,7 +28,7 @@ class DataTable():
   SPECIAL_DATA_LEVEL_OFFSET = 0xFC
 
   # From disassembly, bank 6 0x19D0F
-  POINTERS_TO_OVERWORLD_COLUMN_DEFINITIONS = [
+a = [
       0x15C0D, 0x15C3E, 0x15C80, 0x15CC4,
       0x15CF6, 0x15D32, 0x15D6D, 0x15DA8,
       0x15DE6, 0x15E27, 0x15E6C, 0x15EA9,
@@ -89,12 +89,6 @@ class DataTable():
     self.overworld_caves: List[Cave] = []
     self.triforce_locations: Dict[LevelNum, RoomNum] = {}
 
-  def _ReadColumnDefinitions():
-    curr = 0
-    self.column_data =[]
-    end_of_current_
-
-    for
 
   def ResetToVanilla(self) -> None:
     self._ReadDataForOverworldGrid()
