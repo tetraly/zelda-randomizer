@@ -161,7 +161,8 @@ class Validator(object):
 
     # Hungry goriya room doesn't have a closed shutter door.  So need a special check to similate how
     # it's not possible to move up in the room until the goriya has been properly fed.
-    if (exit_direction == Direction.NORTH and room.HasHungryGoriya() and not self.inventory.Has(Item.BAIT)):
+    if (exit_direction == Direction.NORTH and room.HasHungryGoriya()
+        and not self.inventory.Has(Item.BAIT)):
       log.warning("Hungry goriya is still hungry :(")
       return False
 
