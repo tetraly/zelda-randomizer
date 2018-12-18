@@ -54,44 +54,6 @@ class Validator(object):
     log.warning("Seed doesn't appear to be beatable. :(")
     return False
 
-  def CanGetRoomItem(self, entry_direction: Direction, room: Room) -> bool:
-    # Can't pick up a room in any rooms with water/moats without a ladder.
-    # TODO: Make a better determination here based on the drop location and the entry direction.
-    if room.HasPotentialLadderBlock() and not self.inventory.Has(Item.LADDER):
-      return False
-    if room.HasDropBitSet() and not self.CanDefeatEnemies(room):
-      return False
-    if (room.GetType() == RoomType.HORIZONTAL_CHUTE_ROOM
-        and entry_direction in [Direction.NORTH, Direction.SOUTH]):
-      return False
-    if (room.GetType() == RoomType.VERTICAL_CHUTE_ROOM
-        and entry_direction in [Direction.EAST, Direction.WEST]):
-      return False
-    if room.GetType() == RoomType.T_ROOM:
-      return False
-    return True
-
-  def CanDefeatEnemies(self, room: Room) -> bool:
-    if room.HasNoEnemiesToKill():
-      return True
-    if ((room.HasGannon() and not self.inventory.HasBowSilverArrowsAndSword())
-        or (room.HasDigdogger() and not self.inventory.HasRecorderAndReusableWeapon())
-        or (room.HasGohma() and not self.inventory.HasBowAndArrows())
-        or (room.HasWizzrobes() and not self.inventory.HasSword())
-        or (room.HasSwordOrWandRequiredEnemies() and not self.inventory.HasSwordOrWand())
-        or (room.HasOnlyZeroHPEnemies() and not self.inventory.HasReusableWeaponOrBoomerang())
-        or (room.HasHungryGoriya() and not self.inventory.Has(Item.BAIT))):
-      return False
-    if (room.HasPolsVoice()
-        and not (self.inventory.HasSwordOrWand() or self.inventory.HasBowAndArrows())):
-      return False
-    if (self.settings.avoid_required_hard_combat and room.HasHardCombatEnemies()
-        and not (self.inventory.HasRing() and self.inventory.Has(Item.WHITE_SWORD))):
-      return False
-
-    # At this point, assume regular enemies
-    return self.inventory.HasReusableWeapon()
-
   def CanGetItemsFromCave(self, cave_num: CaveNum) -> bool:
     if (cave_num == self.WHITE_SWORD_CAVE_NUMBER
         and self.inventory.GetHeartCount() < self.NUM_HEARTS_FOR_WHITE_SWORD_ITEM):
@@ -146,21 +108,37 @@ class Validator(object):
 
     # TODO: Add logic for shutter rooms that don't open like in L5
     for direction in (Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH):
-      if self.CanMove(entry_direction, direction, level_num, room_num, room):
+      if self._CanMove(entry_direction, direction, level_num, room_num, room):
         self._RecursivelyTraverseLevel(level_num, RoomNum(room_num + direction),
                                        Direction(-1 * direction))
-    if room.HasUnobstructedStaircase() or (room.HasStaircase() and self.CanDefeatEnemies(room)):
+    if room.HasUnobstructedStaircase() or (room.HasStaircase() and self._CanDefeatEnemies(room)):
       self._RecursivelyTraverseLevel(level_num, room.GetStaircaseRoomNumber(), Direction.STAIRCASE)
 
-  def CanMove(self, entry_direction: Direction, exit_direction: Direction, level_num: LevelNum,
-              room_num: RoomNum, room: Room) -> bool:
+  def _CanGetRoomItem(self, entry_direction: Direction, room: Room) -> bool:
+    # Can't pick up a room in any rooms with water/moats without a ladder.
+    # TODO: Make a better determination here based on the drop location and the entry direction.
+    if room.HasPotentialLadderBlock() and not self.inventory.Has(Item.LADDER):
+      return False
+    if room.HasDropBitSet() and not self._CanDefeatEnemies(room):
+      return False
+    if (room.GetType() == RoomType.HORIZONTAL_CHUTE_ROOM
+        and entry_direction in [Direction.NORTH, Direction.SOUTH]):
+      return False
+    if (room.GetType() == RoomType.VERTICAL_CHUTE_ROOM
+        and entry_direction in [Direction.EAST, Direction.WEST]):
+      return False
+    if room.GetType() == RoomType.T_ROOM:
+      return False
+    return True
+
+  def _CanMove(self, entry_direction: Direction, exit_direction: Direction, level_num: LevelNum,
+               room_num: RoomNum, room: Room) -> bool:
     if (room.PathUnconditionallyObstructed(entry_direction, exit_direction)
         or room.PathObstructedByWater(entry_direction, exit_direction,
                                       self.inventory.Has(Item.LADDER))):
       return False
 
-    # Hungry goriya room doesn't have a closed shutter door.  So need a special check to similate how
-    # it's not possible to move up in the room until the goriya has been properly fed.
+    # Hungry goriya room doesn't have a closed shutter door.  So need a special check to similate how it's not possible to move up in the room until the goriya has been properly fed.
     if (exit_direction == Direction.NORTH and room.HasHungryGoriya()
         and not self.inventory.Has(Item.BAIT)):
       log.warning("Hungry goriya is still hungry :(")
@@ -168,7 +146,7 @@ class Validator(object):
 
     wall_type = room.GetWallType(exit_direction)
     if (wall_type == WallType.SOLID_WALL
-        or (wall_type == WallType.SHUTTER_DOOR and not self.CanDefeatEnemies(room))):
+        or (wall_type == WallType.SHUTTER_DOOR and not self._CanDefeatEnemies(room))):
       return False
 
     if wall_type in [WallType.LOCKED_DOOR_1, WallType.LOCKED_DOOR_2]:
@@ -177,3 +155,24 @@ class Validator(object):
       else:
         return False
     return True
+
+  def _CanDefeatEnemies(self, room: Room) -> bool:
+    if room.HasNoEnemiesToKill():
+      return True
+    if ((room.HasGannon() and not self.inventory.HasBowSilverArrowsAndSword())
+        or (room.HasDigdogger() and not self.inventory.HasRecorderAndReusableWeapon())
+        or (room.HasGohma() and not self.inventory.HasBowAndArrows())
+        or (room.HasWizzrobes() and not self.inventory.HasSword())
+        or (room.HasSwordOrWandRequiredEnemies() and not self.inventory.HasSwordOrWand())
+        or (room.HasOnlyZeroHPEnemies() and not self.inventory.HasReusableWeaponOrBoomerang())
+        or (room.HasHungryGoriya() and not self.inventory.Has(Item.BAIT))):
+      return False
+    if (room.HasPolsVoice()
+        and not (self.inventory.HasSwordOrWand() or self.inventory.HasBowAndArrows())):
+      return False
+    if (self.settings.avoid_required_hard_combat and room.HasHardCombatEnemies()
+        and not (self.inventory.HasRing() and self.inventory.Has(Item.WHITE_SWORD))):
+      return False
+
+    # At this point, assume regular enemies
+    return self.inventory.HasReusableWeapon()
