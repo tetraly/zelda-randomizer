@@ -1,6 +1,5 @@
 import os
 import random
-
 from typing import List
 from .data_table import DataTable
 from .item_randomizer import ItemRandomizer

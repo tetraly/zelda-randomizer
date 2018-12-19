@@ -1,6 +1,7 @@
 import logging
+from typing import List
 from .constants import CaveNum, Direction, Item, LevelNum
-from .constants import Range, RoomNum, RoomType, WallType
+from .constants import Range, RoomNum, RoomType, ScreenCode, ScreenNum, WallType
 from .data_table import DataTable
 from .inventory import Inventory
 from .location import Location
@@ -22,6 +23,45 @@ class Validator(object):
     self.data_table = data_table
     self.settings = settings
     self.inventory = Inventory()
+    self.caves_visited: List[int] = []
+
+  def IsOverworldLayoutValid(self) -> bool:
+    log.warning("Hello!")
+    self._RecursivelyTraverseOverworldScreen(ScreenNum(0x77), Direction.NORTH)
+    self.caves_visited.sort()
+    log.warning("Found caves: %s" % self.caves_visited)
+    return True
+
+  def _RecursivelyTraverseOverworldScreen(self, screen_num: ScreenNum,
+                                          incoming_direction: Direction) -> None:
+    if screen_num not in Range.VALID_SCREEN_NUMBERS:
+      return
+    screen = self.data_table.GetScreen(screen_num)
+    if screen.IsMarkedAsVisited():
+      return
+    log.warning("Visiting screen num %x (hex) w/ code %d (dec)" % (screen_num, screen.GetScreenCode()))
+    screen.MarkAsVisited()
+
+    if screen.HasEntrance():
+      log.warning("  Found entrance: 0x%x" % screen.GetEntrance())
+      self.caves_visited.append(screen.GetEntrance())
+
+    for direction in [Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH]:
+      # TODO: Check incoming_direction and dest direction for intra-screen passability issues
+      src_screen_code = screen.GetScreenCode()
+      dst_screen_num = screen_num + direction
+      if dst_screen_num not in Range.VALID_SCREEN_NUMBERS:
+        continue
+      dst_screen_code =  self.data_table.GetScreen(ScreenNum(dst_screen_num)).GetScreenCode()
+      if self._CanMoveOnOverworld(src_screen_code, dst_screen_code, direction):
+        self._RecursivelyTraverseOverworldScreen(ScreenNum(screen_num + direction), direction)
+
+  def _CanMoveOnOverworld(self, src_screen_code: ScreenCode, dst_screen_code: ScreenCode,
+                          direction: Direction) -> bool:
+    src_edge_mask = self.data_table.GetScreenEdgeMask(src_screen_code, direction)
+    dst_edge_mask = self.data_table.GetScreenEdgeMask(dst_screen_code, Direction(-1 * direction))
+    print("Source mask is %x | Dest mask is %x" % (src_edge_mask, dst_edge_mask))
+    return src_edge_mask & dst_edge_mask > 0
 
   def IsSeedValid(self) -> bool:
     log.warning("Starting check of whether the seed is valid or not")
@@ -30,10 +70,10 @@ class Validator(object):
     num_iterations = 0
     while self.inventory.StillMakingProgress():
       num_iterations += 1
-      log.warning("Iteration %d of checking" % num_iterations)
+      log.warning("Iteration %d of checking", num_iterations)
       self.inventory.ClearMakingProgressBit()
       self.data_table.ClearAllVisitMarkers()
-      log.warning("Checking caves")
+#      log.warning("Checking caves")
       for cave_num in Range.VALID_CAVE_NUMBERS:
         if self.CanGetItemsFromCave(cave_num):
           for position_num in Range.VALID_CAVE_POSITION_NUMBERS:
@@ -41,13 +81,14 @@ class Validator(object):
             self.inventory.AddItem(self.data_table.GetCaveItem(location), location)
       for level_num in Range.VALID_LEVEL_NUMBERS:
         if self.CanEnterLevel(level_num):
-          log.warning("Checking level %d" % level_num)
+ #         log.warning("Checking level %d", level_num)
           self._RecursivelyTraverseLevel(level_num,
                                          self.data_table.GetLevelStartRoomNumber(level_num),
                                          Direction.NORTH)
       if (self.CanEnterLevel(9) and self.inventory.HasBowSilverArrowsAndSword()
           and self.inventory.Has(Item.TRIFORCE_OF_POWER)):
         log.warning("Seed appears to be beatable. :)")
+        foo = self.IsOverworldLayoutValid()
         return True
       elif num_iterations > 100:
         return False
@@ -87,7 +128,7 @@ class Validator(object):
       return
     room.MarkAsVisited()
 
-    if self.CanGetRoomItem(entry_direction, room) and room.HasItem():
+    if self._CanGetRoomItem(entry_direction, room) and room.HasItem():
       self.inventory.AddItem(room.GetItem(), Location.LevelRoom(level_num, room_num))
 
     # An item staircase room is a dead-end, so no need to recurse more.

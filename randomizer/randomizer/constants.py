@@ -3,11 +3,14 @@ from enum import IntEnum
 
 LevelNum = int
 CaveNum = int
+ScreenCode = NewType("ScreenCode", int)
 RoomNum = NewType("RoomNum", int)
+ScreenNum = NewType("ScreenNum", int)
 PositionNum = NewType("PositionNum", int)
 
 
 class Range():
+  VALID_SCREEN_NUMBERS = range(0, 0x80)  # 128 screens (0-indexed)
   VALID_ROOM_NUMBERS = range(0, 0x80)  # 128 rooms (0-indexed)
   VALID_ROOM_TABLE_NUMBERS = range(0, 6)  # Six tables (0-indexed)
   VALID_LEVEL_NUMBERS = range(1, 10)  # Levels 1-9 (1-indexed)

@@ -82,30 +82,6 @@ class ColumnTest(object):
     dst_edge_mask = self.screen_edge_masks[(dst_screen_code, -1 * direction)]
     return (src_edge_mask | dst_edge_mask > 0)
 
-  # PleaseAlsoGiveThisABetterImplementation
-  def GenerateScreenEdgeMasks(self) -> None:
-    for screen_code in range (0, 0x7A):
-      for direction in [Direction.WEST, Direction.EAST]:
-        column_num = 0 if direction == Direction.WEST else -1
-        column_code = self.screen_column_codes[screen_code][column_num]
-        tile_codes = self.column_tile_codes[column_code]
-        mask = self.GetIntegerMaskForTileCodes(tile_codes)
-        self.screen_edge_masks[(screen_code, direction)] = mask
-      for direction in [Direction.NORTH, Direction.SOUTH]:
-        row_num = 0 if direction == Direction.NORTH else -1
-        tile_codes: List[int] = []
-        for column_code in self.screen_column_codes[screen_code]:
-          tile_codes.append(self.column_tile_codes[column_code][row_num])
-        assert(16 == len(tile_codes))
-        mask = self.GetIntegerMaskForTileCodes(tile_codes)
-        self.screen_edge_masks[(screen_code, direction)] = mask
-      print("Masks for screen %d (N,E,S,W):  %d, %d, %d, %d" %
-          (screen_code,
-          self.screen_edge_masks[(screen_code, Direction.NORTH)],
-          self.screen_edge_masks[(screen_code, Direction.EAST)],
-          self.screen_edge_masks[(screen_code, Direction.SOUTH)],
-          self.screen_edge_masks[(screen_code, Direction.WEST)]
-    ))
 
   # Given a list of either 11 or 16 tile codes, returns their integer mask
   def GetIntegerMaskForTileCodes(self, tile_codes: List[int]) -> int:
@@ -141,42 +117,10 @@ class ColumnTest(object):
       return 'X'
     print ("What are you doing here?  You shouldn't be here!")
 
-  def ReadColumnTileCodes(self) -> None:
-    for column_group_number in range(0, 0x10):
-      # Figure out what addresses column definitions start on
-      # Start addresses are denoted by having a 1 for the MSB of the data
-      searching_address = self.COLUMN_GROUP_STARTING_ADDRESSES[column_group_number]
-      column_start_addresses: List[int] = []
-      for column_number in range (0, 0x0A):
-        while True:
-          found_start = self.IsStartOfColumn(self.column_raw_data[searching_address])
-          if found_start:
-            column_start_addresses.append(searching_address)
-          searching_address += 1
-          if found_start:
-            break
 
-      for column_number in range(0, 0x0A):
-        addr = column_start_addresses[column_number]
-        tile_codes: List[int] = []
-        num_tile_codes_read: int = 0
 
-        assert self.column_raw_data[addr] & 0x80 == 0x80
-        while num_tile_codes_read < 11:
-          tile_code = self.column_raw_data[addr] & 0x3F
-          if self.column_raw_data[addr] & 0x40 == 0x40:
-            tile_codes.extend([tile_code, tile_code])
-            num_tile_codes_read += 2
-          else:
-            tile_codes.append(tile_code)
-            num_tile_codes_read += 1
-          addr += 1
-        assert num_tile_codes_read == 11
-
-        self.column_tile_codes[0x10 * column_group_number + column_number] = tile_codes
-
-    # Now, we have all of our tile data.  Time to parse the screen definitions
-  def ReadScreenStuff(self) -> None:
+  # Now, we have all of our tile data.  Time to parse the screen definitions
+  def PrintScreenData(self) -> None:
     for screen_code in range(0, 0x7D):
       screen_column_definition = (
           self.screen_raw_data[0x10 * screen_code : 0x10 * (screen_code + 1)])

@@ -1,14 +1,16 @@
 from typing import Dict, List, Tuple
 import random
-from absl import logging
+import logging
 from .cave import Cave
-from .constants import Direction, Item, LevelNum, Range, RoomNum
+from .constants import Direction, Item, LevelNum, Range, RoomNum, ScreenCode, ScreenNum
 #from .data import *  TODO: Do I need this at runtime?
 from .room import Room
 from .location import Location
 from .patch import Patch
 from .screen import Screen
+import logging
 
+log = logging.getLogger(__name__)
 
 def IsStartOfColumn(data: int) -> bool:
   assert data & 0x80 == 0x00 or data & 0x80 == 0x80
@@ -129,6 +131,7 @@ class DataTable():
     # Screen_code and edge of screen -> int representing passability mask
     self.screen_edge_masks: Dict[Tuple[int, Direction], int] = {}
     self.triforce_locations: Dict[LevelNum, RoomNum] = {}
+
     self._ReadDataForColumnDefinitions()
     self._ReadDataForScreenDefinitions()
     self._GenerateScreenEdgeMasks()
@@ -231,7 +234,7 @@ class DataTable():
         assert len(tile_codes) == 16
         mask = GetIntegerMaskForTileCodes(tile_codes)
         self.screen_edge_masks[(screen_code, direction)] = mask
-      print("Masks for screen %d (N,E,S,W):  %d, %d, %d, %d" %
+      log.warning("Masks for screen %d (N,E,S,W):  %d, %d, %d, %d" %
             (screen_code, self.screen_edge_masks[(screen_code, Direction.NORTH)],
              self.screen_edge_masks[(screen_code, Direction.EAST)],
              self.screen_edge_masks[(screen_code, Direction.SOUTH)],
@@ -239,6 +242,15 @@ class DataTable():
 
   def ShuffleOverworld(self) -> None:
     random.shuffle(self.overworld_screens)
+
+  def GetScreenEdgeMask(self, screen_num: ScreenCode, edge: Direction) -> int:
+    assert screen_num in Range.VALID_SCREEN_NUMBERS
+    assert edge in [Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST]
+    return self.screen_edge_masks[(screen_num, edge)]
+
+  def GetScreen(self, screen_num: ScreenNum) -> Screen:
+    assert screen_num in Range.VALID_SCREEN_NUMBERS
+    return self.overworld_screens[screen_num]
 
   def GetRoom(self, level_num: LevelNum, room_num: RoomNum) -> Room:
     assert level_num in Range.VALID_LEVEL_NUMBERS
@@ -277,7 +289,7 @@ class DataTable():
     self.triforce_locations[location.GetLevelNum()] = room_num
 
   def ClearAllVisitMarkers(self) -> None:
-    logging.debug("Clearing Visit markers")
+    log.warning("Clearing Visit markers")
     for room in self.level_1_to_6_rooms:
       room.ClearVisitMark()
     for room in self.level_7_to_9_rooms:
