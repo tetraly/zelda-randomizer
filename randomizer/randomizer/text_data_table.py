@@ -7,25 +7,24 @@ from .patch import Patch
 
 
 NEW_QUOTES = [
-  (0x4000, "_____WELCOME TO THE_____|___QUEERING OF ZELDA!___"),
-  (0x4002, "__ARE YOU QUEER ENOUGH__|_______FOR THIS?________"),
-  (0x4004, "__I'LL SUPPORT YOU NO___|____MATTER WHAT PATH____|_____YOU TAKE, LINK_____"),
-  (0x400A, "___THANK YOU FOR YOUR___|____DONATION TO THE_____|_____TREVOR PROJECT_____"),
-  (0x400C, "____HAPPY HOLI-GAYS!"),
-  (0x4010, "___MASTER GIVING YOUR___|__INFORMED CONSENT AND__|___YOU CAN HAVE THIS!___"),
-  (0x401C, "___ALL PROCEEDS FROM____|_SALES WILL BE DONATED__|_TO_POWER UP WITH PRIDE_"),
-  (0x401E, "_____WHO HERE HATES_____|______CAPITALISM?_______"),
-  (0x4020, "__GENDER IS NOT BINARY__|___BUT THIS CHOICE IS___"),
+  (0x4000, "_____WILL_THIS_BE_A_____|___LOZ_APPROVED_SEED?___"),
+  (0x4002, "______AND_THERE_IS______|______YOUR_DAGGER!______"),
+  (0x4004, "__THERE'S_NEVER_A_CAB___|___WHEN_YOU_WANT_ONE____"),
+  (0x400C, "____I_NEVER_LEARNED_____|________TO_READ_________"),
+  (0x4010, "__HAVE A DRINK, EDDIE___"),
+  (0x401C, "___SHOP_'TIL_YOU_DROP___"),
+  (0x401E, "_ONCE_YOU_BUY_A_PRIZE,__|__IT'S_YOURS_TO_KEEP!___"),
+  (0x4020, "_ARE_YOU_GOING_TO_PASS__|__OR_PRESS_YOUR_LUCK?___"),
   (0x4022, "_THIS DONATION GOES TO__|____RUNNER'S CHOICE_____"),
-  (0x4024, "__I'M VEGAN.  THAT HAD__|_BETTER BE SOY OR ELSE!_"),
-  (0x4028, "______MY_PRONOUNS_______|____ARE THEY & THEM_____"),
-  (0x402A, "___OMG LINK, YOU LOOK___|_____FABULOUS TODAY!____|____I LOVE YOUR HAIR!___"),
-  (0x402C, "________I'M GAY_________"),
-  (0x0000, "__IF YOU CAN READ THIS__|___SPAM KAPOW IN CHAT___"),
-  (0x4032, "______GLITTER BOMBS_____|______FOR EVERYONE!_____"),
-  (0x4048, "__THE DREAM IS OUTSIDE__|_______THE CLOSET_______"),
-  (0x4038, "THERE ARE FAIRIES WHERE_|__SECRETS DON'T LIVE.___"),
-  (0x4042, "THERE ARE FAIRIES WHERE_|__SECRETS DON'T LIVE.___")
+  (0x4024, "_____WOULD YOU LIKE_____|____FRIES WITH THAT?____"),
+  (0x4028, "___THE_SILVER_TO_KILL___|___THE_BEAST_LIES_IN_A__|____PRE-1965_QUARTER____"),
+  (0x402A, "___WELCOME_TO_LEVEL_3___|_____SIMULATOR_2019_____"),
+  (0x402C, "_____TETRA_WAS_HERE_____"),
+  (0x0000, "_____THE_GAME_KNOWS_____"),
+  (0x4032, "____I'M_BOMB_BARKER_____|_PLEASE_REMEMBER_TO_SPAY|__OR_NEUTER_YOUR_PETS.__"),
+  (0x4048, "_____WELCOME_TO_THE_____|_____GREAT_EQUALIZER____"),
+  (0x4038, "FOR_255_RUPEES,_HERE_IS_|YOUR_FIRST_SUBJECT._GO!_"),
+  (0x4042, "FOR_255_RUPEES,_HERE_IS_|YOUR_FIRST_SUBJECT._GO!_"),
 ]
 
 class TextDataTable():
