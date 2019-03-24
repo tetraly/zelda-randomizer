@@ -8,7 +8,7 @@ from randomizer.randomizer.randomizer import Z1Randomizer
 
 from z1r_ui import Z1rUI
 
-flags.DEFINE_integer(name='seed', default=0, help='The seed number to initialize RNG with.')
+flags.DEFINE_integer(name='seed', default=random.randint(1, 999999999), help='The seed number to initialize RNG with.')
 flags.DEFINE_string(
     name='input_filename', default='', help='The filename of the vanilla ROM to randomize.')
 flags.DEFINE_string(
