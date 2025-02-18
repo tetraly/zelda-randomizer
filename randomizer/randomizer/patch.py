@@ -1,7 +1,6 @@
 # Taken with love from Dorkmaster Flek's SMRPG Randomizer
 
 from typing import List, Dict
-from django.core.serializers.json import DjangoJSONEncoder
 import hashlib
 
 
@@ -96,14 +95,3 @@ class Patch:
       to_be_returned += bytes([int_of_hash & 0x1F])
     return to_be_returned
 
-
-class PatchJSONEncoder(DjangoJSONEncoder):
-  """Extension of the Django JSON serializer to support randomizer patch data."""
-
-  def default(self, o):
-    # Support bytes and bytearray objects, which are just lists of integers.
-    if isinstance(o, (bytearray, bytes)):
-      return list(o)
-    elif isinstance(o, Patch):
-      return o.for_json()
-    return super().default(o)
