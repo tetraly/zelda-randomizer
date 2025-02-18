@@ -1,3 +1,4 @@
+import io
 import random
 from typing import IO, List
 from shutil import copyfile
@@ -8,6 +9,21 @@ class Rom():
   """A class representing a video game ROM file stored in a binary file."""
 
   NES_HEADER_OFFSET = 0x10
+
+  def __init__(self, rom_filename: str, src: str = None,
+               add_nes_header_offset: bool = False) -> None:
+    self.rom_filename = rom_filename
+    self.rom_file: IO[bytes]
+    self.write_mode = False
+    self.add_nes_header_offset = add_nes_header_offset
+    if src:
+      copyfile(src, rom_filename)
+    self.address = -1
+
+  def __init__(self, rom_bytes: io.BytesIO, add_nes_header_offset: bool = False) -> None:
+    self.rom_file = rom_bytes
+    self.address = -1
+    self.add_nes_header_offset = add_nes_header_offset
 
   def __init__(self, rom_filename: str, src: str = None,
                add_nes_header_offset: bool = False) -> None:

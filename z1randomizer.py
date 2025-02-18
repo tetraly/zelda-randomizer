@@ -1,63 +1,36 @@
+import argparse
+import io
 import sys
-
-from absl import app
-from absl import flags
-from PyQt5.QtWidgets import QApplication
 
 from randomizer.randomizer.randomizer import Z1Randomizer
 
-from z1r_ui import Z1rUI
 
-flags.DEFINE_integer(name='seed', default=0, help='The seed number to initialize RNG with.')
-flags.DEFINE_string(
-    name='input_filename', default='', help='The filename of the vanilla ROM to randomize.')
-flags.DEFINE_string(
-    name='output_location', default='', help='The location to put the randomized ROM.')
-flags.DEFINE_enum(
-    'text_speed',
-    'normal',
-    ['very_fast', 'fast', 'normal', 'slow', 'very_slow', 'random'],
-    'How fast the text speed will go. Fast speed is, well, fast, but slower speed allows for '
-    'resetting door repair charges.',
-)
-
-# TODO: Turn this enum into a string with lambda validation.
-flags.DEFINE_enum('level_text', 'level-',
-                  ['level-', 'house-', 'block-', 'random', 'cage_-', 'home_-', 'castle'],
-                  'What are the dungeons called? This is strictly for fun.')
-
-FLAGS = flags.FLAGS
-
-
-class Z1RandomizerApp(Z1rUI):
-  def __init__(self, parent=None) -> None:
-    super(Z1RandomizerApp, self).__init__(parent)
-
-    self.input_filename_flag = ""
-    self.output_location_flag = ""
-    self.seed_flag = 0
-
-  # Override
-  def _RunRandomizer(self) -> None:
-    z1r = Z1Randomizer()
-    z1r.SetFlags(self.input_filename_flag, self.output_location_flag, self.seed_flag, "normal",
-                 "level-")
-    z1r.Run()
-
-
-def main(unused_argv) -> None:
-  if FLAGS.input_filename == '' and FLAGS.seed == 0:
-    print("Command-line flags not specified, entering GUI mode.")
-    gui = QApplication(sys.argv)
-    window = Z1RandomizerApp()
-    window.show()
-    gui.exec_()
-    sys.exit(0)
+def main() -> None:
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--input_filename', type=str, required=True, help='Rom to randomize')
+  parser.add_argument('--output_location', type=str, required=True, help='Where to put the thing')
+  parser.add_argument('--seed', type=int, required=True, help='RNG seed')
+  args = parser.parse_args()
+  
+  if not args.input_filename.endswith('.nes'):
+    print("Filename must end with '.nes'")
+    exit()
+  output_filename = args.input_filename[:-4] + '_zora.nes'
+  
+  with open(args.input_filename, 'rb') as f:
+      input_rom_data = io.BytesIO(f.read())
 
   z1randomizer = Z1Randomizer()
-  z1randomizer.Settings(FLAGS.input_filename, FLAGS.output_location, FLAGS.seed)
-  z1randomizer.Run()
+  z1randomizer.SettingsNew(input_rom_data, args.seed)
+  
+  patch = z1randomizer.GetPatch()
+  output_rom_data = io.BytesIO(input_rom_data.getvalue())
+  for address in patch.GetAddresses():
+    output_rom_data.seek(address)
+    output_rom_data.write(bytes(patch.GetData(address))
 
+  with open(output_filename, 'wb') as f:
+      f.write(output_rom_data.getvalue())
 
 if __name__ == '__main__':
-  app.run(main)
+  main()

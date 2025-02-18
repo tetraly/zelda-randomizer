@@ -1,3 +1,4 @@
+import io
 import os
 import random
 
@@ -10,13 +11,12 @@ from .settings import Settings
 from .text_data_table import TextDataTable
 from .validator import Validator
 
-VERSION = '0.06'
+#VERSION = '0.06'
 
 
 class Z1Randomizer():
   def __init__(self) -> None:
-    self.input_filename: str = ""
-    self.output_location: str = ""
+    self.rom: Rom
     self.seed: int = 0
     self.settings: Settings
 
@@ -24,13 +24,18 @@ class Z1Randomizer():
     self.seed = seed
     self.settings = settings
 
-  def Settings(self, input_filename: str, output_location: str, seed: int) -> None:
-    self.input_filename = input_filename
-    self.output_location = output_location
+#  def Settings(self, input_filename: str, output_location: str, seed: int) -> None:
+#    self.input_filename = input_filename
+#    self.output_location = output_location
+#    self.seed = seed
+#    self.settings = Settings()
+
+  def SettingsNew(self, rom_bytes: io.BytesIO, seed: int) -> None:
+    self.rom = Rom(rom_bytes)
     self.seed = seed
     self.settings = Settings()
 
-  def Run(self) -> None:
+  """def Run(self) -> None:
     (input_path, input_full_filename) = os.path.split(self.input_filename)
     (input_filename, input_extension) = os.path.splitext(input_full_filename)
     output_filename = os.path.join(
@@ -44,7 +49,7 @@ class Z1Randomizer():
     for address in patch.GetAddresses():
       data: List[int]
       data = patch.GetData(address)
-      output_rom.WriteBytes(address, data)
+      output_rom.WriteBytes(address, data)"""
 
   def GetPatch(self) -> Patch:
     random.seed(self.seed)
