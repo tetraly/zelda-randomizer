@@ -1,7 +1,13 @@
 import streamlit as st
 import io
+import random
 
 from randomizer.randomizer.randomizer import Z1Randomizer
+from randomizer.randomizer.flags import Flags, FlagsEnum
+
+flags = Flags()
+if 'seed' not in st.session_state:
+  st.session_state.seed=12345
 
 st.set_page_config(page_title="Zelda \"Re-Randomizer\"", layout="wide")
 st.image("https://streamlit.io/images/brand/streamlit-mark-color.png", width=78)
@@ -33,23 +39,55 @@ if uploaded_file is None:
         )
     st.stop()
 
-output_filename = uploaded_file.name[:-4] + '_zora.nes'
-  
-z1randomizer = Z1Randomizer()
-z1randomizer.SettingsNew(uploaded_file, 1234)
-  
-patch = z1randomizer.GetPatch()
-output_rom_data = io.BytesIO(uploaded_file.getvalue())
-for address in patch.GetAddresses():
-    output_rom_data.seek(address)
-    output_rom_data.write(bytes(patch.GetData(address)))
+col3, col4, col5 = st.columns([1, 3, 10])
+with col3:
+    st.write("Seed")
+with col4:
+    seed = st.number_input('Seed:', min_value=1, max_value=999999999999999, step=1,
+                           format="%d", label_visibility="collapsed", value=st.session_state.seed)
+with col5:
+  if st.button('Generate Random Seed'):
+    st.session_state.seed = random.randint(1000000, 999999999)
+    st.experimental_rerun()  # Rerun the app to update the number input
 
-st.download_button(
-    label="Download randomized ROM file (%s)" % output_filename,
-    data=output_rom_data,
-    file_name=output_filename,
-    mime="application/octet-stream",
-) 
+
+for flag_name, display_name, help_text in FlagsEnum.get_flag_list():
+    is_checked = flags.get(flag_name)
+
+    col1, col2 = st.columns([2, 4])
+    with col1:
+        checkbox = st.checkbox(display_name, value=is_checked, key=flag_name)
+    with col2:
+        st.markdown(f"{help_text}")           
+
+    if checkbox != is_checked:
+        flags.set(flag_name, checkbox)
+        #is_checked = flags.get(flag_name)
+
+if st.button('Randomize!'):
+    try:
+        seed = int(seed)
+    except ValueError:
+        st.error('Please enter a valid integer for the seed.')
+        st.stop()
+        
+    output_filename = uploaded_file.name[:-4] + '_randomized_%d.nes' % seed
+
+    z1randomizer = Z1Randomizer()
+    z1randomizer.SettingsNew(uploaded_file, seed)
+  
+    patch = z1randomizer.GetPatch()
+    output_rom_data = io.BytesIO(uploaded_file.getvalue())
+    for address in patch.GetAddresses():
+        output_rom_data.seek(address)
+        output_rom_data.write(bytes(patch.GetData(address)))
+
+    st.download_button(
+        label="Download randomized ROM file (%s)" % output_filename,
+        data=output_rom_data,
+        file_name=output_filename,
+        mime="application/octet-stream",
+    ) 
 
 
 def junk():
