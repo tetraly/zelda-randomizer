@@ -76,6 +76,9 @@ class Flags:
     def __init__(self):
         self.flags = {flag.value: flag for flag in FlagsEnum}
 
+    def __getattr__(self, flag_value):
+        return self.flags[flag_value]
+
     def get(self, flag_value):
         return self.flags[flag_value]
 

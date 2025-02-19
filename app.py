@@ -50,7 +50,6 @@ with col5:
     st.session_state.seed = random.randint(1000000, 999999999)
     st.experimental_rerun()  # Rerun the app to update the number input
 
-
 for flag_name, display_name, help_text in FlagsEnum.get_flag_list():
     is_checked = flags.get(flag_name)
 
@@ -74,7 +73,7 @@ if st.button('Randomize!'):
     output_filename = uploaded_file.name[:-4] + '_randomized_%d.nes' % seed
 
     z1randomizer = Z1Randomizer()
-    z1randomizer.SettingsNew(uploaded_file, seed)
+    z1randomizer.SettingsNew(uploaded_file, seed, flags)
   
     patch = z1randomizer.GetPatch()
     output_rom_data = io.BytesIO(uploaded_file.getvalue())

@@ -59,7 +59,7 @@ class Inventory(object):
       self.num_heart_containers += 1
       assert self.num_heart_containers <= 16
       return
-    elif item == Item.TRINGLE:
+    elif item == Item.TRIFORCE:
       self.num_triforce_pieces += 1
       log.warning("Found %s.  Now have %d tringles" % (item, self.num_triforce_pieces))
       assert self.num_triforce_pieces <= 8
@@ -90,11 +90,11 @@ class Inventory(object):
     return self.num_triforce_pieces
 
   def HasKey(self) -> bool:
-    return self.Has(Item.ANY_KEY) or self.num_keys > 0
+    return self.Has(Item.MAGICAL_KEY) or self.num_keys > 0
 
   def UseKey(self, level_num: LevelNum, room_num: RoomNum, exit_direction: Direction) -> None:
     assert self.HasKey()
-    if self.Has(Item.ANY_KEY):
+    if self.Has(Item.MAGICAL_KEY):
       return
     if (level_num, room_num) in self.locations_where_keys_were_used:
       return

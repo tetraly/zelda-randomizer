@@ -6,14 +6,14 @@ from absl import logging
 from .constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
 from .data_table import DataTable
 from .location import Location
-from .settings import Settings
+from .flags import Flags
 
 
 class ItemRandomizer():
-  def __init__(self, data_table: DataTable, settings: Settings) -> None:
+  def __init__(self, data_table: DataTable, flags: Flags) -> None:
     self.data_table = data_table
-    self.settings = settings
-    self.item_shuffler = ItemShuffler(settings)
+    self.flags = flags
+    self.item_shuffler = ItemShuffler(flags)
 
   WOOD_SWORD_LOCATION = Location.CavePosition(0, 2)
   TAKE_ANY_HEART_LOCATION = Location.CavePosition(1, 3)
@@ -34,20 +34,20 @@ class ItemRandomizer():
 
   def _GetOverworldItemsToShuffle(self) -> List[Location]:
     items: List[Location] = []
-    if self.settings.shuffle_white_sword:
+    if self.flags.shuffle_white_sword:
       items.append(self.WHITE_SWORD_LOCATION)
-    if self.settings.shuffle_magical_sword:
+    if self.flags.shuffle_magical_sword:
       items.append(self.MAGICAL_SWORD_LOCATION)
-    if self.settings.shuffle_coast_item:
+    if self.flags.shuffle_coast_item:
       items.append(self.COAST_ITEM_LOCATION)
-    if self.settings.shuffle_armos_item:
+    if self.flags.shuffle_armos_item:
       items.append(self.ARMOS_ITEM_LOCATION)
-    if self.settings.shuffle_letter:
+    if self.flags.shuffle_letter:
       items.append(self.LETTER_LOCATION)
-    if self.settings.shuffle_shop_items:
+    if self.flags.shuffle_shop_items:
       items.extend(
           [self.WOODEN_ARROWS_LOCATION, self.BLUE_CANDLE_LOCATION, self.BLUE_RING_LOCATION])
-      if not self.settings.shuffle_take_any_hearts_shields_and_bait:
+      if not self.flags.shuffle_take_any_hearts_shields_and_bait:
         items.extend([self.BAIT_LOCATION_1, self.BAIT_LOCATION_2])
     return items
 
@@ -60,7 +60,7 @@ class ItemRandomizer():
     for location in self._GetOverworldItemsToShuffle():
       item_num = self.data_table.GetCaveItem(location)
       self.item_shuffler.AddLocationAndItem(location, item_num)
-    if self.settings.shuffle_take_any_hearts_shields_and_bait:
+    if self.flags.shuffle_take_any_hearts_shields_and_bait:
       self.item_shuffler.AddLocationAndItem(self.BAIT_LOCATION_1, Item.BAIT)
       self.item_shuffler.AddLocationAndItem(self.BAIT_LOCATION_2, Item.HEART_CONTAINER)
       self.item_shuffler.AddLocationAndItem(self.SHIELD_LOCATION_1, Item.MAGICAL_SHIELD)
@@ -127,15 +127,15 @@ class ItemRandomizer():
     for (location, item_num) in self.item_shuffler.GetAllLocationAndItemData():
       if location.IsLevelRoom():
         self.data_table.SetRoomItem(location, item_num)
-        if item_num == Item.TRINGLE:
+        if item_num == Item.TRIFORCE:
           self.data_table.UpdateTriforceLocation(location)
       elif location.IsCavePosition():
         self.data_table.SetCaveItem(location, item_num)
 
 
 class ItemShuffler():
-  def __init__(self, settings: Settings) -> None:
-    self.settings = settings
+  def __init__(self, flags) -> None:
+    self.flags = flags
     self.item_num_list: List[Item] = []
     self.per_level_item_location_lists: DefaultDict[LevelNum, List[Location]] = defaultdict(list)
     self.per_level_item_lists: DefaultDict[LevelNum, List[Item]] = defaultdict(list)
@@ -150,10 +150,10 @@ class ItemShuffler():
       return
     level_num = location.GetLevelNum() if location.IsLevelRoom() else 10
     self.per_level_item_location_lists[level_num].append(location)
-    if item_num in [Item.MAP, Item.COMPASS, Item.TRINGLE]:
+    if item_num in [Item.MAP, Item.COMPASS, Item.TRIFORCE]:
       return
     #TODO: This would be more elgant with a dict lookup
-    if self.settings.progressive_items:
+    if self.flags.progressive_items:
       if item_num == Item.RED_CANDLE:
         item_num = Item.BLUE_CANDLE
       if item_num == Item.RED_RING:
@@ -164,8 +164,8 @@ class ItemShuffler():
         item_num = Item.WOOD_SWORD
       if item_num == Item.MAGICAL_SWORD:
         item_num = Item.WOOD_SWORD
-      if item_num == Item.INFERIOR_MODEL:
-        item_num = Item.LORD_BANANA
+      if item_num == Item.MAGICAL_BOOMERANG:
+        item_num = Item.WOODEN_BOOMERANG
 
     self.item_num_list.append(item_num)
 
@@ -176,7 +176,7 @@ class ItemShuffler():
       if level_num in Range.VALID_LEVEL_NUMBERS:
         self.per_level_item_lists[level_num] = [Item.MAP, Item.COMPASS]
       if level_num in range(1, 9):
-        self.per_level_item_lists[level_num].append(Item.TRINGLE)
+        self.per_level_item_lists[level_num].append(Item.TRIFORCE)
 
       num_locations_needing_an_item = len(self.per_level_item_location_lists[level_num]) - len(
           self.per_level_item_lists[level_num])

@@ -5,7 +5,7 @@ from .data_table import DataTable
 from .inventory import Inventory
 from .location import Location
 from .room import Room
-from .settings import Settings
+from .flags import Flags
 
 log = logging.getLogger(__name__)
 
@@ -18,9 +18,9 @@ class Validator(object):
   POTION_SHOP_NUMBER = 10
   COAST_VIRTUAL_CAVE_NUMBER = 21
 
-  def __init__(self, data_table: DataTable, settings: Settings) -> None:
+  def __init__(self, data_table: DataTable, flags: Flags) -> None:
     self.data_table = data_table
-    self.settings = settings
+    self.flags = flags
     self.inventory = Inventory()
 
   def IsSeedValid(self) -> bool:
@@ -85,7 +85,7 @@ class Validator(object):
     if (room.HasPolsVoice()
         and not (self.inventory.HasSwordOrWand() or self.inventory.HasBowAndArrows())):
       return False
-    if (self.settings.avoid_required_hard_combat and room.HasHardCombatEnemies()
+    if (self.flags.avoid_required_hard_combat and room.HasHardCombatEnemies()
         and not (self.inventory.HasRing() and self.inventory.Has(Item.WHITE_SWORD))):
       return False
 
