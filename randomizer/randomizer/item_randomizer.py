@@ -1,7 +1,7 @@
 from typing import DefaultDict, List, Tuple, Iterable
 from collections import defaultdict
 from random import shuffle
-from absl import logging
+import logging
 
 from .constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
 from .data_table import DataTable

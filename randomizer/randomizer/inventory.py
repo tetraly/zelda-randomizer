@@ -1,11 +1,9 @@
-import logging
 from typing import List, Set, Tuple
 
 from .constants import Direction, Item, LevelNum, RoomNum
 from .location import Location
 
-log = logging.getLogger(__name__)
-
+import logging as log
 
 class Inventory(object):
   def __init__(self) -> None:
@@ -53,7 +51,7 @@ class Inventory(object):
     self.SetStillMakingProgressBit()
 
     if item == Item.TRIFORCE_OF_POWER:
-      log.warning("Found Triforce of Power in L%d Room %x" % (item_location.GetLevelNum(),
+      log.debug("Found Triforce of Power in L%d Room %x" % (item_location.GetLevelNum(),
                                                               item_location.GetRoomNum()))
     if item == Item.HEART_CONTAINER:
       self.num_heart_containers += 1
@@ -61,14 +59,14 @@ class Inventory(object):
       return
     elif item == Item.TRIFORCE:
       self.num_triforce_pieces += 1
-      log.warning("Found %s.  Now have %d tringles" % (item, self.num_triforce_pieces))
+      log.debug("Found %s.  Now have %d tringles" % (item, self.num_triforce_pieces))
       assert self.num_triforce_pieces <= 8
       return
     elif item == Item.KEY:
       self.num_keys += 1
       return
 
-    log.warning("Found %s" % item)
+    log.debug("Found %s" % item)
 
     if item == Item.WOOD_SWORD and Item.WOOD_SWORD in self.items:
       self.items.add(Item.WHITE_SWORD)

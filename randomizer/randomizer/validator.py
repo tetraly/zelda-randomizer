@@ -7,7 +7,7 @@ from .location import Location
 from .room import Room
 from .flags import Flags
 
-log = logging.getLogger(__name__)
+import logging as log
 
 
 class Validator(object):
@@ -24,16 +24,16 @@ class Validator(object):
     self.inventory = Inventory()
 
   def IsSeedValid(self) -> bool:
-    log.warning("Starting check of whether the seed is valid or not")
+    log.info("Starting check of whether the seed is valid or not")
     self.inventory.Reset()
     self.inventory.SetStillMakingProgressBit()
     num_iterations = 0
     while self.inventory.StillMakingProgress():
       num_iterations += 1
-      log.warning("Iteration %d of checking" % num_iterations)
+      log.info("Iteration %d of checking" % num_iterations)
       self.inventory.ClearMakingProgressBit()
       self.data_table.ClearAllVisitMarkers()
-      log.warning("Checking caves")
+      log.debug("Checking caves")
       for cave_num in Range.VALID_CAVE_NUMBERS:
         if self.CanGetItemsFromCave(cave_num):
           for position_num in Range.VALID_CAVE_POSITION_NUMBERS:
@@ -41,17 +41,17 @@ class Validator(object):
             self.inventory.AddItem(self.data_table.GetCaveItem(location), location)
       for level_num in Range.VALID_LEVEL_NUMBERS:
         if self.CanEnterLevel(level_num):
-          log.warning("Checking level %d" % level_num)
+          log.debug("Checking level %d" % level_num)
           self._RecursivelyTraverseLevel(level_num,
                                          self.data_table.GetLevelStartRoomNumber(level_num),
                                          Direction.NORTH)
       if (self.CanEnterLevel(9) and self.inventory.HasBowSilverArrowsAndSword()
           and self.inventory.Has(Item.TRIFORCE_OF_POWER)):
-        log.warning("Seed appears to be beatable. :)")
+        log.info("Seed appears to be beatable. :)")
         return True
       elif num_iterations > 100:
         return False
-    log.warning("Seed doesn't appear to be beatable. :(")
+    log.info("Seed doesn't appear to be beatable. :(")
     return False
 
   def CanGetRoomItem(self, entry_direction: Direction, room: Room) -> bool:
@@ -162,7 +162,7 @@ class Validator(object):
     # Hungry goriya room doesn't have a closed shutter door.  So need a special check to similate how
     # it's not possible to move up in the room until the goriya has been properly fed.
     if (exit_direction == Direction.NORTH and room.HasHungryGoriya() and not self.inventory.Has(Item.BAIT)):
-      log.warning("Hungry goriya is still hungry :(")
+      log.debug("Hungry goriya is still hungry :(")
       return False
 
     wall_type = room.GetWallType(exit_direction)

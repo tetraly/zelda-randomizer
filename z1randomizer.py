@@ -1,16 +1,27 @@
 import argparse
 import io
+import logging
 import sys
 
 from randomizer.randomizer.randomizer import Z1Randomizer
 from randomizer.randomizer.flags import Flags
 
+def setup_logging(debug=False):
+    log_level = logging.DEBUG if debug else logging.INFO
+    logging.basicConfig(
+        level=log_level,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
 def main() -> None:
   parser = argparse.ArgumentParser()
   parser.add_argument('--input_filename', type=str, required=True, help='Rom to randomize')
   parser.add_argument('--output_location', type=str, required=True, help='Where to put the thing')
   parser.add_argument('--seed', type=int, required=True, help='RNG seed')
+  parser.add_argument('--debug', action='store_true', help='Enable debug logging')
   args = parser.parse_args()
+  
+  setup_logging(args.debug)
   
   if not args.input_filename.endswith('.nes'):
     print("Filename must end with '.nes'")
