@@ -5,7 +5,8 @@ from .room import Room
 from .location import Location
 from .cave import Cave
 from .patch import Patch
-from .data import *
+#from .data import *
+from rom_reader import RomReader
 
 
 class DataTable():
@@ -61,13 +62,11 @@ class DataTable():
       ]
   }
 
-  def __init__(self) -> None:
-    self.level_1_to_6_raw_data = list(
-        open("randomizer/randomizer/data/level-1-6-data.bin", 'rb').read(0x300))
-    self.level_7_to_9_raw_data = list(
-        open("randomizer/randomizer/data/level-7-9-data.bin", 'rb').read(0x300))
-    self.overworld_cave_raw_data = list(
-        open("randomizer/randomizer/data/overworld-cave-data.bin", 'rb').read(0x80))
+  def __init__(self, rom_reader: RomReader) -> None:
+    self.rom_reader = rom_reader
+    self.level_1_to_6_raw_data = self.rom_reader.GetLevelBlock(1)
+    self.level_7_to_9_raw_data = self.rom_reader.GetLevelBlock(7)
+    self.overworld_cave_raw_data = self.rom_reader.GetLevelBlock(0)[0x80*4:0x80*5]
     self.level_1_to_6_rooms: List[Room] = []
     self.level_7_to_9_rooms: List[Room] = []
     self.overworld_caves: List[Cave] = []

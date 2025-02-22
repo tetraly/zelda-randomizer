@@ -3,7 +3,7 @@ import io
 import sys
 
 from randomizer.randomizer.randomizer import Z1Randomizer
-
+from randomizer.randomizer.flags import Flags
 
 def main() -> None:
   parser = argparse.ArgumentParser()
@@ -20,14 +20,13 @@ def main() -> None:
   with open(args.input_filename, 'rb') as f:
       input_rom_data = io.BytesIO(f.read())
 
-  z1randomizer = Z1Randomizer()
-  z1randomizer.SettingsNew(input_rom_data, args.seed)
+  z1randomizer = Z1Randomizer(input_rom_data, args.seed, Flags())
   
   patch = z1randomizer.GetPatch()
   output_rom_data = io.BytesIO(input_rom_data.getvalue())
   for address in patch.GetAddresses():
     output_rom_data.seek(address)
-    output_rom_data.write(bytes(patch.GetData(address))
+    output_rom_data.write(bytes(patch.GetData(address)))
 
   with open(output_filename, 'wb') as f:
       f.write(output_rom_data.getvalue())

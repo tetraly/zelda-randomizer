@@ -72,8 +72,7 @@ if st.button('Randomize!'):
         
     output_filename = uploaded_file.name[:-4] + '_randomized_%d.nes' % seed
 
-    z1randomizer = Z1Randomizer()
-    z1randomizer.SettingsNew(uploaded_file, seed, flags)
+    z1randomizer = Z1Randomizer(uploaded_file, seed, flags)
   
     patch = z1randomizer.GetPatch()
     output_rom_data = io.BytesIO(uploaded_file.getvalue())

@@ -6,31 +6,30 @@ from typing import List
 from .data_table import DataTable
 from .item_randomizer import ItemRandomizer
 from .patch import Patch
-from .rom import Rom
-#from .settings import Settings
+from rom_reader import RomReader
 from .text_data_table import TextDataTable
 from .validator import Validator
 from .flags import Flags
 
 class Z1Randomizer():
-  def __init__(self) -> None:
-    self.rom: Rom
-    self.seed: int = 0
-    self.flags: Flags
+#  def __init__(self) -> None:
+#    self.rom: Rom
+#    self.seed: int = 0
+#    self.flags: Flags
 #    self.settings: Settings
 
 #  def ConfigureSettings(self, seed: int, settings: Settings) -> None:
 #    self.seed = seed
 #    self.settings = settings
 
-  def SettingsNew(self, rom_bytes: io.BytesIO, seed: int, flags: Flags) -> None:
-    self.rom = Rom(rom_bytes)
+  def __init__(self, rom_bytes: io.BytesIO, seed: int, flags: Flags) -> None:
+    self.rom_reader = RomReader(rom_bytes)
     self.seed = seed
     self.flags = flags
 
   def GetPatch(self) -> Patch:
     random.seed(self.seed)
-    data_table = DataTable()
+    data_table = DataTable(self.rom_reader)
     item_randomizer = ItemRandomizer(data_table, self.flags)
     validator = Validator(data_table, self.flags)
 
