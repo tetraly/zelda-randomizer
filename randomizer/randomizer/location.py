@@ -16,7 +16,7 @@ class Location(object):
       self.sub_id = room_num
 
     elif cave_num is not None:
-      assert cave_num in Range.VALID_CAVE_NUMBERS
+      assert cave_num in Range.VALID_CAVE_NUMBERS, "Invalid Cave num 0x%x" % cave_num
       assert position_num in Range.VALID_CAVE_POSITION_NUMBERS
       assert level_num is None
       assert room_num is None
@@ -58,3 +58,9 @@ class Location(object):
   def GetPositionNum(self) -> PositionNum:
     assert self.IsCavePosition()
     return self.sub_id
+
+  def ToString(self) -> str:
+    if self.IsCavePosition():
+      return "Cave 0x%x Position %d" % (self.level_id, self.sub_id)
+    elif self.IsLevelRoom():
+      return "Level 0x%x Room %x" % (self.level_id, self.sub_id)

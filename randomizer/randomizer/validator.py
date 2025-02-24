@@ -1,5 +1,7 @@
+from typing import List, Tuple
 import logging
-from .constants import CaveNum, Direction, Item, LevelNum
+from constants import Direction
+from .constants import CaveNum, Item, LevelNum, Enemy
 from .constants import Range, RoomNum, RoomType, WallType
 from .data_table import DataTable
 from .inventory import Inventory
@@ -16,12 +18,31 @@ class Validator(object):
   NUM_HEARTS_FOR_WHITE_SWORD_ITEM = 5
   NUM_HEARTS_FOR_MAGICAL_SWORD_ITEM = 12
   POTION_SHOP_NUMBER = 10
-  COAST_VIRTUAL_CAVE_NUMBER = 21
+  ARMOS_VIRTUAL_CAVE_NUMBER = 0x14
+  COAST_VIRTUAL_CAVE_NUMBER = 0x15
 
   def __init__(self, data_table: DataTable, flags: Flags) -> None:
     self.data_table = data_table
     self.flags = flags
     self.inventory = Inventory()
+
+  def GetAccessibleDestinations(self):
+    tbr = []
+    tbr.extend(self.data_table.GetAvailableOverworldCaves("Open"))
+    if self.inventory.HasSwordOrWand():
+      tbr.extend(self.data_table.GetAvailableOverworldCaves("Bomb"))
+      if self.inventory.Has(Item.LADDER):
+        tbr.extend(self.data_table.GetAvailableOverworldCaves("Ladder+Bomb"))
+    if self.inventory.HasCandle():
+      tbr.extend(self.data_table.GetAvailableOverworldCaves("Candle"))
+    if self.inventory.Has(Item.RECORDER):
+      tbr.extend(self.data_table.GetAvailableOverworldCaves("Recorder"))
+    if self.inventory.Has(Item.RAFT):
+      tbr.extend(self.data_table.GetAvailableOverworldCaves("Raft"))
+    if self.inventory.Has(Item.POWER_BRACELET):
+      tbr.extend(self.data_table.GetAvailableOverworldCaves("Power Bracelet"))
+    return list(set(tbr))
+
 
   def IsSeedValid(self) -> bool:
     log.info("Starting check of whether the seed is valid or not")
@@ -31,26 +52,32 @@ class Validator(object):
     while self.inventory.StillMakingProgress():
       num_iterations += 1
       log.info("Iteration %d of checking" % num_iterations)
+      log.info("Inventory contains: " + self.inventory.ToString())
       self.inventory.ClearMakingProgressBit()
       self.data_table.ClearAllVisitMarkers()
       log.debug("Checking caves")
-      for cave_num in Range.VALID_CAVE_NUMBERS:
-        if self.CanGetItemsFromCave(cave_num):
-          for position_num in Range.VALID_CAVE_POSITION_NUMBERS:
-            location = Location(cave_num=cave_num, position_num=position_num)
-            self.inventory.AddItem(self.data_table.GetCaveItem(location), location)
-      for level_num in Range.VALID_LEVEL_NUMBERS:
-        if self.CanEnterLevel(level_num):
-          log.debug("Checking level %d" % level_num)
-          self._RecursivelyTraverseLevel(level_num,
-                                         self.data_table.GetLevelStartRoomNumber(level_num),
-                                         Direction.NORTH)
-      if (self.CanEnterLevel(9) and self.inventory.HasBowSilverArrowsAndSword()
-          and self.inventory.Has(Item.TRIFORCE_OF_POWER)):
+      for destination in self.GetAccessibleDestinations():
+        if destination in Range.VALID_LEVEL_NUMBERS:
+          level_num = destination
+          if level_num == 9 and self.inventory.GetTriforceCount() < 8:
+            continue
+          log.debug("Can access level %d" % level_num)
+          self.ProcessLevel(level_num)
+        else:
+          cave_num = destination - 0x10
+          log.debug("Can access cave type %x" % cave_num)
+          if self.CanGetItemsFromCave(cave_num):
+            for position_num in Range.VALID_CAVE_POSITION_NUMBERS:
+              location = Location(cave_num=cave_num, position_num=position_num)
+              self.inventory.AddItem(self.data_table.GetCaveItem(location), location)
+      if self.CanEnterLevel(9):
+        pass
+      if self.inventory.Has(Item.KIDNAPPED_RESCUED_VIRTUAL_ITEM):
         log.info("Seed appears to be beatable. :)")
         return True
       elif num_iterations > 100:
         return False
+      input("Iteration end")
     log.info("Seed doesn't appear to be beatable. :(")
     return False
 
@@ -74,11 +101,11 @@ class Validator(object):
   def CanDefeatEnemies(self, room: Room) -> bool:
     if room.HasNoEnemiesToKill():
       return True
-    if ((room.HasGannon() and not self.inventory.HasBowSilverArrowsAndSword())
+    if ((room.HasTheBeast() and not self.inventory.HasBowSilverArrowsAndSword())
         or (room.HasDigdogger() and not self.inventory.HasRecorderAndReusableWeapon())
         or (room.HasGohma() and not self.inventory.HasBowAndArrows())
         or (room.HasWizzrobes() and not self.inventory.HasSword())
-        or (room.HasSwordOrWandRequiredEnemies() and not self.inventory.HasSwordOrWand())
+        or (room.GetEnemy().IsGleeokOrPatra() and not self.inventory.HasSwordOrWand())
         or (room.HasOnlyZeroHPEnemies() and not self.inventory.HasReusableWeaponOrBoomerang())
         or (room.HasHungryGoriya() and not self.inventory.Has(Item.BAIT))):
       return False
@@ -92,6 +119,7 @@ class Validator(object):
     # At this point, assume regular enemies
     return self.inventory.HasReusableWeapon()
 
+  #TODO: Need to update WS and MS caves with actual heart requirements
   def CanGetItemsFromCave(self, cave_num: CaveNum) -> bool:
     if (cave_num == self.WHITE_SWORD_CAVE_NUMBER
         and self.inventory.GetHeartCount() < self.NUM_HEARTS_FOR_WHITE_SWORD_ITEM):
@@ -116,41 +144,83 @@ class Validator(object):
       return False
     return True
 
-  def _RecursivelyTraverseLevel(self, level_num: LevelNum, room_num: RoomNum,
-                                entry_direction: Direction) -> None:
-    if not room_num in Range.VALID_ROOM_NUMBERS:
-      return  # No escaping back into the overworld! :)
-    room = self.data_table.GetRoom(level_num, room_num)
-    if room.IsMarkedAsVisited():
-      return
-    room.MarkAsVisited()
+  def ProcessLevel(self, level_num: int) -> None:
+      rooms_to_visit = [(self.data_table.GetLevelStartRoomNumber(level_num), 
+                         self.data_table.GetLevelEntranceDirection(level_num))]
+      while True:
+          room_num, direction = rooms_to_visit.pop()
+          new_rooms = self._VisitRoom(level_num, room_num, direction)
+          if new_rooms:
+              rooms_to_visit.extend(new_rooms)
+          if not rooms_to_visit:
+              break
+      
+  def _VisitRoom(self,
+                 level_num: int,
+                 room_num: int,
+                 entry_direction: Direction) -> List[Tuple[int, Direction]]:
+      if room_num not in range(0, 0x80):
+        return
+      room = self.data_table.GetRoom(level_num, room_num)
+      if room.IsMarkedAsVisited():
+        return
+      log.debug("Visiting level %d room %x" % (level_num, room_num))
+      room.MarkAsVisited()
+      tbr = []
 
-    if self.CanGetRoomItem(entry_direction, room) and room.HasItem():
-      self.inventory.AddItem(room.GetItem(), Location.LevelRoom(level_num, room_num))
+      if self.CanGetRoomItem(entry_direction, room) and room.HasItem():
+          self.inventory.AddItem(room.GetItem(), Location.LevelRoom(level_num, room_num))
+      if room.GetEnemy() == Enemy.THE_BEAST and self.CanGetRoomItem(entry_direction, room):
+          self.inventory.AddItem(Item.BEAST_DEFEATED_VIRTUAL_ITEM, Location.LevelRoom(level_num, room_num))
+      if room.GetEnemy() == Enemy.THE_KIDNAPPED:
+          self.inventory.AddItem(Item.KIDNAPPED_RESCUED_VIRTUAL_ITEM, Location.LevelRoom(level_num, room_num))
 
-    # An item staircase room is a dead-end, so no need to recurse more.
-    if room.IsItemStaircase():
-      return
+      for direction in (Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH):
+        if self.CanMove(entry_direction, direction, level_num, room_num, room):
+          tbr.append((room_num + direction, Direction(-1 * entry_direction)))
 
-    # For a transport staircase, we don't know whether we came in through the left or right.
-    # So try to leave both ways; the one that we came from will have already been marked as
-    # visited, which won't do anything.
-    elif room.IsTransportStaircase():
-      for room_num_to_visit in [room.GetLeftExit(), room.GetRightExit()]:
-        self._RecursivelyTraverseLevel(
-            level_num,
-            room_num_to_visit,
-            Direction.STAIRCASE,
-        )
-      return
+      # Only check for stairways if this room is configured to have a stairway entrance
+      if not self._HasStairway(room):
+          return tbr      
+      
+      for stairway_room_num in self.data_table.GetLevelStaircaseRoomNumberList(level_num):
+          stairway_room = self.data_table.GetRoom(level_num, stairway_room_num)
+          left_exit = stairway_room.GetLeftExit()
+          right_exit = stairway_room.GetRightExit()
 
-    # TODO: Add logic for shutter rooms that don't open like in L5
-    for direction in (Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH):
-      if self.CanMove(entry_direction, direction, level_num, room_num, room):
-        self._RecursivelyTraverseLevel(level_num, RoomNum(room_num + direction),
-                                       Direction(-1 * direction))
-    if room.HasUnobstructedStaircase() or (room.HasStaircase() and self.CanDefeatEnemies(room)):
-      self._RecursivelyTraverseLevel(level_num, room.GetStaircaseRoomNumber(), Direction.STAIRCASE)
+          # Item staircase. Add the item to our inventory.
+          if left_exit == room_num and right_exit == room_num:
+              self.inventory.AddItem(
+                  stairway_room.GetItem(), Location.LevelRoom(level_num, stairway_room_num))
+          # Transport stairway cases. Add the connecting room to be checked.
+          elif left_exit == room_num and right_exit != room_num:
+                tbr.append((right_exit, direction.NO_DIRECTION))
+                # Stop looking for additional staircases after finding one
+                break
+          elif right_exit == room_num and left_exit != room_num:
+                tbr.append((left_exit, direction.NO_DIRECTION))
+                # Stop looking for additional staircases after finding one
+                break
+      return tbr
+
+  def _HasStairway(self, room: Room) -> bool:
+        room_type = room.GetType()
+
+        # Spiral Stair, Narrow Stair, and Diamond Stair rooms always have a staircase
+        if room_type.HasOpenStaircase():
+            return True
+
+        # Check if there are any shutter doors in this room. If so, they'll open when a middle
+        # row pushblock is pushed instead of a stairway appearing
+        for direction in [Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST]:
+            if room.GetWallType(direction) == WallType.SHUTTER_DOOR:
+                return False
+
+        # Check if "Movable block" bit is set in a room_type that has a middle row pushblock
+        if room_type.CanHavePushBlock() and room.HasMovableBlockBitSet():
+            return True
+        return False
+
 
   def CanMove(self, entry_direction: Direction, exit_direction: Direction, level_num: LevelNum,
               room_num: RoomNum, room: Room) -> bool:
@@ -166,13 +236,19 @@ class Validator(object):
       return False
 
     wall_type = room.GetWallType(exit_direction)
+    if wall_type == WallType.SHUTTER_DOOR and level_num == 9:
+      next_room = self.data_table.GetRoom(level_num, room_num + exit_direction)
+      if next_room.GetEnemy() == Enemy.THE_KIDNAPPED:
+        return self.inventory.Has(Item.BEAST_DEFEATED_VIRTUAL_ITEM)
+     
     if (wall_type == WallType.SOLID_WALL
         or (wall_type == WallType.SHUTTER_DOOR and not self.CanDefeatEnemies(room))):
       return False
 
-    if wall_type in [WallType.LOCKED_DOOR_1, WallType.LOCKED_DOOR_2]:
-      if self.inventory.HasKey():
-        self.inventory.UseKey(level_num, room_num, exit_direction)
-      else:
-        return False
+    # Disable key checking for now
+    #if wall_type in [WallType.LOCKED_DOOR_1, WallType.LOCKED_DOOR_2]:
+    #  if self.inventory.HasKey():
+    #    self.inventory.UseKey(level_num, room_num, exit_direction)
+    #  else:
+    #    return False
     return True

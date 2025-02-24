@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, List
 from .constants import CaveNum, Item, LevelNum, Range, RoomNum
+from constants import OVERWORLD_BLOCK_TYPES, ENTRANCE_DIRECTION_MAP, Direction
 from .room import Room
 from .location import Location
 from .cave import Cave
@@ -30,6 +31,7 @@ class DataTable():
     self.rom_reader = rom_reader
     self.level_1_to_6_raw_data = self.rom_reader.GetLevelBlock(1)
     self.level_7_to_9_raw_data = self.rom_reader.GetLevelBlock(7)
+    self.overworld_raw_data = self.rom_reader.GetLevelBlock(0)
     self.overworld_cave_raw_data = self.rom_reader.GetLevelBlock(0)[0x80*4:0x80*5]
     self.level_info: List[List[int]] = []
     self._ReadLevelInfo() 
@@ -45,6 +47,21 @@ class DataTable():
     self._ReadDataForOverworldCaves()
     self.triforce_locations = {}
 
+  def GetAvailableOverworldCaves(self, block_type) -> int:
+    tbr = set()
+    for screen_num in range(0, 0x80):
+      # Skip any screens that aren't "Secret in 1st Quest"
+      if (self.overworld_raw_data[screen_num + 5*0x80] & 0x80) > 0:
+        continue
+      # Cave destination is upper 6 bits of table 1
+      destination = self.overworld_raw_data[screen_num + 1*0x80] >> 2
+      if destination == 0:
+        continue
+      if OVERWORLD_BLOCK_TYPES[screen_num] != block_type:
+        continue
+      tbr.add(destination)
+    return list(tbr)
+ 
   def _ReadLevelInfo(self):
     self.is_z1r = True
     for level_num in range(0, 10):
@@ -131,11 +148,14 @@ class DataTable():
   #  return self.LEVEL_START_ROOM_NUMBERS[level_num - 1]
     
   def GetLevelStartRoomNumber(self, level_num: int) -> int:
-      logging.warning("Level %d start room is %x" % 
+      logging.debug("Level %d start room is %x" % 
                       (level_num, self.level_info[level_num][START_ROOM_OFFSET]))
       return self.level_info[level_num][START_ROOM_OFFSET]
 
-
+  def GetLevelEntranceDirection(self, level_num: int) -> Direction:
+      if not self.is_z1r:
+          return Direction.SOUTH
+      return ENTRANCE_DIRECTION_MAP[self._GetRawLevelStairwayRoomNumberList(level_num)[-1]]
   # Gets a list of staircase rooms for a level.
   #
   # Note that this will include not just passage staircases between two

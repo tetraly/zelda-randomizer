@@ -12,7 +12,7 @@ class Inventory(object):
     self.locations_where_keys_were_used: Set[Tuple[LevelNum, RoomNum, Direction]]
     self.num_heart_containers: int
     self.num_keys: int
-    self.num_triforce_pieces: int
+    self.levels_with_triforce_obtained: List[int]
     self.still_making_progress_bit: bool
     self.Reset()
 
@@ -22,8 +22,11 @@ class Inventory(object):
     self.locations_where_keys_were_used = set()
     self.num_heart_containers = 3
     self.num_keys = 0
-    self.num_triforce_pieces = 0
+    self.levels_with_triforce_obtained = []
     self.still_making_progress_bit = False
+  
+  def ToString(self) -> str:
+    return ", ".join(item.name for item in self.items)
 
   def SetStillMakingProgressBit(self) -> None:
     self.still_making_progress_bit = True
@@ -37,30 +40,42 @@ class Inventory(object):
   def AddItem(self, item: Item, item_location: Location) -> None:
     if item in [
         Item.OVERWORLD_NO_ITEM, Item.MAP, Item.COMPASS, Item.MAGICAL_SHIELD, Item.BOMBS,
-        Item.FIVE_RUPEES, Item.RUPEE, Item.SINGLE_HEART
+        Item.FIVE_RUPEES, Item.RUPEE, Item.SINGLE_HEART, Item.TRIFORCE_OF_POWER
     ]:
       return
-    if (item == Item.TRIFORCE_OF_POWER
-        and not (item_location.GetLevelNum() == 9 and item_location.GetRoomNum() == 0x42)):
-      return
-    assert (item in range(0, 0x21))  # Includes red potion 0x20
+    #if (item == Item.TRIFORCE_OF_POWER
+    #    and not (item_location.GetLevelNum() == 9 and item_location.GetRoomNum() == 0x42)):
+    #  return
+    assert (item in range(0, 0x21) or 
+            item in [Item.BEAST_DEFEATED_VIRTUAL_ITEM, Item.KIDNAPPED_RESCUED_VIRTUAL_ITEM])
     if (item_location.GetUniqueIdentifier()) in self.item_locations:
       return
     self.item_locations.add(item_location.GetUniqueIdentifier())
 
     self.SetStillMakingProgressBit()
 
-    if item == Item.TRIFORCE_OF_POWER:
-      log.debug("Found Triforce of Power in L%d Room %x" % (item_location.GetLevelNum(),
-                                                              item_location.GetRoomNum()))
+#    if item == Item.TRIFORCE_OF_POWER:
+#      log.debug("Found Triforce of Power in L%d Room %x" % (item_location.GetLevelNum(),
+#                                                              item_location.GetRoomNum()))
     if item == Item.HEART_CONTAINER:
+      # Ignore Take Any Heart Containers
+      if item_location.IsCavePosition() and item_location.GetCaveNum() == 2:
+        return
       self.num_heart_containers += 1
+      if item_location.IsLevelRoom():
+        log.debug("Found Heart Container in level %d. Now have %d HCs" % 
+                  (int(item_location.GetLevelNum()), self.num_heart_containers))
+      else:
+        log.debug("Found Heart Container in cave %d. Now have %d HCs" % 
+                  (int(item_location.GetCaveNum()), self.num_heart_containers))
       assert self.num_heart_containers <= 16
       return
     elif item == Item.TRIFORCE:
-      self.num_triforce_pieces += 1
-      log.debug("Found %s.  Now have %d tringles" % (item, self.num_triforce_pieces))
-      assert self.num_triforce_pieces <= 8
+      level_num = int(item_location.GetLevelNum())
+      if int(level_num) not in self.levels_with_triforce_obtained:
+        self.levels_with_triforce_obtained.append(level_num)
+        log.debug("Found triforce in level %d. Now have %d tringles" % 
+                  (level_num, len(self.levels_with_triforce_obtained)))        
       return
     elif item == Item.KEY:
       self.num_keys += 1
@@ -85,7 +100,8 @@ class Inventory(object):
     return self.num_heart_containers
 
   def GetTriforceCount(self) -> int:
-    return self.num_triforce_pieces
+    log.debug("Triforce check. Currently have: %s" % self.levels_with_triforce_obtained)
+    return len(self.levels_with_triforce_obtained)
 
   def HasKey(self) -> bool:
     return self.Has(Item.MAGICAL_KEY) or self.num_keys > 0
@@ -130,7 +146,7 @@ class Inventory(object):
     return Item.BLUE_CANDLE in self.items or Item.RED_CANDLE in self.items
 
   def HasBoomerang(self) -> bool:
-    return Item.LORD_BANANA in self.items or Item.INFERIOR_MODEL in self.items
+    return Item.WOODEN_BOOMERANG in self.items or Item.MAGICAL_BOOMERANG in self.items
 
   def HasRing(self) -> bool:
     return Item.BLUE_RING in self.items or Item.RED_RING in self.items

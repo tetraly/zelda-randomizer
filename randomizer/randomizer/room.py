@@ -85,7 +85,8 @@ class Room():
 
   def SetStaircaseRoomNumber(self, staircase_room_num: RoomNum) -> None:
     self.staircase_room_num = staircase_room_num
-
+  
+    
   ### Room type-related methods ###
   def PathUnconditionallyObstructed(self, from_direction: Direction,
                                     to_direction: Direction) -> bool:
@@ -112,8 +113,8 @@ class Room():
   def HasPotentialLadderBlock(self) -> bool:
     return self.GetType() in self.POTENTIAL_LADDER_BLOCK_ROOMS
 
-  def HasUnobstructedStaircase(self) -> bool:
-    return self.GetType() in [RoomType.SPIRAL_STAIR_ROOM, RoomType.NARROW_STAIR_ROOM]
+  #def HasUnobstructedStaircase(self) -> bool:
+  #  return self.GetType() in [RoomType.SPIRAL_STAIR_ROOM, RoomType.NARROW_STAIR_ROOM]
 
   def IsItemStaircase(self) -> bool:
     return self.GetType() == RoomType.ITEM_STAIRCASE
@@ -144,6 +145,9 @@ class Room():
     assert self.rom_data[5] & 0x01 in [0, 1]
     return self.rom_data[5] & 0x04 > 0 and self.rom_data[5] & 0x01 > 0
 
+  def HasMovableBlockBitSet(self) -> bool:
+      return ((self.rom_data[3] >> 6) & 0x01) > 0
+      
   def HasItem(self) -> bool:
     if self.GetItem() == Item.MAGICAL_SWORD and (self.HasStaircase() or not self.HasDropBitSet()):
       return False
@@ -156,8 +160,8 @@ class Room():
       enemy_code += 0x40
     return Enemy(enemy_code)
 
-  def HasGannon(self) -> bool:
-    return self.GetEnemy() == Enemy.GANNON
+  def HasTheBeast(self) -> bool:
+    return self.GetEnemy() == Enemy.THE_BEAST
 
   #TODO: Make constants for these lists of enemies
   def HasWizzrobes(self) -> bool:
@@ -172,13 +176,6 @@ class Room():
 
   def HasGohma(self) -> bool:
     return self.GetEnemy() in [Enemy.RED_GOHMA, Enemy.BLUE_GOHMA]
-
-  def HasSwordOrWandRequiredEnemies(self):
-    return self.GetEnemy() in [
-        Enemy.GLEEOK_1, Enemy.GLEEOK_2, Enemy.GLEEOK_3, Enemy.GLEEOK_4, Enemy.PATRA_1,
-        Enemy.PATRA_2, Enemy.RED_DARKNUT, Enemy.BLUE_DARKNUT,
-        Enemy.BLUE_DARKNUT_RED_DARKNUT_GORIYA_BUBBLE, Enemy.BLUE_DARKNUT_RED_DARKNUT_POLS_VOICE
-    ]
 
   def HasHardCombatEnemies(self) -> bool:
     return self.GetEnemy() in [

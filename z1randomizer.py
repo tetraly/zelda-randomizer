@@ -31,7 +31,10 @@ def main() -> None:
   with open(args.input_filename, 'rb') as f:
       input_rom_data = io.BytesIO(f.read())
 
-  z1randomizer = Z1Randomizer(input_rom_data, args.seed, Flags())
+  flags = Flags()
+  flags.set("shuffle_minor_dungeon_items", False)
+  flags.set("avoid_required_hard_combat", False)
+  z1randomizer = Z1Randomizer(input_rom_data, args.seed, flags)
   
   patch = z1randomizer.GetPatch()
   output_rom_data = io.BytesIO(input_rom_data.getvalue())

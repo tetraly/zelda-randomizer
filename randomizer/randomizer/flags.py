@@ -36,10 +36,10 @@ class FlagsEnum(Enum):
         'Shuffle Shop Items',
         'Adds the blue candle, blue ring, wood arrows, and both baits to the item shuffle pool.'
     )
-    SHUFFLE_TAKE_ANY_HEARTS_SHIELDS_AND_BAIT = (
-        'shuffle_take_any_hearts_shields_and_bait',
-        'Shuffle Take Any Hearts, Magical Shields, and Bait',
-        'If selected, four heart containers, one magical shield, and one bait will be added to the item pool to replace the 3 magical shields, 2 baits, and take any hearts.'
+    SHUFFLE_MINOR_DUNGEON_ITEMS = (
+        'shuffle_minor_dungeon_items',
+        'Shuffle Minor Dungeon Items',
+        'Adds minor items (five rupees, bombs, keys, maps, and compasses) to the item shuffle pool.'
     )
     AVOID_REQUIRED_HARD_COMBAT = (
         'avoid_required_hard_combat',
@@ -87,3 +87,5 @@ class Flags:
             self.flags[flag_value] = state
         else:
             raise KeyError(f"Flag '{flag_value}' not found.")
+
+        

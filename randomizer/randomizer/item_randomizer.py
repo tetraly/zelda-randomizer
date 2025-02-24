@@ -1,7 +1,7 @@
 from typing import DefaultDict, List, Tuple, Iterable
 from collections import defaultdict
 from random import shuffle
-import logging
+import logging as log
 
 from .constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
 from .data_table import DataTable
@@ -14,21 +14,23 @@ class ItemRandomizer():
     self.data_table = data_table
     self.flags = flags
     self.item_shuffler = ItemShuffler(flags)
+  
+  def _GetOverworldItemLocation(self, item: Item):
+    log.debug("_GetOverworldItemLocation for %s" % item)
+    for cave_num in Range.VALID_CAVE_NUMBERS:
+      for position_num in Range.VALID_CAVE_POSITION_NUMBERS:
+        maybe_location = Location(cave_num=cave_num, position_num=position_num)
+        if self.data_table.GetCaveItem(maybe_location) == item:
+          log.debug("_GetOverworldItemLocation Found it at cave %d pos %d" % 
+                      (maybe_location.GetCaveNum(),maybe_location.GetPositionNum()))
+          return maybe_location
+    log.warning("_GetOverworldItemLocation Couldn't find it :(")
+    return None
 
-  WOOD_SWORD_LOCATION = Location.CavePosition(0, 2)
-  TAKE_ANY_HEART_LOCATION = Location.CavePosition(1, 3)
+  #WOOD_SWORD_LOCATION = Location.CavePosition(0, 2)
   WHITE_SWORD_LOCATION = Location.CavePosition(2, 2)
   MAGICAL_SWORD_LOCATION = Location.CavePosition(3, 2)
   LETTER_LOCATION = Location.CavePosition(8, 2)
-  BLUE_POTION_LOCATION = Location.CavePosition(10, 1)
-  SHIELD_LOCATION_1 = Location.CavePosition(13, 1)
-  WOODEN_ARROWS_LOCATION = Location.CavePosition(13, 3)
-  SHIELD_LOCATION_2 = Location.CavePosition(14, 1)
-  BLUE_CANDLE_LOCATION = Location.CavePosition(14, 3)
-  SHIELD_LOCATION_3 = Location.CavePosition(15, 1)
-  BAIT_LOCATION_1 = Location.CavePosition(15, 2)
-  BLUE_RING_LOCATION = Location.CavePosition(16, 2)
-  BAIT_LOCATION_2 = Location.CavePosition(16, 3)
   ARMOS_ITEM_LOCATION = Location.CavePosition(20, 2)
   COAST_ITEM_LOCATION = Location.CavePosition(21, 2)
 
@@ -45,10 +47,9 @@ class ItemRandomizer():
     if self.flags.shuffle_letter:
       items.append(self.LETTER_LOCATION)
     if self.flags.shuffle_shop_items:
-      items.extend(
-          [self.WOODEN_ARROWS_LOCATION, self.BLUE_CANDLE_LOCATION, self.BLUE_RING_LOCATION])
-      if not self.flags.shuffle_take_any_hearts_shields_and_bait:
-        items.extend([self.BAIT_LOCATION_1, self.BAIT_LOCATION_2])
+      items.append(self._GetOverworldItemLocation(Item.WOOD_ARROWS))
+      items.append(self._GetOverworldItemLocation(Item.BLUE_CANDLE))
+      items.append(self._GetOverworldItemLocation(Item.BLUE_RING))
     return items
 
   def ResetState(self):
@@ -60,38 +61,32 @@ class ItemRandomizer():
     for location in self._GetOverworldItemsToShuffle():
       item_num = self.data_table.GetCaveItem(location)
       self.item_shuffler.AddLocationAndItem(location, item_num)
-    if self.flags.shuffle_take_any_hearts_shields_and_bait:
-      self.item_shuffler.AddLocationAndItem(self.BAIT_LOCATION_1, Item.BAIT)
-      self.item_shuffler.AddLocationAndItem(self.BAIT_LOCATION_2, Item.HEART_CONTAINER)
-      self.item_shuffler.AddLocationAndItem(self.SHIELD_LOCATION_1, Item.MAGICAL_SHIELD)
-      self.item_shuffler.AddLocationAndItem(self.SHIELD_LOCATION_2, Item.HEART_CONTAINER)
-      self.item_shuffler.AddLocationAndItem(self.SHIELD_LOCATION_3, Item.HEART_CONTAINER)
-      self.item_shuffler.AddLocationAndItem(self.TAKE_ANY_HEART_LOCATION, Item.HEART_CONTAINER)
+    input("Done?")
 
   def _ReadItemsAndLocationsForUndergroundLevel(self, level_num: LevelNum) -> None:
-    logging.debug("Reading staircase room data for level %d " % level_num)
+    log.debug("Reading staircase room data for level %d " % level_num)
     for staircase_room_num in self.data_table.GetLevelStaircaseRoomNumberList(level_num):
       self._ParseStaircaseRoom(level_num, staircase_room_num)
     level_start_room_num = self.data_table.GetLevelStartRoomNumber(level_num)
-    logging.debug("Traversing level %d.  Start room is %x. " % (level_num, level_start_room_num))
+    log.debug("Traversing level %d.  Start room is %x. " % (level_num, level_start_room_num))
     self._ReadItemsAndLocationsRecursively(level_num, level_start_room_num)
 
   def _ParseStaircaseRoom(self, level_num: LevelNum, staircase_room_num: RoomNum) -> None:
     staircase_room = self.data_table.GetRoom(level_num, staircase_room_num)
 
     if staircase_room.GetType() == RoomType.ITEM_STAIRCASE:
-      logging.debug("  Found item staircase %x in L%d " % (staircase_room_num, level_num))
+      log.debug("  Found item staircase %x in L%d " % (staircase_room_num, level_num))
       assert staircase_room.GetLeftExit() == staircase_room.GetRightExit()
       self.data_table.GetRoom(
           level_num, staircase_room.GetLeftExit()).SetStaircaseRoomNumber(staircase_room_num)
     elif staircase_room.GetType() == RoomType.TRANSPORT_STAIRCASE:
-      logging.debug("  Found transport staircase %x in L%d " % (staircase_room_num, level_num))
+      log.debug("  Found transport staircase %x in L%d " % (staircase_room_num, level_num))
       assert staircase_room.GetLeftExit() != staircase_room.GetRightExit()
       for associated_room_num in [staircase_room.GetLeftExit(), staircase_room.GetRightExit()]:
         self.data_table.GetRoom(level_num,
                                 associated_room_num).SetStaircaseRoomNumber(staircase_room_num)
     else:
-      logging.fatal("Room in staircase room number list (%x) didn't have staircase type (%x)." %
+      log.fatal("Room in staircase room number list (%x) didn't have staircase type (%x)." %
                     (staircase_room_num, staircase_room.GetType()))
 
   def _ReadItemsAndLocationsRecursively(self, level_num: LevelNum, room_num: RoomNum) -> None:
@@ -102,10 +97,11 @@ class ItemRandomizer():
       return
     room.MarkAsVisited()
 
-    item_num = room.GetItem()
-    if item_num not in [Item.NO_ITEM, Item.TRIFORCE_OF_POWER]:
-      self.item_shuffler.AddLocationAndItem(Location.LevelRoom(level_num, room_num), item_num)
-
+    item = room.GetItem()
+    if item not in [Item.NO_ITEM, Item.TRIFORCE_OF_POWER]:
+        if not item.IsMinorDungeonItem() or self.flags.shuffle_minor_dungeon_items:
+          self.item_shuffler.AddLocationAndItem(Location.LevelRoom(level_num, room_num), item)
+ 
     # Staircase cases (bad pun intended)
     if room.GetType() == RoomType.ITEM_STAIRCASE:
       return  # Dead end, no need to traverse further.
@@ -150,7 +146,7 @@ class ItemShuffler():
       return
     level_num = location.GetLevelNum() if location.IsLevelRoom() else 10
     self.per_level_item_location_lists[level_num].append(location)
-    if item_num in [Item.MAP, Item.COMPASS, Item.TRIFORCE]:
+    if item_num in [Item.MAP, Item.COMPASS, Item.TRIFORCE, Item.HEART_CONTAINER]:
       return
     #TODO: This would be more elgant with a dict lookup
     if self.flags.progressive_items:
@@ -168,15 +164,18 @@ class ItemShuffler():
         item_num = Item.WOODEN_BOOMERANG
 
     self.item_num_list.append(item_num)
+    log.debug("Item #%d: %s. From %s" % (len(self.item_num_list), item_num, location.ToString()))
 
   def ShuffleItems(self) -> None:
+    self.item_num_list.append(Item.HEART_CONTAINER)
     shuffle(self.item_num_list)
     for level_num in Range.VALID_LEVEL_AND_CAVE_NUMBERS:
       # Levels 1-8 get a tringle, map, and compass.  Level 9 only gets a map and compass.
-      if level_num in Range.VALID_LEVEL_NUMBERS:
+      if level_num in Range.VALID_LEVEL_NUMBERS and self.flags.shuffle_minor_dungeon_items:
         self.per_level_item_lists[level_num] = [Item.MAP, Item.COMPASS]
       if level_num in range(1, 9):
         self.per_level_item_lists[level_num].append(Item.TRIFORCE)
+        self.per_level_item_lists[level_num].append(Item.HEART_CONTAINER)
 
       num_locations_needing_an_item = len(self.per_level_item_location_lists[level_num]) - len(
           self.per_level_item_lists[level_num])

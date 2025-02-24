@@ -62,7 +62,19 @@ class Item(IntEnum):
   RED_POTION = 0x20
   SINGLE_HEART = 0x22
   OVERWORLD_NO_ITEM = 0x3F
+  BEAST_DEFEATED_VIRTUAL_ITEM = 0x98
+  KIDNAPPED_RESCUED_VIRTUAL_ITEM = 0x99
 
+  def IsMinorDungeonItem(self):
+    return self in [Item.BOMBS, Item.FIVE_RUPEES, Item.KEY, Item.COMPASS, Item.MAP]
+
+  def IsMajorItem(self):
+      # Check if the current item is one of the sword items
+      return self in [Item.WOOD_SWORD, Item.WHITE_SWORD, Item.MAGICAL_SWORD, Item.RECORDER,
+          Item.BLUE_CANDLE, Item.RED_CANDLE, Item.WOOD_ARROWS, Item.SILVER_ARROWS, Item.BOW,
+          Item.MAGICAL_KEY, Item.RAFT, Item.LADDER, Item.WAND, Item.BOOK, Item.BLUE_RING, 
+          Item.RED_RING, Item.POWER_BRACELET, Item.HEART_CONTAINER, Item.WOODEN_BOOMERANG, 
+          Item.MAGICAL_BOOMERANG]
 
 class RoomType(IntEnum):
   PLAIN_ROOM = 0x00
@@ -71,8 +83,12 @@ class RoomType(IntEnum):
   FOUR_TALL_ROOM = 0x03
   AQUAMENTUS_ROOM = 0x04
   GLEEOK_ROOM = 0x05
+  GOHMA_ROOM = 0x06
+  THREE_ROWS = 0x07
   REVERSE_C = 0x08
+  CIRCLE_WALL = 0x09
   DOUBLE_BLOCK = 0x0A
+  LAVA_MOAT = 0x0B
   MAZE_ROOM = 0x0C
   GRID_ROOM = 0x0D
   VERTICAL_CHUTE_ROOM = 0x0E
@@ -96,25 +112,54 @@ class RoomType(IntEnum):
   SINGLE_BLOCK_ROOM = 0x22
   TWO_FIREBALL_ROOM = 0x23
   FOUR_FIREBALL_ROOM = 0x24
-  BLANK_ROOM_5 = 0x25
-  OLD_MAN_ROOM = 0x26
+  DESERT_ROOM = 0x25
+  BLACK_ROOM = 0x26
   ZELDA_ROOM = 0x27
   GANNON_ROOM = 0x28
   TRIFORCE_ROOM = 0x29
   TRANSPORT_STAIRCASE = 0x3E
   ITEM_STAIRCASE = 0x3F
-  # TODO: What are these?
-  TODO_____NEED_TO_FIGURE_OUT_WHAT_THIS_IS = 0x06
-  TODO_____NEED_TO_FIGURE_OUT_WHAT_THIS_IS_ = 0x07
-  TODO_____NEED_TO_FIGURE_OUT_WHAT_THIS_IS__ = 0x09
+  
+  def HasOpenStaircase(self):
+    return self in [
+        RoomType.DIAMOND_STAIR_ROOM,
+        RoomType.NARROW_STAIR_ROOM,
+        RoomType.SPIRAL_STAIR_ROOM
+    ]
 
+  def CanHavePushBlock(self):
+    return self in [
+        RoomType.SPIKE_TRAP_ROOM,
+        RoomType.GOHMA_ROOM,
+        RoomType.THREE_ROWS,
+        RoomType.REVERSE_C,
+        RoomType.CIRCLE_WALL,
+        RoomType.DOUBLE_BLOCK,
+        RoomType.MAZE_ROOM,
+        RoomType.GRID_ROOM,
+        RoomType.ZIGZAG_ROOM,
+        RoomType.FIVE_PAIR_ROOM,
+        RoomType.SINGLE_BLOCK_ROOM,
+    ]
 
 class Enemy(IntEnum):
   NOTHING = 0x00
+  BLUE_LYNEL = 0x01
+  RED_LYNEL =  0x02
+  BLUE_MOBLIN = 0x03
+  RED_MOBLIN = 0x04
   BLUE_GORIYA = 0x05
   RED_GORIYA = 0x06
+  RED_OCTOROK_1 = 0x07
+  RED_OCTOROK_2 = 0x08
+  BLUE_OCTOROK_1 = 0x09
+  BLUE_OCTOROK_2 = 0x0A
   RED_DARKNUT = 0x0B
   BLUE_DARKNUT = 0x0C
+  BLUE_TEKTITE = 0x0D
+  RED_TEKTITE = 0x0E
+  BLUE_LEVER = 0x0F
+  RED_LEVER = 0x10
   VIRE = 0x12
   ZOL = 0x13
   GEL_1 = 0x14
@@ -144,7 +189,7 @@ class Enemy(IntEnum):
   BLUE_LANMOLA = 0x3B
   MANHANDALA = 0x3C
   AQUAMENTUS = 0x3D
-  GANNON = 0x3E
+  THE_BEAST = 0x3E
 
   # Start of "mixed" enemy types
   MOLDORM = 0x41
@@ -180,9 +225,14 @@ class Enemy(IntEnum):
   BLUE_GORIYA_RED_GORIYA = 0x7A
   BLUE_WIZZROBE_RED_WIZZROBE = 0x7B
   BLUE_WIZZROBE_LIKE_LIKE_BUBBLE = 0x7C
-  TODO_FIGURE_OUT_WHAT_THIS_IS_3 = 0x08
-  TODO_FIGURE_OUT_WHAT_THIS_IS = 0x18
-  TODO_FIGURE_OUT_WHAT_THIS_IS_2 = 0x29
+  #TODO_FIGURE_OUT_WHAT_THIS_IS_3 = 0x08
+  #TODO_FIGURE_OUT_WHAT_THIS_IS = 0x18
+  #TODO_FIGURE_OUT_WHAT_THIS_IS_2 = 0x29
+  
+  def IsGleeokOrPatra(self):
+    return self in [
+      Enemy.GLEEOK_1, Enemy.GLEEOK_2, Enemy.GLEEOK_3, Enemy.GLEEOK_4, Enemy.PATRA_1, Enemy.PATRA_2
+    ]
 
 
 class WallType(IntEnum):
