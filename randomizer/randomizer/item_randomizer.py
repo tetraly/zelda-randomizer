@@ -61,7 +61,6 @@ class ItemRandomizer():
     for location in self._GetOverworldItemsToShuffle():
       item_num = self.data_table.GetCaveItem(location)
       self.item_shuffler.AddLocationAndItem(location, item_num)
-    input("Done?")
 
   def _ReadItemsAndLocationsForUndergroundLevel(self, level_num: LevelNum) -> None:
     log.debug("Reading staircase room data for level %d " % level_num)
@@ -119,6 +118,9 @@ class ItemRandomizer():
   def ShuffleItems(self) -> None:
     self.item_shuffler.ShuffleItems()
 
+  def HasValidItemConfiguration(self) -> bool:
+    return self.item_shuffler.HasValidItemConfiguration()
+
   def WriteItemsAndLocationsToTable(self) -> None:
     for (location, item_num) in self.item_shuffler.GetAllLocationAndItemData():
       if location.IsLevelRoom():
@@ -146,6 +148,9 @@ class ItemShuffler():
       return
     level_num = location.GetLevelNum() if location.IsLevelRoom() else 10
     self.per_level_item_location_lists[level_num].append(location)
+    log.debug("Location %d:  %s" %
+              (len(self.per_level_item_location_lists[level_num]),location.ToString()))
+    
     if item_num in [Item.MAP, Item.COMPASS, Item.TRIFORCE, Item.HEART_CONTAINER]:
       return
     #TODO: This would be more elgant with a dict lookup
@@ -188,8 +193,21 @@ class ItemShuffler():
         shuffle(self.per_level_item_lists[level_num])
     assert not self.item_num_list
 
+  def HasValidItemConfiguration(self):
+    for level_num in range(0, 11):
+      for location, item in zip(self.per_level_item_location_lists[level_num],
+                                    self.per_level_item_lists[level_num]):
+        if (self.flags.progressive_items and location.IsShopPosition() and
+            item.IsProgressiveUpgradeItem()):
+            return False
+        if location.IsCavePosition() and location.GetCaveNum() == 0x25 and item == Item.LADDER:
+            return False
+    return True   
+
   def GetAllLocationAndItemData(self) -> Iterable[Tuple[Location, Item]]:
+    tbr = []
     for level_num in range(0, 11):
       for location, item_num in zip(self.per_level_item_location_lists[level_num],
                                     self.per_level_item_lists[level_num]):
-        yield (location, item_num)
+        tbr.append((location, item_num))
+    return tbr

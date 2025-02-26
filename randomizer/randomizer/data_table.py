@@ -122,6 +122,10 @@ class DataTable():
 
   def GetCaveItem(self, location: Location) -> Item:
     assert location.IsCavePosition()
+    if location.GetCaveNum() == CAVE_NUMBER_REPRESENTING_ARMOS_ITEM:
+      return Item(self.rom_reader.GetOverworldItemData()[0])
+    elif location.GetCaveNum() == CAVE_NUMBER_REPRESENTING_COAST_ITEM:
+      return Item(self.rom_reader.GetOverworldItemData()[1]) 
     return self.overworld_caves[location.GetCaveNum()].GetItemAtPosition(location.GetPositionNum())
 
   def SetCaveItem(self, location: Location, item: Item) -> None:

@@ -34,6 +34,9 @@ def main() -> None:
   flags = Flags()
   flags.set("shuffle_minor_dungeon_items", False)
   flags.set("avoid_required_hard_combat", False)
+  flags.set("randomize_level_text", False)
+  flags.set("select_swap", False)
+  
   z1randomizer = Z1Randomizer(input_rom_data, args.seed, flags)
   
   patch = z1randomizer.GetPatch()

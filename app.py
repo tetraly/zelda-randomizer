@@ -70,7 +70,7 @@ if st.button('Randomize!'):
         st.error('Please enter a valid integer for the seed.')
         st.stop()
         
-    output_filename = uploaded_file.name[:-4] + '_randomized_%d.nes' % seed
+    output_filename = uploaded_file.name[:-4] + '_zora_%d.nes' % seed
 
     z1randomizer = Z1Randomizer(uploaded_file, seed, flags)
   

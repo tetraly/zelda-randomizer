@@ -40,10 +40,14 @@ class Z1Randomizer():
     while not is_valid_seed:
       seed = random.randint(0, 9999999999)
       num_iterations += 1
-      data_table.ResetToVanilla()
-      item_randomizer.ResetState()
-      item_randomizer.ReadItemsAndLocationsFromTable()
-      item_randomizer.ShuffleItems()
+      while True:
+        data_table.ResetToVanilla()
+        item_randomizer.ResetState()
+        item_randomizer.ReadItemsAndLocationsFromTable()
+        item_randomizer.ShuffleItems()
+        if item_randomizer.HasValidItemConfiguration():
+          break
+      
       item_randomizer.WriteItemsAndLocationsToTable()
       is_valid_seed = validator.IsSeedValid()
     patch = data_table.GetPatch()

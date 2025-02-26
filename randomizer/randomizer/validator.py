@@ -77,7 +77,7 @@ class Validator(object):
         return True
       elif num_iterations > 100:
         return False
-      input("Iteration end")
+#      input("Iteration end")
     log.info("Seed doesn't appear to be beatable. :(")
     return False
 
@@ -173,6 +173,7 @@ class Validator(object):
       if room.GetEnemy() == Enemy.THE_BEAST and self.CanGetRoomItem(entry_direction, room):
           self.inventory.AddItem(Item.BEAST_DEFEATED_VIRTUAL_ITEM, Location.LevelRoom(level_num, room_num))
       if room.GetEnemy() == Enemy.THE_KIDNAPPED:
+          input("Found kidnapped in visit room")
           self.inventory.AddItem(Item.KIDNAPPED_RESCUED_VIRTUAL_ITEM, Location.LevelRoom(level_num, room_num))
 
       for direction in (Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH):
@@ -239,6 +240,7 @@ class Validator(object):
     if wall_type == WallType.SHUTTER_DOOR and level_num == 9:
       next_room = self.data_table.GetRoom(level_num, room_num + exit_direction)
       if next_room.GetEnemy() == Enemy.THE_KIDNAPPED:
+        input("Found kidnapped")
         return self.inventory.Has(Item.BEAST_DEFEATED_VIRTUAL_ITEM)
      
     if (wall_type == WallType.SOLID_WALL

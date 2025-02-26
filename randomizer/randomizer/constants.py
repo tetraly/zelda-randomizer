@@ -65,6 +65,10 @@ class Item(IntEnum):
   BEAST_DEFEATED_VIRTUAL_ITEM = 0x98
   KIDNAPPED_RESCUED_VIRTUAL_ITEM = 0x99
 
+  def IsProgressiveUpgradeItem(self):
+    return self in [Item.WOOD_ARROWS, Item.SILVER_ARROWS, Item.BLUE_CANDLE, Item.RED_CANDLE,
+       Item.WOOD_SWORD, Item.WHITE_SWORD, Item.MAGICAL_SWORD, Item.BLUE_RING, Item.RED_RING]
+
   def IsMinorDungeonItem(self):
     return self in [Item.BOMBS, Item.FIVE_RUPEES, Item.KEY, Item.COMPASS, Item.MAP]
 
@@ -93,6 +97,7 @@ class RoomType(IntEnum):
   GRID_ROOM = 0x0D
   VERTICAL_CHUTE_ROOM = 0x0E
   HORIZONTAL_CHUTE_ROOM = 0x0F
+  VERTICAL_ROWS = 0x10
   ZIGZAG_ROOM = 0x11
   T_ROOM = 0x12
   VERTICAL_MOAT_ROOM = 0x13
@@ -108,6 +113,7 @@ class RoomType(IntEnum):
   DOUBLE_SIX_BLOCK_ROOM = 0x1D
   SINGLE_SIX_BLOCK_ROOM = 0x1E
   FIVE_PAIR_ROOM = 0x1F
+  TURNSTILE_ROOM = 0x20
   ENTRANCE_ROOM = 0x21
   SINGLE_BLOCK_ROOM = 0x22
   TWO_FIREBALL_ROOM = 0x23

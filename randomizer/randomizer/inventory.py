@@ -48,15 +48,13 @@ class Inventory(object):
     #  return
     assert (item in range(0, 0x21) or 
             item in [Item.BEAST_DEFEATED_VIRTUAL_ITEM, Item.KIDNAPPED_RESCUED_VIRTUAL_ITEM])
-    if (item_location.GetUniqueIdentifier()) in self.item_locations:
+    if (item_location.GetUniqueIdentifier() in self.item_locations and
+        item != Item.KIDNAPPED_RESCUED_VIRTUAL_ITEM):
       return
     self.item_locations.add(item_location.GetUniqueIdentifier())
 
     self.SetStillMakingProgressBit()
 
-#    if item == Item.TRIFORCE_OF_POWER:
-#      log.debug("Found Triforce of Power in L%d Room %x" % (item_location.GetLevelNum(),
-#                                                              item_location.GetRoomNum()))
     if item == Item.HEART_CONTAINER:
       # Ignore Take Any Heart Containers
       if item_location.IsCavePosition() and item_location.GetCaveNum() == 2:
