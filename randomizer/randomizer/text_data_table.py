@@ -1,8 +1,7 @@
+import logging
 import random
 from typing import List
-from absl import logging
 
-from .constants import TextSpeed
 from .patch import Patch
 
 
@@ -23,15 +22,9 @@ class TextDataTable():
   def _AddTextSpeedToPatchIfNeeded(self) -> None:
     logging.debug("Updating text speed.")
 
-    converted_text_speed = TextSpeed.NORMAL
     if self.text_speed == 'normal':
       return
-    elif self.text_speed == 'random':
-      converted_text_speed = random.choice(list(TextSpeed))
-    else:
-      converted_text_speed = TextSpeed[self.text_speed.upper()]
-
-    self.patch.AddData(self.TEXT_SPEED_ADDRESS, [int(converted_text_speed)])
+    self.patch.AddData(self.TEXT_SPEED_ADDRESS, [2])
 
   def _AddLevelNameToPatchIfNeeded(self) -> None:
     assert len(self.phrase) == 6, "The level prefix must be six characters long."

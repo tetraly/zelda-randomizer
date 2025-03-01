@@ -53,11 +53,30 @@ class Z1Randomizer():
     patch = data_table.GetPatch()
     print("Number of iterations: %d" % num_iterations)
 
-    if self.flags.progressive_items:
+    if self.flags.progressive_items: # New progressive item code 
+      patch.AddData(0x6D06, [0x18, 0x79, 0x57, 0x06, 0xEA])
+
+      # Fix for Ring/tunic colors from zora/randomizer.py
+      patch.AddData(0x6BFB, [0x20, 0xE4, 0xFF])
+      patch.AddData(0x1FFF4, [0x8E, 0x02, 0x06, 0x8E, 0x72, 0x06, 0xEE, 0x4F, 0x03, 0x60])
+
+    # Old progressive item code
+    """if self.flags.progressive_items: 
       patch.AddData(0x6B49, [0x11, 0x12, 0x13])  # Swords
       patch.AddData(0x6B4E, [0x11, 0x12])  # Candles
       patch.AddData(0x6B50, [0x11, 0x12])  # Arrows
-      patch.AddData(0x6B5A, [0x11, 0x12])  # Rings
+      patch.AddData(0x6B5A, [0x11, 0x12])  # Rings """
+
+
+    if self.flags.speed_up_dungeon_transitions:
+      # For fast scrolling. Puts NOPs instead of branching based on dungeon vs. Level 0 (OW)
+      for addr in [0x141F3, 0x1426B, 0x1446B, 0x14478, 0x144AD]:
+        patch.AddData(addr, [0xEA, 0xEA])
+
+
+    if self.flags.max_hp_enemies:
+       for addr in range(0x1FB5E, 0x1FB5E + 36):
+         patch.AddData(addr, 0xFF)
 
     # For Mags patch
     patch.AddData(0x1785F, [0x0E])

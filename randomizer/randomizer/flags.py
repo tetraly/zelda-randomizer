@@ -61,7 +61,18 @@ class FlagsEnum(Enum):
         'Speed Up Text',
         'Increases the scrolling speed of text displayed in caves and dungeons.'
     )
-        
+    SPEED_UP_DUNGEON_TRANSITIONS = (
+        'speed_up_dungeon_transitions',
+        'Speed Up Dungeon Transitions',
+        'Speeds up dungeon room transitions to be as fast as overworld screen transitions'
+    )
+    MAX_HP_ENEMIES = (
+        'max_hp_enemies',
+        'Max HP enemies',
+        'Makes all enemies take the equivalent of 15 wood sword hits to kill'
+    )
+    
+    
     def __init__(self, value, display_name, help_text):
         self._value_ = value
         self.display_name = display_name
