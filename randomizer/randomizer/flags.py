@@ -66,10 +66,10 @@ class FlagsEnum(Enum):
         'Speed Up Dungeon Transitions',
         'Speeds up dungeon room transitions to be as fast as overworld screen transitions'
     )
-    MAX_HP_ENEMIES = (
-        'max_hp_enemies',
-        'Max HP enemies',
-        'Makes all enemies take the equivalent of 15 wood sword hits to kill'
+    PACIFIST_MODE = (
+        'pacifist_mode',
+        'Pacifist Mode',
+        'Auto-opens shutter doors and makes blocks pushable. Also gives more (infinite?) HP to enemies or something?'
     )
     
     

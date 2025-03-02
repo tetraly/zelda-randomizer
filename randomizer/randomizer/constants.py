@@ -250,11 +250,3 @@ class WallType(IntEnum):
   LOCKED_DOOR_1 = 5
   LOCKED_DOOR_2 = 6
   SHUTTER_DOOR = 7
-
-
-"""class TextSpeed(IntEnum):
-  VERY_FAST = 2
-  FAST = 4
-  NORMAL = 6
-  SLOW = 8
-  VERY_SLOW = 10"""
