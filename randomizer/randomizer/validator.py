@@ -86,6 +86,8 @@ class Validator(object):
     # TODO: Make a better determination here based on the drop location and the entry direction.
     if room.HasPotentialLadderBlock() and not self.inventory.Has(Item.LADDER):
       return False
+    if room.GetEnemy() == Enemy.THE_BEAST and not self.CanDefeatEnemies(room):
+      return False
     if room.HasDropBitSet() and not self.CanDefeatEnemies(room):
       return False
     if (room.GetType() == RoomType.HORIZONTAL_CHUTE_ROOM
