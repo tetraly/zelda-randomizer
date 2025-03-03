@@ -48,7 +48,7 @@ with col4:
 with col5:
   if st.button('Generate Random Seed'):
     st.session_state.seed = random.randint(1000000, 999999999)
-    st.experimental_rerun()  # Rerun the app to update the number input
+    st.rerun()  # Rerun the app to update the number input
 
 for flag_name, display_name, help_text in FlagsEnum.get_flag_list():
     is_checked = flags.get(flag_name)

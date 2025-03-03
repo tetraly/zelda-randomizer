@@ -84,7 +84,7 @@ class Z1Randomizer():
       patch.AddData(0x14C89, [0xA9, 0x01, 0xEA])
       patch.AddData(0x1FB68, [0x11])
       patch.AddData(0x1FB6B, [0x21, 0x11])
-      
+
 #       for addr in range(0x1FB5E, 0x1FB5E + 36):
 #         patch.AddData(addr, 0xFF)
 

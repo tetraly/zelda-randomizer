@@ -44,7 +44,7 @@ def main() -> None:
   for address in patch.GetAddresses():
     output_rom_data.seek(address)
     output_rom_data.write(bytes(patch.GetData(address)))
-
+  logging.debug("Output filename is %s" % output_filename)
   with open(output_filename, 'wb') as f:
       f.write(output_rom_data.getvalue())
 
