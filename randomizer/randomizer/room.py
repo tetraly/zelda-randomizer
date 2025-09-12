@@ -1,6 +1,6 @@
 from typing import Dict, List
 import logging
-from .constants import Direction, Enemy, Item, Range, RoomNum, RoomType, WallType
+from .constants import Direction, Enemy, EnemyList, Item, Range, RoomNum, RoomType, WallType
 
 log = logging.getLogger(__name__)
 
@@ -163,45 +163,26 @@ class Room():
   def HasTheBeast(self) -> bool:
     return self.GetEnemy() == Enemy.THE_BEAST
 
-  #TODO: Make constants for these lists of enemies
   def HasWizzrobes(self) -> bool:
-    return self.GetEnemy() in [
-        Enemy.RED_WIZZROBE, Enemy.BLUE_WIZZROBE, Enemy.BLUE_WIZZROBE_RED_WIZZROBE_BUBBLE,
-        Enemy.BLUE_WIZZROBE_RED_WIZZROBE_TRAPS, Enemy.BLUE_WIZZROBE_RED_WIZZROBE,
-        Enemy.BLUE_WIZZROBE_LIKE_LIKE_BUBBLE
-    ]
+    return self.GetEnemy() in EnemyList.WIZZROBES
 
   def HasDigdogger(self) -> bool:
-    return self.GetEnemy() in [Enemy.SINGLE_DIGDOGGER, Enemy.TRIPLE_DIGDOGGER]
+    return self.GetEnemy() in EnemyList.DIGDOGGERS
 
   def HasGohma(self) -> bool:
-    return self.GetEnemy() in [Enemy.RED_GOHMA, Enemy.BLUE_GOHMA]
+    return self.GetEnemy() in EnemyList.GOHMAS
 
   def HasHardCombatEnemies(self) -> bool:
-    return self.GetEnemy() in [
-        Enemy.GLEEOK_1, Enemy.GLEEOK_2, Enemy.GLEEOK_3, Enemy.GLEEOK_4, Enemy.PATRA_1,
-        Enemy.PATRA_2, Enemy.BLUE_DARKNUT, Enemy.BLUE_DARKNUT_RED_DARKNUT_GORIYA_BUBBLE,
-        Enemy.BLUE_DARKNUT_RED_DARKNUT_POLS_VOICE, Enemy.BLUE_WIZZROBE,
-        Enemy.BLUE_WIZZROBE_RED_WIZZROBE_BUBBLE, Enemy.BLUE_WIZZROBE_RED_WIZZROBE_TRAPS,
-        Enemy.BLUE_WIZZROBE_RED_WIZZROBE, Enemy.BLUE_WIZZROBE_LIKE_LIKE_BUBBLE
-    ]
+    return self.GetEnemy() in EnemyList.HARD_COMBAT_ENEMIES
 
   def HasPolsVoice(self) -> bool:
-    return self.GetEnemy() in [
-        Enemy.POLS_VOICE, Enemy.POLS_VOICE_GIBDO_KEESE, Enemy.BLUE_DARKNUT_RED_DARKNUT_POLS_VOICE
-    ]
+    return self.GetEnemy() in EnemyList.POLS_VOICES
 
   def HasHungryGoriya(self) -> bool:
     return self.GetEnemy() == Enemy.HUNGRY_GORIYA
 
   def HasOnlyZeroHPEnemies(self) -> bool:
-    return self.GetEnemy() in [
-        Enemy.GEL_1, Enemy.GEL_2, Enemy.BLUE_KEESE, Enemy.RED_KEESE, Enemy.DARK_KEESE,
-        Enemy.KEESE_TRAPS
-    ]
+    return self.GetEnemy() in EnemyList.ZERO_HP_ENEMIES
 
   def HasNoEnemiesToKill(self) -> bool:
-    return self.GetEnemy() in [
-        Enemy.BUBBLE, Enemy.THREE_PAIRS_OF_TRAPS, Enemy.CORNER_TRAPS, Enemy.OLD_MAN,
-        Enemy.THE_KIDNAPPED, Enemy.NOTHING
-    ]
+    return self.GetEnemy() in EnemyList.UNKILLABLE_ENEMIES
