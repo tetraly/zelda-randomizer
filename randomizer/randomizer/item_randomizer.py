@@ -3,7 +3,7 @@ from collections import defaultdict
 from random import shuffle
 import logging as log
 
-from .constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType
+from .constants import Direction, Item, LevelNum, Range, RoomNum, RoomType, WallType, Downgrades
 from .data_table import DataTable
 from .location import Location
 from .flags import Flags
@@ -153,21 +153,8 @@ class ItemShuffler():
     
     if item_num in [Item.MAP, Item.COMPASS, Item.TRIFORCE, Item.HEART_CONTAINER]:
       return
-    #TODO: This would be more elgant with a dict lookup
     if self.flags.progressive_items:
-      if item_num == Item.RED_CANDLE:
-        item_num = Item.BLUE_CANDLE
-      if item_num == Item.RED_RING:
-        item_num = Item.BLUE_RING
-      if item_num == Item.SILVER_ARROWS:
-        item_num = Item.WOOD_ARROWS
-      if item_num == Item.WHITE_SWORD:
-        item_num = Item.WOOD_SWORD
-      if item_num == Item.MAGICAL_SWORD:
-        item_num = Item.WOOD_SWORD
-      # Removed this b/c some don't consider magical boomerang to be an upgrade
-      #if item_num == Item.MAGICAL_BOOMERANG:
-      #  item_num = Item.WOODEN_BOOMERANG
+      item_num = Downgrades.DOWNGRADED_ITEM[item_num]
 
     self.item_num_list.append(item_num)
     log.debug("Item #%d: %s. From %s" % (len(self.item_num_list), item_num, location.ToString()))
