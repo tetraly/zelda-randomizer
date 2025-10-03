@@ -15,10 +15,10 @@ pipenv shell
 python z1randomizer.py --input_filename=/path/to/zelda/rom.nes --output_location=/path/to/put/randomized/rom/ --seed=12345
 ```
 
-You can also run the GUI version, which will start automatically if you don't specify any command-line parameters:
+You can also run the GUI version using Streamlit:
 
 ```
-python z1randomizer.py
+python -m streamlit run app.py
 ```
 
 A design/class overview for programmers:
